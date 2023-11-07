@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "emeraldwalk.runonsave",
+    "esbenp.prettier-vscode",
+    "prisma.prisma",
+    "qwtel.sqlite-viewer",
+    "formulahendry.auto-rename-tag",
+    "formulahendry.auto-close-tag",
+    "ms-vscode.vscode-typescript-next",
+    "thekalinga.bootstrap4-vscode",
+    "shardulm94.trailing-spaces",
+    "yoyo930021.vuter",
+    "Vue.volar",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "Zignd.html-css-class-completion"
+  ]
+}
