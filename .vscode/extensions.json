@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "emeraldwalk.runonsave",
+    "esbenp.prettier-vscode",
+    "prisma.prisma",
+    "qwtel.sqlite-viewer"
+  ]
+}

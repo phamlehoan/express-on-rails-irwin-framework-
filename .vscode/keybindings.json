@@ -1,0 +1,28 @@
+// Place your key bindings in this file to override the defaults
+[
+  {
+    "key": "ctrl+alt+d",
+    "command": "extension.js-debug.createDebuggerTerminal"
+  },
+  {
+    "key": "ctrl+shift+alt+k",
+    "command": "workbench.action.terminal.kill"
+  },
+  {
+    "key": "ctrl+alt+r",
+    "command": "runCommands",
+    "args": {
+      "commands": [
+        {
+          "command": "extension.js-debug.createDebuggerTerminal"
+        },
+        {
+          "command": "workbench.action.terminal.sendSequence",
+          "args": {
+            "text": "yarn dev\r"
+          }
+        }
+      ]
+    }
+  }
+]

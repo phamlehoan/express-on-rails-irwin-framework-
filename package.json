@@ -1,0 +1,48 @@
+{
+  "name": "irwin-framework",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Peter Pham",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn build-client && npx tsc && node dist/index.js",
+    "serverless": "yarn build-client && npx tsc && npx serverless offline --noPrependStageInUrl",
+    "start": "yarn build-client && node dist/index.js",
+    "dev": "nodemon -e js,ts,pug,vue index.ts",
+    "db:migrate": "npx prisma migrate dev",
+    "db:seed": "node models/seed.js",
+    "build-client": "npx browserify -t vueify -e app/assets/javascripts/main.ts -o app/assets/javascripts/generated/bundle.js",
+    "git": "sh .vscode/git.sh"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.5.2",
+    "@types/cookie-parser": "^1.4.6",
+    "bootstrap": "^5.3.2",
+    "browserify": "^17.0.0",
+    "child_process": "^1.0.2",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jquery": "^3.7.1",
+    "node-sass": "^9.0.0",
+    "nodemon": "^3.0.1",
+    "prisma": "^5.5.2",
+    "pug": "^3.0.2",
+    "serverless": "^3.36.0",
+    "serverless-http": "^3.2.0",
+    "serverless-offline": "^13.2.1",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "vue": "^2.6.14",
+    "vueify": "^9.4.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.10",
+    "typescript": "^4.5.5"
+  },
+  "prisma": {
+    "schema": "app/models/schema.prisma",
+    "seed": "node app/models/seed.ts"
+  }
+}
