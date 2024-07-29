@@ -2,13 +2,55 @@ doctype html
 html
   head
     title= title
-    link(rel="stylesheet" href="./css/bootstrap.min.css")
-    link(rel='stylesheet', href='./stylesheets/style.css')
+    link(rel="stylesheet" href="/css/bootstrap.min.css")
+    link(rel="stylesheet" href="/stylesheets/style.css")
   body
     #app
+      nav#mainNav.navbar.navbar-expand-lg.navbar-dark.fixed-top
+        .container
+          a.navbar-brand(href='/')
+            img(src='/images/img/navbar-logo.svg', alt='...')
+          button.navbar-toggler(type='button', data-bs-toggle='collapse', data-bs-target='#navbarResponsive', aria-controls='navbarResponsive', aria-expanded='false', aria-label='Toggle navigation')
+            | Menu
+            i.fas.fa-bars.ms-1
+          #navbarResponsive.collapse.navbar-collapse
+            ul.navbar-nav.text-uppercase.ms-auto.py-4.py-lg-0
+              li.nav-item
+                a.nav-link(href='#services') Services
+              li.nav-item
+                a.nav-link(href='/courses') Courses
+              li.nav-item
+                a.nav-link(href='#about') About
+              li.nav-item
+                a.nav-link(href='#team') Team
+              li.nav-item
+                a.nav-link(href='#contact') Contact
+      header.masthead
+        .container
+          .masthead-subheading Welcome To Our Studio!
+          .masthead-heading.text-uppercase It&apos;s Nice To Meet You
+          a.btn.btn-primary.btn-xl.text-uppercase(href='#services') Tell Me More
+
       block content
 
-    script(type="text/javascript" src="./js/bootstrap.min.js")
-    script(type="text/javascript" src="./js/jquery.min.js")
-    script(type="text/javascript" src="./js/vue.min.js")
-    script(type="text/javascript" src="./javascripts/generated/bundle.js")
+      footer.footer.py-4
+        .container
+          .row.align-items-center
+            .col-lg-4.text-lg-start Copyright &copy; Your Website 2023
+            .col-lg-4.my-3.my-lg-0
+              a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Twitter')
+                i.fab.fa-twitter
+              a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Facebook')
+                i.fab.fa-facebook-f
+              a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='LinkedIn')
+                i.fab.fa-linkedin-in
+            .col-lg-4.text-lg-end
+              a.link-dark.text-decoration-none.me-3(href='#!') Privacy Policy
+              a.link-dark.text-decoration-none(href='#!') Terms of Use
+
+
+    script(type="text/javascript" src="/js/bootstrap.min.js")
+    script(type="text/javascript" src="/js/jquery.min.js")
+    script(type="text/javascript" src="/js/vue.min.js")
+    script(type="text/javascript" src="/javascripts/main.js")
+    script(type="text/javascript" src="/javascripts/generated/bundle.js")

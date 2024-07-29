@@ -1,0 +1,23 @@
+extends ../layout
+
+block content
+  section#portfolio.page-section.bg-light
+    .container
+      .text-center
+        h2.section-heading.text-uppercase COURSES
+        h3.section-subheading.text-muted Lorem ipsum dolor sit amet consectetur.
+      .row
+        each course in courses
+          .col-lg-4.col-sm-6.mb-4
+            // Portfolio item 1
+            .portfolio-item
+              a.portfolio-link(data-bs-toggle='modal', href='#portfolioModal1')
+                .portfolio-hover
+                  .portfolio-hover-content
+                    i.fas.fa-plus.fa-3x
+                img.img-fluid(src=`${course.image}`, alt='...')
+              .portfolio-caption
+                .portfolio-caption-heading
+                  = course.name
+                .portfolio-caption-subheading.text-muted
+                  = course.description

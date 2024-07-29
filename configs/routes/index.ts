@@ -4,8 +4,11 @@ import { RestActions } from "../enum";
 
 export class Route {
   private static path = Router();
+  private static homeController = new HomeController();
 
   public static draw() {
+    // this.path.use("/courses", CourseRoute.draw());
+    this.path.route("/courses").get();
     Route.resource(this.path, HomeController, { only: [RestActions.Index] });
 
     return this.path;
