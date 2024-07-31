@@ -1,11 +1,11 @@
-import userData from "@models/faker/user.json";
+import { models } from "@models";
 import { Request, Response } from "express";
 import { ApplicationController } from "../application.controller";
 
 export class HomeController extends ApplicationController {
   public index(req: Request, res: Response) {
-    const users = userData;
-    res.render("home.view/index", { title: "Irwin Framework", users: users });
+    const a = models();
+    res.render("home.view/index", { title: "Irwin Framework" });
   }
 
   public show(req: Request, res: Response) {}

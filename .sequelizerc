@@ -1,0 +1,14 @@
+var path = require("path");
+
+module.exports = {
+  config: path.resolve("configs", "database", "config.json"),
+  "migrations-source-path": path.resolve("configs", "database", "migrations"),
+  "migrations-compiled-path": path.resolve(
+    "configs",
+    "database",
+    "migrations",
+    "compiled"
+  ),
+  "models-path": path.resolve("app", "models"),
+  "seeders-path": path.resolve("configs", "database", "seeders"),
+};

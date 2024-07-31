@@ -1,3 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { dbConfig } from "@configs/database";
+import { Sequelize } from "sequelize";
 
-export default new PrismaClient();
+const sequelize = new Sequelize(dbConfig.development);
+
+export { Sequelize, sequelize };
