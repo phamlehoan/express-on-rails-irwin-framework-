@@ -19,13 +19,16 @@ class Application {
   private readonly routes: RouteInfo[] = [];
 
   constructor() {
+    // Cai dat template engine
     this.app.set("views", join(resolve("./app"), "views"));
     this.app.set("view engine", "pug");
 
+    // cai dat cac cong cu giai ma
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
     this.app.use(cookieParser());
 
+    // xuat file tinh (js ,css, cac thu vien (bootrap,..))
     this.app.use(express.static(join(resolve("app"), "assets")));
     this.app.use(
       "/css",
@@ -45,9 +48,12 @@ class Application {
     );
 
     this.mountRoutes();
+    // loi he thong ghi nhan sai sot
     this.on404Handler();
     this.onErrorHandler();
+    // ho tro dev check nhung route da duoc cai dat trong he thong
     this.getRoutes();
+    // cai dat cac route trong he thong
   }
 
   mountRoutes() {

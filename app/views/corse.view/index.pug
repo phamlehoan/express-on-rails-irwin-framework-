@@ -1,0 +1,27 @@
+extends ../layout
+
+block content
+  section#projects.projects-section.bg-light
+      .container.px-4.px-lg-5 
+        h1.mx-auto.text-center.mb-4 Course
+        each corse in corses
+          .row.gx-0.mb-5.mb-lg-0.justify-content-center.mt-5
+            .col-lg-6
+              img.img-fluid(src=`/img/${corse.img}`, alt='...')
+            .col-lg-6
+              .bg-black.text-center.h-100.project
+                .d-flex.h-100
+                  .project-text.w-100.my-auto.text-center.text-lg-left
+                    h4.text-white= corse.nameCorse
+                    p.mb-0.text-white-50
+                      = corse.infor
+        //- .row.gx-0.justify-content-center
+          .col-lg-6
+            img.img-fluid(src='/img/demo-image-02.jpg', alt='...')
+          .col-lg-6.order-lg-first
+            .bg-black.text-center.h-100.project
+              .d-flex.h-100
+                .project-text.w-100.my-auto.text-center.text-lg-right
+                  h4.text-white Mountains
+                  p.mb-0.text-white-50
+                    | Another example of a project with its respective description. These sections work well responsively as well!  

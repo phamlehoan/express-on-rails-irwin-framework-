@@ -9,7 +9,7 @@
     "serverless": "yarn build-client && npx tsc && npx serverless offline --noPrependStageInUrl",
     "start": "yarn build-client && node dist/index.js",
     "dev": "nodemon -e js,ts,pug,vue index.ts",
-    "db:migrate": "npx prisma migrate dev",
+    "db:migrate": "rm -rf configs/database/migrations/compiled && npx tsc -p configs/database/migrations --outDir configs/database/migrations/compiled && npx sequelize db:migrate",
     "db:seed": "node models/seed.js",
     "build-client": "npx browserify -t vueify -e app/assets/javascripts/main.ts -o app/assets/javascripts/generated/bundle.js",
     "git": "sh .vscode/git.sh",
@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@prisma/client": "^5.5.2",
-    "@types/cookie-parser": "^1.4.6",
     "bootstrap": "^5.3.2",
     "browserify": "^17.0.0",
     "child_process": "^1.0.2",
@@ -25,10 +24,13 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jquery": "^3.7.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.11.0",
     "node-sass": "^9.0.0",
     "nodemon": "^3.0.1",
     "prisma": "^5.5.2",
     "pug": "^3.0.2",
+    "sequelize": "4",
     "serverless": "^3.36.0",
     "serverless-http": "^3.2.0",
     "serverless-offline": "^13.2.1",
@@ -38,8 +40,12 @@
     "vueify": "^9.4.1"
   },
   "devDependencies": {
+    "@types/sequelize": "4",
+    "@types/cookie-parser": "^1.4.6",
+    "@types/mysql": "^2.15.26",
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.10",
+    "sequelize-cli-typescript": "^3.2.0-c",
     "typescript": "^4.5.5"
   },
   "prisma": {
