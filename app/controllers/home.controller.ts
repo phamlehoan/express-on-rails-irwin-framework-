@@ -1,8 +1,17 @@
+import models from "@models";
 import { Request, Response } from "express";
 import { ApplicationController } from ".";
 
 export class HomeController extends ApplicationController {
   public async index(req: Request, res: Response) {
+    const users = await models.user.findOne({
+      where: {
+        id: 1,
+      },
+      include: [{ model: models.userOrganization }],
+    });
+    console.log(users);
+
     res.render("home.view/index", { title: "Irwin Framework" });
   }
 
