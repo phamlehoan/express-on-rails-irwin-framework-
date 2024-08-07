@@ -8,14 +8,16 @@ export class HomeController extends ApplicationController {
       where: {
         id: 1,
       },
-      include: [{ model: models.userOrganization }],
+      include: [{ model: models.organization }],
     });
-    console.log(users);
+    req.session.userId = "1";
 
     res.render("home.view/index", { title: "Irwin Framework" });
   }
 
-  public async show(req: Request, res: Response) {}
+  public async show(req: Request, res: Response) {
+    console.log(req.session.userId);
+  }
 
   public async new(req: Request, res: Response) {}
 

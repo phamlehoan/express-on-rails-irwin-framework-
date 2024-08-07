@@ -1,6 +1,7 @@
 import { exec } from "child_process";
 import cookieParser from "cookie-parser";
 import express, { Express, NextFunction, Request, Response } from "express";
+import session from "express-session";
 import createError from "http-errors";
 import { join, resolve } from "path";
 import serverless from "serverless-http";
@@ -27,6 +28,14 @@ class Application {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
     this.app.use(cookieParser());
+    this.app.use(
+      session({
+        secret: "keyboard cat",
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure: true },
+      })
+    );
 
     // Xuất file tĩnh như CSS, Javascript và các thư viện như Bootstraps, Vue, ...
     this.app.use(express.static(join(resolve("app"), "assets")));
