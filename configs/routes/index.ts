@@ -11,7 +11,7 @@ export class Route {
     Route.resource(this.path, HomeController, {
       only: [RestActions.Index, RestActions.Show, RestActions.New],
     });
-    this.path.post('/', uploadToFolder.single('myFile'), this.homeController.create);
+    this.path.post('/', this.homeController.validateUserLogin, uploadToFolder.single('myFile'), this.homeController.create);
 
     return this.path;
   }

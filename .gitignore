@@ -4,3 +4,5 @@ db/schema/*.db
 uploads
 app/assets/javascripts/generated
 .env
+
+yarn-error.log
