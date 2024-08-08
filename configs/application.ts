@@ -1,11 +1,11 @@
-import { exec } from "child_process";
+import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import express, { Express, NextFunction, Request, Response } from "express";
+import flash from "express-flash";
 import session from "express-session";
 import createError from "http-errors";
 import { join, resolve } from "path";
 import serverless from "serverless-http";
-import env from "./env";
 import { Route } from "./routes";
 
 type RouteInfo = {
@@ -15,7 +15,7 @@ type RouteInfo = {
 };
 
 class Application {
-  private readonly port = env.PORT || "3000";
+  private readonly port = process.env.PORT || "8000";
   private readonly app: Express = express();
   private readonly routes: RouteInfo[] = [];
 
@@ -30,18 +30,28 @@ class Application {
     this.app.use(cookieParser());
     this.app.use(
       session({
-        secret: "keyboard cat",
+        secret: process.env.SESSION_SECRET || "a",
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: true },
+        cookie: {
+          secure: false,
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60 * 3,
+        },
       })
     );
+    this.app.use(flash());
+    this.app.use(bodyParser.urlencoded({ extended: false }));
 
     // Xuất file tĩnh như CSS, Javascript và các thư viện như Bootstraps, Vue, ...
     this.app.use(express.static(join(resolve("app"), "assets")));
     this.app.use(
       "/css",
       express.static(join(resolve("./node_modules"), "bootstrap/dist/css"))
+    );
+    this.app.use(
+      "/css/font-awesome",
+      express.static(join(resolve("./node_modules"), "font-awesome"))
     );
     this.app.use(
       "/js",
@@ -68,7 +78,7 @@ class Application {
   }
 
   mountRoutes() {
-    this.app.use(Route.draw());
+    this.app.use('/', Route.draw());
   }
 
   on404Handler() {
@@ -152,7 +162,7 @@ class Application {
       .listen(this.port, () => {
         const url = `http://localhost:${this.port}`;
         console.log(`[server]:⚡️ Server is running at ${url}`);
-        if (env.NODE_ENV === "development") exec(`start microsoft-edge:${url}`);
+        // if (env.NODE_ENV === "development") exec(`start microsoft-edge:${url}`);
       })
       .on("error", (_error) => {
         return console.log("Error: ", _error.message);

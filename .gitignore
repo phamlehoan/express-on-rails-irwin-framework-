@@ -1,5 +1,6 @@
 node_modules
 dist
 db/schema/*.db
+uploads
 app/assets/javascripts/generated
 .env

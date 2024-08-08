@@ -1,27 +1,45 @@
 import models from "@models";
 import { Request, Response } from "express";
 import { ApplicationController } from ".";
+import { UserInstance } from "../models/user";
 
 export class HomeController extends ApplicationController {
   public async index(req: Request, res: Response) {
-    const users = await models.user.findOne({
-      where: {
-        id: 1,
-      },
-      include: [{ model: models.organization }],
-    });
-    req.session.userId = "1";
+    console.log(req.session);
 
     res.render("home.view/index", { title: "Irwin Framework" });
   }
 
   public async show(req: Request, res: Response) {
-    console.log(req.session.userId);
+    if (isNaN(+req.params.id)) {
+      req.flash("errors", { msg: `${req.params.id} is not a user id.` });
+      return res.redirect("/");
+    }
+
+    const user = await models.user.findOne({
+      where: {
+        id: +req.params.id,
+      },
+      include: [{ model: models.organization }],
+    }) as UserInstance;
+
+    if (user) {
+      req.session.userId = user.id;
+      req.flash("success", { msg: `Get user: ${user.firstName}.` });
+    } else {
+      req.flash("errors", { msg: `User with id: ${req.params.id} does not found.` });
+    }
+    
+    res.redirect("/");
   }
 
-  public async new(req: Request, res: Response) {}
+  public async new(req: Request, res: Response) {
+    res.render("home.view/new");
+  }
 
-  public async create(req: Request, res: Response) {}
+  public async create(req: Request, res: Response) {
+    console.log(req.body);
+  }
 
   public async edit(req: Request, res: Response) {}
 
