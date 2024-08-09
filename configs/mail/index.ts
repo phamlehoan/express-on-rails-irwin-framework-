@@ -21,7 +21,7 @@ export const getAccessToken = async () => {
   oAuth2Client.setCredentials({ refresh_token: env.googleRefreshToken });
 
   return await oAuth2Client.getAccessToken();
-}
+};
 
 export const sendMail = (
   options: EmailOption,
@@ -29,7 +29,7 @@ export const sendMail = (
   accessToken: string
 ) => {
   const { req, res } = httpInfo;
-  
+
   const mailOption = {
     ...options,
     from: options.from || env.emailFrom,
@@ -53,7 +53,7 @@ export const sendMail = (
       res.redirect("/");
       return;
     } else {
-      req.flash("success", "Register successfully");
+      req.flash("success", { msg: "Register successfully" });
       res.redirect("/");
       return;
     }

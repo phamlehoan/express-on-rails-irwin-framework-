@@ -1,9 +1,9 @@
 import env from "@configs/env";
 import models from "@models";
+import { Role, UserInstance } from "@models/user";
 import axios from "axios";
 import { Request, Response } from "express";
 import { ApplicationController } from ".";
-import { UserInstance } from "../models/user";
 
 export class AuthController extends ApplicationController {
   public async loginWithGoogle(req: Request, res: Response) {
@@ -24,7 +24,7 @@ export class AuthController extends ApplicationController {
       grant_type: "authorization_code",
     });
 
-    const { data: user } = await axios.get(
+    const { data: googleUser } = await axios.get(
       "https://www.googleapis.com/oauth2/v1/userinfo",
       {
         headers: {
@@ -33,25 +33,40 @@ export class AuthController extends ApplicationController {
       }
     );
 
-    const loginUser = await models.user.findOne({
+    const loginUser = (await models.user.findOne({
       where: {
-        email: user.email,
+        email: googleUser.email,
       },
-    }) as UserInstance;
+    })) as UserInstance;
 
     if (!loginUser) {
-      const newUser = await models.user.create({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      }) as UserInstance;
+      const newUser = (await models.user.create({
+        name: googleUser.name,
+        email: googleUser.email,
+        avatarUrl: googleUser.picture,
+        role: Role.USER,
+        password: null,
+      })) as UserInstance;
 
       req.session.userId = newUser.id;
     } else {
-      req.session.userId = loginUser.id
-    };
+      await models.user.update(
+        {
+          name: googleUser.name,
+          email: googleUser.email,
+          avatarUrl: googleUser.picture,
+        },
+        {
+          where: {
+            id: loginUser.id,
+          },
+        }
+      );
 
-    req.flash("success", "Login successfully");
+      req.session.userId = loginUser.id;
+    }
+
+    req.flash("success", { msg: "Login successfully" });
 
     res.redirect("/");
   }

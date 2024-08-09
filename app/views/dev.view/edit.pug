@@ -1,0 +1,17 @@
+extends ../layout
+
+block content
+  section.bg-light
+    .container
+      form(method='PUT' action='/dev/2' enctype='multipart/form-data')
+        img(src=`data:image/png;base64,${category.image.toString('base64')}`)
+        .form-group
+          label(for='image') Image
+          input#image.form-control-file(type='file' name='image')
+        .form-group
+          label(for='name') Name
+          input#name.form-control(type='text' name='name' placeholder='Name')
+        .form-group
+          label(for='description') Description
+          input#description.form-control(type='text' name='description' placeholder='Description')
+        button.btn.btn-primary(type="submit") Submit

@@ -12,7 +12,21 @@ window.addEventListener("DOMContentLoaded", (event) => {
     });
   });
 
-  $("div.alert .close").on("click", function () {
+  $(".notification .alert .close").on("click", () => {
     $(this).parent().alert("close");
   });
+
+  let notificationProgressCtx = 100;
+  const notificationProgressId = window.setInterval(() => {
+    notificationProgressCtx--;
+    $(".notification .alert .progress-bar").attr(
+      "style",
+      "width: " + notificationProgressCtx + "%"
+    );
+
+    if (notificationProgressCtx === 0) {
+      clearInterval(notificationProgressId);
+      $(".notification .alert").alert("close");
+    }
+  }, 100);
 });

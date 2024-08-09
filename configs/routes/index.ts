@@ -1,24 +1,28 @@
-import { uploadToFolder } from "@configs/fileUpload";
+import env from "@configs/env";
 import { HomeController } from "@controllers";
 import { Router } from "express";
 import { RestActions } from "../enum";
+import { AuthRoute } from "./auth.route";
+import { DevRoute } from "./dev.route";
 
 export class Route {
   private static path = Router();
   private static homeController = new HomeController();
 
   public static draw() {
-    Route.resource(this.path, HomeController, {
-      only: [RestActions.Index, RestActions.Show, RestActions.New],
+    if (env.nodeEnv === "development") this.path.use("/dev", DevRoute.draw());
+    this.path.use("/auth", AuthRoute.draw());
+
+    Route.resource(this.path, this.homeController, {
+      only: [RestActions.Index],
     });
-    this.path.post('/', this.homeController.validateUserLogin, uploadToFolder.single('myFile'), this.homeController.create);
 
     return this.path;
   }
 
   public static resource(
     path: Router,
-    CustomController: any,
+    customController: any,
     filter?: {
       only?: RestActions[];
       except?: RestActions[];
@@ -28,28 +32,26 @@ export class Route {
       throw new Error("Can only pass only or except!");
     }
 
-    const action = new CustomController();
-
     if (this.isAllowAccess(filter?.only, filter?.except, RestActions.Index))
-      path.route("/").get(action.index);
-      
+      path.route("/").get(customController.index);
+
     if (this.isAllowAccess(filter?.only, filter?.except, RestActions.New))
-      path.route("/new").get(action.new);
+      path.route("/new").get(customController.new);
 
     if (this.isAllowAccess(filter?.only, filter?.except, RestActions.Show))
-      path.route("/:id").get(action.show);
+      path.route("/:id").get(customController.show);
 
     if (this.isAllowAccess(filter?.only, filter?.except, RestActions.Create))
-      path.route("/").post(action.create);
+      path.route("/").post(customController.create);
 
     if (this.isAllowAccess(filter?.only, filter?.except, RestActions.Edit))
-      path.route("/:id/edit").get(action.edit);
+      path.route("/:id/edit").get(customController.edit);
 
     if (this.isAllowAccess(filter?.only, filter?.except, RestActions.Update))
-      path.route("/:id").put(action.update);
+      path.route("/:id").put(customController.update);
 
     if (this.isAllowAccess(filter?.only, filter?.except, RestActions.Destroy))
-      path.route("/:id").delete(action.destroy);
+      path.route("/:id").delete(customController.destroy);
   }
 
   private static isAllowAccess(

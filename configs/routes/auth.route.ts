@@ -3,15 +3,17 @@ import { AuthController } from "@controllers";
 import { Router } from "express";
 import { Route } from ".";
 
-export class LoginRoute {
+export class AuthRoute {
   private static path = Router();
   private static authController = new AuthController();
 
   public static draw() {
     this.path.route("/google").get(this.authController.loginWithGoogle);
-    this.path.route("/google/callback").get(this.authController.loginWithGoogleRedirect);
+    this.path
+      .route("/google/callback")
+      .get(this.authController.loginWithGoogleRedirect);
 
-    Route.resource(this.path, AuthController, {
+    Route.resource(this.path, this.authController, {
       only: [RestActions.Destroy],
     });
 
