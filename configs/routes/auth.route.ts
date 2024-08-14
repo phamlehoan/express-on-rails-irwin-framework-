@@ -14,7 +14,7 @@ export class AuthRoute {
       .get(this.authController.loginWithGoogleRedirect);
 
     Route.resource(this.path, this.authController, {
-      only: [RestActions.Destroy],
+      only: [RestActions.Destroy, RestActions.Index, RestActions.Create],
     });
 
     return this.path;

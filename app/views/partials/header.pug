@@ -17,3 +17,12 @@ nav#mainNav.navbar.navbar-expand-lg.navbar-dark.navbar-shrink.fixed-top
           a.nav-link(href='#team') Team
         li.nav-item
           a.nav-link(href='#contact') Contact
+        - if (!user)
+          li.nav-item
+            a.nav-link(href='/auth') Login
+        - else
+          li.nav-item
+            form.nav-link(method='POST' action='/auth?_method=DELETE')
+              img(style='width: 40px; height: 40px; border-radius: 50%' src=`${user.avatarUrl}`)
+              button.btn.btn-danger(type="submit")
+                | Logout

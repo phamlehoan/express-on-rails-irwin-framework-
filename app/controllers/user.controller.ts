@@ -5,11 +5,11 @@ import { ApplicationController } from ".";
 
 export class UserController extends ApplicationController {
   public async index(req: Request, res: Response) {
-    res.render("user.view/index");
+    res.render("user.view/index", { user: req.user });
   }
 
   public async new(req: Request, res: Response) {
-    res.render("user.view/new");
+    res.render("user.view/new", { user: req.user });
   }
 
   public async create(req: Request, res: Response) {

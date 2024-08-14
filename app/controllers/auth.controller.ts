@@ -71,6 +71,29 @@ export class AuthController extends ApplicationController {
     res.redirect("/");
   }
 
+  public async index(req: Request, res: Response) {
+    res.render("auth.view/index");
+  }
+
+  public async create(req: Request, res: Response) {
+    const { email, password } = req.body;
+
+    const user = await models.user.findOne({
+      where: {
+        email,
+        password,
+      },
+    });
+
+    if (user) {
+      req.flash("success", { msg: "Login successfully" });
+    } else {
+      req.flash("errors", { msg: "User is not found." });
+    }
+
+    res.redirect("/");
+  }
+
   public async destroy(req: Request, res: Response) {
     req.session.destroy((err: Error) => {
       if (err) console.log(err);
