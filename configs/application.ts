@@ -4,6 +4,7 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import flash from "express-flash";
 import session from "express-session";
 import createError from "http-errors";
+import methodOverride from "method-override";
 import { join, resolve } from "path";
 import serverless from "serverless-http";
 import { Route } from "./routes";
@@ -42,6 +43,7 @@ class Application {
     );
     this.app.use(flash());
     this.app.use(bodyParser.urlencoded({ extended: false }));
+    this.app.use(methodOverride("_method"));
 
     // Xuất file tĩnh như CSS, Javascript và các thư viện như Bootstraps, Vue, ...
     this.app.use(express.static(join(resolve("app"), "assets")));

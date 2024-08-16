@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+  section.bg-light
+    .container
+      table.table
+        thead
+          tr.table-warning
+            th(scope='col') Image
+            th(scope='col') Name
+            th(scope='col') Description
+            th(scope='col') Control
+        tbody
+          each category in categories
+            tr
+              th(scope='row')
+                - if (category.image)
+                  img(src=`data:image/png;base64,${category.image.toString('base64')}`)
+              td= category.name
+              td= category.description
+              td
+                form(method="POST" action=`/categories/${category.id}?_method=DELETE`)
+                  button.btn.btn-danger(type="submit")
+                    i.fa.fa-trash
