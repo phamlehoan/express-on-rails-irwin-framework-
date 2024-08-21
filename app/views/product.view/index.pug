@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+  section.bg-light
+    .container
+      table.table
+        thead
+          tr.table-warning
+            th(scope='col') Image
+            th(scope='col') Name
+            th(scope='col') Description
+            th(scope='col') Control
+        tbody
+          each product in products
+            tr
+              th(scope='row')
+                - if (product.image)
+                  img(src=`data:image/png;base64,${product.image.toString('base64')}`)
+              td= product.name
+              td= product.description
+              td
+                form(method="POST" action=`/products/${product.id}?_method=DELETE`)
+                  button.btn.btn-danger(type="submit")
+                    i.fa.fa-trash

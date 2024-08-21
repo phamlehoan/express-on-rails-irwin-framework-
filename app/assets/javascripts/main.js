@@ -13,7 +13,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
   });
 
   $(".notification .alert .close").on("click", () => {
-    $(this).parent().alert("close");
+    $(".notification .alert").alert("close");
   });
 
   let notificationProgressCtx = 100;

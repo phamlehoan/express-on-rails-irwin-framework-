@@ -1,0 +1,35 @@
+extends ../layout
+
+block content
+  section.bg-light
+    .container
+      h1.text-center Create cart
+      form(action="/carts" method="POST" enctype="multipart/form-data")
+        .row
+          .col-3
+            .image-upload
+              label(for='file-input' )
+                img#preview.img-fluid(src='https://icons.iconarchive.com/icons/dtafalonso/android-lollipop/128/Downloads-icon.png')
+              input#file-input.d-none(type='file' name='cartImage')
+
+              script.
+                const inputTag = document.getElementById('file-input');
+                const previewImageTag = document.getElementById('preview');
+                inputTag.onchange = () => {
+                   const [file] = inputTag.files
+                    if (file) {
+                      previewImageTag.src = URL.createObjectURL(file)
+                    }
+                }
+          .col-9
+            .row
+              .col-12
+                .form-group
+                  label(for='name') cart name
+                  input#name.form-control(type='text' name='name' placeholder='Input your cart name')
+              .col-12
+                .form-group
+                  label(for='description') Description
+                  textarea#description.form-control(type='text' name='description' placeholder='Input your description')
+          .col-12
+            button.btn.btn-primary.w-100(type="submit") Submit
