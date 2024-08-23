@@ -90,6 +90,8 @@ export class CartController extends ApplicationController {
 
       await models.cart.bulkCreate(bodyToCreate);
 
+      // TODO: Gửi email cho user đang đăng nhập sau khi order
+
       t.commit();
       req.flash("success", { msg: `Updated!` });
       res.redirect("/carts");
