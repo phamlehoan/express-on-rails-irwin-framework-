@@ -9,9 +9,7 @@ export class CartRoute {
 
   public static draw() {
     this.path.use(this.cartController.validateUserLogin);
-    this.path
-      .route("/updateQuantity")
-      .patch(this.cartController.updateQuantity);
+    this.path.route("/saveOrOrder").patch(this.cartController.saveOrOrder);
     Route.resource(this.path, this.cartController, {
       only: [RestActions.Index, RestActions.Create, RestActions.Destroy],
     });

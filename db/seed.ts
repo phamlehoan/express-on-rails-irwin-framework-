@@ -1,27 +1,16 @@
-import { convertFileToBase64 } from "@configs/fileUpload";
-import { faker } from "@faker-js/faker";
 import models from "@models";
 
 const seedProduct = async () => {
   const data = [];
-  for (let i = 0; i < 1000; i++) {
-    const imageSrc = {
-      path: `E:/Hoan/iViettech/M47/irwin-framework/app/assets/images/img/portfolio/${
-        Math.floor(Math.random() * 6) + 1
-      }.jpg`,
-    } as Express.Multer.File;
-    const image = convertFileToBase64(imageSrc, false);
-
+  for (let i = 2; i < 9; i++) {
     data.push({
-      name: faker.commerce.productName(),
-      description: faker.commerce.productDescription(),
-      price: faker.commerce.price(),
-      image,
-      categoryId: 5,
+      productId: Number("102" + i),
+      userId: 1,
+      quantity: 3,
     });
   }
 
-  await models.product.bulkCreate(data);
+  await models.cart.bulkCreate(data);
 };
 
 seedProduct();

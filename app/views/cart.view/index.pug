@@ -3,10 +3,11 @@ extends ../layout
 block content
   section.bg-light
     .container
-      form(action='/carts/updateQuantity?_method=PATCH' method="POST")
+      form(action='/carts/saveOrOrder?_method=PATCH' method="POST")
         table.table
           thead
             tr.table-warning
+              th(scope='col') Select
               th(scope='col') Image
               th(scope='col') Name
               th(scope='col') Description
@@ -15,16 +16,19 @@ block content
           tbody
             each cart in carts
               tr
+                th
+                  input#select-product(type="checkbox", name=`selected`, value=`${cart.productId}`)
                 th(scope='row')
                   - if (cart.product.image)
-                    img(style='width: 25px' src=`data:image/png;base64,${cart.product.image.toString('base64')}`)
+                    img(style='width: 50px' src=`data:image/png;base64,${cart.product.image.toString('base64')}`)
                 td= cart.product.name
                 td= cart.product.description
                 td
-                  input(type="number" name=`${cart.productId}:${cart.userId}` value=`${cart.quantity ? cart.quantity : 0}`)
+                  input(type="number" name=`${cart.productId}` value=`${cart.quantity ? cart.quantity : 0}`)
                 td
-                  form(method="POST" action=`/carts/${cart.productId}:${cart.userId}?_method=DELETE`)
+                  form(method="POST" action=`/carts/${cart.productId}?_method=DELETE`)
                     button.btn.btn-danger(type="submit")
                       i.fa.fa-trash
         .d-flex.justify-content-end
-          input.btn.btn-primary.float-right(type="submit", value="Update Quantity")
+          input.btn.btn-outline-primary.m-2(type="submit" name="type" value="Save draff")
+          input.btn.btn-primary.m-2(type="submit" name="type" value="Order")

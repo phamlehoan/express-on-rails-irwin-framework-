@@ -1,7 +1,10 @@
+import sequelize from "@configs/database";
 import models from "@models";
 import { Request, Response } from "express";
 import { Op } from "sequelize";
 import { ApplicationController } from ".";
+import { OrderInstance, OrderStatus } from "../models/order";
+import { ProductInstance } from "../models/product";
 
 export class CartController extends ApplicationController {
   public async index(req: Request, res: Response) {
@@ -32,8 +35,69 @@ export class CartController extends ApplicationController {
     res.redirect("/carts");
   }
 
-  public async updateQuantity(req: Request, res: Response) {
-    console.log(req.body);
+  public async saveOrOrder(req: Request, res: Response) {
+    const { type, selected, address, phoneNumber, receiverName, ...restBody } =
+      req.body;
+    const t = await sequelize.transaction();
+
+    try {
+      await models.cart.destroy({
+        where: {
+          userId: req.user.id,
+        },
+      });
+
+      const bodyToCreate = Object.keys(restBody).map((productId) => {
+        if (type !== "Order" || !selected.includes(productId))
+          return {
+            userId: req.user.id,
+            productId: +productId,
+            quantity: +restBody[productId],
+          };
+      });
+
+      if (type === "Order") {
+        const products = (await models.product.findAll({
+          where: {
+            id: selected.map(Number),
+          },
+        })) as ProductInstance[];
+
+        const pricesByProductId: {
+          [key: number]: number;
+        } = {};
+        products.forEach((product) => {
+          pricesByProductId[product.id] = product.price;
+        });
+
+        const order = (await models.order.create({
+          userId: req.user.id,
+          address,
+          phoneNumber,
+          receiverName,
+          status: OrderStatus.PENDING,
+        })) as OrderInstance;
+
+        await models.productOrder.bulkCreate(
+          selected.map((productId: string) => ({
+            productId: +productId,
+            orderId: order.id,
+            quantity: pricesByProductId[+productId] ? +restBody[productId] : 0,
+            currentPrice: pricesByProductId[+productId] || 0,
+          }))
+        );
+      }
+
+      await models.cart.bulkCreate(bodyToCreate);
+
+      t.commit();
+      req.flash("success", { msg: `Updated!` });
+      res.redirect("/carts");
+    } catch (e) {
+      t.rollback();
+      req.flash("errors", { msg: `Action to database failed. Message: ${e}` });
+      res.redirect("/carts");
+    }
   }
 
   public async destroy(req: Request, res: Response) {

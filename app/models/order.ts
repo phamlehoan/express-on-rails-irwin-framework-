@@ -1,7 +1,7 @@
 import sequelize from "@configs/database";
 import { Sequelize } from "sequelize";
 import { product } from "./product";
-import { productOrder } from "./productOrder";
+import { ProductOrderAttributes, productOrder } from "./productOrder";
 import { user } from "./user";
 
 export enum OrderStatus {
@@ -18,6 +18,8 @@ export interface OrderAttributes {
   phoneNumber?: string;
   receiverName?: string;
   status?: OrderStatus;
+
+  productOrders?: ProductOrderAttributes;
 }
 
 export interface OrderInstance {
@@ -42,7 +44,7 @@ export const order = sequelize.define("order", {
 
 export const associate = () => {
   order.belongsTo(user);
-  order.hasMany(productOrder);
+  order.hasMany(productOrder, { as: "productOrders" });
   order.belongsToMany(product, {
     through: productOrder,
   });

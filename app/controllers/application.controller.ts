@@ -8,6 +8,8 @@ export class ApplicationController {
     res: Response,
     next: NextFunction
   ) {
+    // TODO: Delete this line
+    req.session.userId = 1;
     if (!req.session.userId) {
       req.flash("errors", { msg: "You have to login first." });
       return res.redirect("/");
