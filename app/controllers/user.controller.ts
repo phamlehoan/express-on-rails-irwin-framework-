@@ -1,3 +1,4 @@
+import { getAccessToken, sendMail } from "@configs/mail";
 import models from "@models";
 import { Role, UserInstance } from "@models/user";
 import { Request, Response } from "express";
@@ -26,6 +27,27 @@ export class UserController extends ApplicationController {
       password: req.body.password,
       role: Role.USER,
     })) as UserInstance;
+
+    const accessToken = await getAccessToken();
+
+    if (!accessToken) {
+      req.flash("errors", { msg: "Google token has been exprired." });
+      res.redirect("/users");
+    }
+
+    // TODO Gửi email cho người dùng sau khi tạo
+    sendMail(
+      {
+        to: user.email,
+        subject: "Created user",
+        text: `You has been created user ${user.name}`,
+      },
+      {
+        req,
+        res,
+      },
+      accessToken.token as string
+    );
 
     req.flash("success", { msg: `Created user ${user.name}` });
     res.redirect("/users");
