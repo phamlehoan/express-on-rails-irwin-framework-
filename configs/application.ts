@@ -1,10 +1,12 @@
-import { exec } from "child_process";
+import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import express, { Express, NextFunction, Request, Response } from "express";
+import flash from "express-flash";
+import session from "express-session";
 import createError from "http-errors";
+import methodOverride from "method-override";
 import { join, resolve } from "path";
 import serverless from "serverless-http";
-import env from "./env";
 import { Route } from "./routes";
 
 type RouteInfo = {
@@ -14,22 +16,44 @@ type RouteInfo = {
 };
 
 class Application {
-  private readonly port = env.PORT || "3000";
+  private readonly port = process.env.PORT || "8000";
   private readonly app: Express = express();
   private readonly routes: RouteInfo[] = [];
 
   constructor() {
+    // Cài đặt template engine
     this.app.set("views", join(resolve("./app"), "views"));
     this.app.set("view engine", "pug");
 
+    // Cài đặt các công cụ giải mã
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
     this.app.use(cookieParser());
+    this.app.use(
+      session({
+        secret: process.env.SESSION_SECRET || "a",
+        resave: true,
+        saveUninitialized: true,
+        cookie: {
+          secure: false,
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60 * 3,
+        },
+      })
+    );
+    this.app.use(flash());
+    this.app.use(bodyParser.urlencoded({ extended: false }));
+    this.app.use(methodOverride("_method"));
 
+    // Xuất file tĩnh như CSS, Javascript và các thư viện như Bootstraps, Vue, ...
     this.app.use(express.static(join(resolve("app"), "assets")));
     this.app.use(
       "/css",
       express.static(join(resolve("./node_modules"), "bootstrap/dist/css"))
+    );
+    this.app.use(
+      "/css/font-awesome",
+      express.static(join(resolve("./node_modules"), "font-awesome"))
     );
     this.app.use(
       "/js",
@@ -44,14 +68,19 @@ class Application {
       express.static(join(resolve("./node_modules"), "vue/dist"))
     );
 
+    // Cài đặt các route được xây dựng trong hệ thống
     this.mountRoutes();
+
+    // Báo lỗi khi hệ thống ghi nhận sai sót
     this.on404Handler();
     this.onErrorHandler();
+
+    // Hàm dùng để hỗ trợ lập trình viên kiểm tra những route đã được cài đặt trong hệ thống
     this.getRoutes();
   }
 
   mountRoutes() {
-    this.app.use(Route.draw());
+    this.app.use("/", Route.draw());
   }
 
   on404Handler() {
@@ -135,7 +164,7 @@ class Application {
       .listen(this.port, () => {
         const url = `http://localhost:${this.port}`;
         console.log(`[server]:⚡️ Server is running at ${url}`);
-        if (env.NODE_ENV === "development") exec(`start microsoft-edge:${url}`);
+        // if (env.NODE_ENV === "development") exec(`start microsoft-edge:${url}`);
       })
       .on("error", (_error) => {
         return console.log("Error: ", _error.message);

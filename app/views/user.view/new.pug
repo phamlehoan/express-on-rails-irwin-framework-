@@ -1,0 +1,49 @@
+extends ../layout
+
+block content
+  section.bg-light
+    .container
+      h1.text-center Create user
+      form(action="/users" method="POST")
+        .row
+          .col-12
+            .form-group
+              label(for='first-name') First name
+              input#first-name.form-control(type='text' name='firstName' placeholder='Input your first name' required)
+          .col-12
+            .form-group
+              label(for='middle-name') Middle name
+              input#middle-name.form-control(type='text' name='name' placeholder='Input your middle name')
+          .col-12
+            .form-group
+              label(for='last-name') Last name
+              input#last-name.form-control(type='text' name='name' placeholder='Input your last name' required)
+          .col-12.text-center
+            img#preview-avatar(src="" alt="Avatar Preview" style="width: 200px; height: 200px")
+          .col-12
+            .form-group
+              label(for='avatar-link') Avatar link
+              input#avatar-link.form-control(type='text' name='avatarUrl' placeholder='Input your avatar link')
+          .col-12
+            .form-group
+              label(for='email') Email
+              input#email.form-control(type='email' name='email' placeholder='Input your email')
+          .col-6
+            .form-group
+              label(for='password') Password
+              input#password.form-control(type='password' name='password' placeholder='Input your password')
+          .col-6
+            .form-group
+              label(for='confirm-password') Confirm Password
+              input#confirm-password.form-control(type='password' name='confirmPassword' placeholder='Input your confirm password')
+          .col-12
+            button.btn.btn-primary.w-100(type="submit") Submit
+
+  script.
+    const avatarLinkTag = document.getElementById('avatar-link');
+
+    avatarLinkTag.onchange = () => {
+      const avatarPreviewTag = document.getElementById('preview-avatar');
+
+      avatarPreviewTag.src = avatarLinkTag.value;
+    }

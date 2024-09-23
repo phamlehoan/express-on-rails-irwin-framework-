@@ -2,10 +2,154 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["filteredRelationCount"]
 }
 
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id() @default(uuid()) @map("id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  deleted   Boolean   @default(false) @map("deleted")
+
+  firstName   String  @map("first_name")
+  lastName    String  @map("last_name")
+  middleName  String? @map("middle_name")
+  email       String  @unique @map("email")
+  status      String  @default("ACTIVE") @map("status") // ACTIVE, INACTIVE, PENDING
+  avatarUrl   String? @map("avatar_url")
+  gender      String? @map("gender")
+  phoneNumber String? @map("phone_number")
+  address     String? @map("address")
+
+  // Relations
+  roles       UserToRole[]
+  permissions UserToPermission[]
+
+  roleCreated       Role[]       @relation("createdBy")
+  roleUpdated       Role[]       @relation("updatedBy")
+  featureCreated    Feature[]    @relation("createdBy")
+  featureUpdated    Feature[]    @relation("updatedBy")
+  permissionCreated Permission[] @relation("createdBy")
+  permissionUpdated Permission[] @relation("updatedBy")
+
+  @@map("users")
+}
+
+model Role {
+  id          String    @id() @default(uuid()) @map("id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @default(now()) @updatedAt @map("updated_at")
+  createdById String    @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deleted     Boolean   @default(false) @map("deleted")
+
+  code        String  @map("code")
+  name        String  @map("name")
+  description String? @map("description")
+  isReadOnly  Boolean @default(false) @map("is_read_only")
+
+  // Relations
+  users       UserToRole[]
+  permissions RoleToPermission[]
+
+  createdBy User  @relation("createdBy", fields: [createdById], references: [id])
+  updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
+
+  @@map("roles")
+}
+
+model UserToRole {
+  userId    String
+  roleId    String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@map("user_to_role")
+}
+
+model Feature {
+  id          String    @id() @default(uuid()) @map("id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @default(now()) @updatedAt @map("updated_at")
+  createdById String    @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deleted     Boolean   @default(false) @map("deleted")
+
+  code        String  @map("code")
+  name        String  @map("name")
+  description String? @map("description")
+  type        String  @default("FEATURE") @map("type") // SYSTEM, CORE, FEATURE
+  parentId    String? @map("parent_id")
+
+  // Relations
+  parent      Feature?     @relation("featureRelation", fields: [parentId], references: [id])
+  childs      Feature[]    @relation("featureRelation")
+  permissions Permission[]
+
+  createdBy User  @relation("createdBy", fields: [createdById], references: [id])
+  updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
+
+  @@map("features")
+}
+
+model Permission {
+  id          String    @id() @default(uuid()) @map("id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @default(now()) @updatedAt @map("updated_at")
+  createdById String    @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deleted     Boolean   @default(false) @map("deleted")
+
+  code        String  @map("code")
+  name        String  @map("name")
+  description String? @map("description")
+  type        String  @default("FEATURE") @map("type") // SYSTEM, CORE, FEATURE
+  featureId   String  @map("feature_id")
+
+  // Relations
+  feature Feature            @relation(fields: [featureId], references: [id])
+  users   UserToPermission[]
+  roles   RoleToPermission[]
+
+  createdBy User  @relation("createdBy", fields: [createdById], references: [id])
+  updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
+}
+
+model UserToPermission {
+  userId       String    @map("user_id")
+  permissionId String    @map("permission_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime? @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user       User       @relation(fields: [userId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([userId, permissionId])
+  @@map("user_to_permission")
+}
+
+model RoleToPermission {
+  roleId       String    @map("role_id")
+  permissionId String    @map("permission_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime? @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+  @@map("role_to_permission")
 }

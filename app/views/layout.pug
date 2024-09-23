@@ -2,13 +2,21 @@ doctype html
 html
   head
     title= title
-    link(rel="stylesheet" href="./css/bootstrap.min.css")
-    link(rel='stylesheet', href='./stylesheets/style.css')
+    link(rel="stylesheet" href="/css/bootstrap.min.css")
+    link(rel="stylesheet" href="/css/font-awesome/css/font-awesome.min.css")
+    link(rel="stylesheet" href="/stylesheets/style.css")
   body
     #app
-      block content
+      include partials/header
 
-    script(type="text/javascript" src="./js/bootstrap.min.js")
-    script(type="text/javascript" src="./js/jquery.min.js")
-    script(type="text/javascript" src="./js/vue.min.js")
-    script(type="text/javascript" src="./javascripts/generated/bundle.js")
+      div
+        include partials/flash
+        block content
+
+      include partials/footer
+
+    script(type="text/javascript" src="/js/bootstrap.min.js")
+    script(type="text/javascript" src="/js/jquery.min.js")
+    script(type="text/javascript" src="/js/vue.min.js")
+    script(type="text/javascript" src="/javascripts/main.js")
+    script(type="text/javascript" src="/javascripts/generated/bundle.js")
