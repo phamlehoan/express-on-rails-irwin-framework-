@@ -1,0 +1,28 @@
+nav#mainNav.navbar.navbar-expand-lg.navbar-dark.navbar-shrink.fixed-top
+  .container
+    a.navbar-brand(href='/')
+      img(src='/images/img/navbar-logo.svg', alt='...')
+    button.navbar-toggler(type='button', data-bs-toggle='collapse', data-bs-target='#navbarResponsive', aria-controls='navbarResponsive', aria-expanded='false', aria-label='Toggle navigation')
+      | Menu
+      i.fas.fa-bars.ms-1
+    #navbarResponsive.collapse.navbar-collapse
+      ul.navbar-nav.text-uppercase.ms-auto.py-4.py-lg-0
+        li.nav-item
+          a.nav-link(href='/courses') Courses
+        li.nav-item
+          a.nav-link(href='#services') Services
+        li.nav-item
+          a.nav-link(href='#about') About
+        li.nav-item
+          a.nav-link(href='#team') Team
+        - if (!user)
+          li.nav-item
+            a.nav-link(href='/auth') Login
+        - else
+          li.nav-item
+            a.nav-link(href='/carts') Cart
+          li.nav-item
+            form.nav-link(method='POST' action='/auth?_method=DELETE')
+              img(style='width: 40px; height: 40px; border-radius: 50%' src=`${user.avatarUrl}`)
+              button.btn.btn-danger(type="submit")
+                | Logout

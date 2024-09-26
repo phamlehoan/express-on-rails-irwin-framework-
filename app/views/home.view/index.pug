@@ -1,5 +1,202 @@
 extends ../layout
 
 block content
-  h1= title
-  hoan
+  header.masthead
+    .container
+      .masthead-subheading Welcome To Our Studio!
+      .masthead-heading.text-uppercase It&apos;s Nice To Meet You
+      a.btn.btn-primary.btn-xl.text-uppercase(href='#services') Tell Me More
+    script(type="text/javascript" src="/javascripts/navBar.js")
+  section#services.page-section
+    .container
+      .text-center
+        h2.section-heading.text-uppercase Services
+        h3.section-subheading.text-muted Lorem ipsum dolor sit amet consectetur.
+      .row.text-center
+        .col-md-4
+          span.fa-stack.fa-4x
+            i.fa.fa-circle.fa-stack-2x.text-primary
+            i.fa.fa-shopping-cart.fa-stack-1x.fa-inverse
+          h4.my-3 E-Commerce
+          p.text-muted
+            | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.
+        .col-md-4
+          span.fa-stack.fa-4x
+            i.fa.fa-circle.fa-stack-2x.text-primary
+            i.fa.fa-laptop.fa-stack-1x.fa-inverse
+          h4.my-3 Responsive Design
+          p.text-muted
+            | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.
+        .col-md-4
+          span.fa-stack.fa-4x
+            i.fa.fa-circle.fa-stack-2x.text-primary
+            i.fa.fa-lock.fa-stack-1x.fa-inverse
+          h4.my-3 Web Security
+          p.text-muted
+            | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.
+  section#portfolio.page-section.bg-light
+    .container
+      .text-center
+        h2.section-heading.text-uppercase Products
+        h3.section-subheading.text-muted List products in systems.
+      .row
+          .col-lg-4.col-sm-6.mb-4
+            // Portfolio item 1
+            .portfolio-item
+              a.portfolio-link(data-bs-toggle='modal', href=`#portfolioModal-${'1'}`)
+                .portfolio-hover
+                  .portfolio-hover-content
+                    i.fa.fa-plus.fa-3x
+                img.img-fluid(src='/images/img/portfolio/1.jpg', alt='...')
+              .portfolio-caption
+                .portfolio-caption-heading Name
+                .portfolio-caption-subheading.text-muted
+                  | $3000
+      .d-flex.justify-content-center
+        nav(aria-label='Page navigation example')
+          ul.pagination.justify-content-center.align-items-center
+            li.page-item(class=`${currentPage <= 1 ? 'disabled' : ''}`)
+              a.page-link(href=`/?pageSize=${pageSize}&currentPage=${currentPage-1}` tabindex='-1') Previous
+            li.page-item
+              form(method="GET" action='/')
+                input(type="text" name='pageSize' placeholder="Page Size")
+                input(type="text" name='currentPage' placeholder="Current Page")
+                input(type="submit", value="Go")
+            li.page-item(class=`${ 'disabled' }`)
+              a.page-link(href=`/?pageSize=${pageSize}&currentPage=${currentPage+1}`) Next
+  section#about.page-section
+    .container
+      .text-center
+        h2.section-heading.text-uppercase About
+        h3.section-subheading.text-muted Lorem ipsum dolor sit amet consectetur.
+      ul.timeline
+        li
+          .timeline-image
+            img.rounded-circle.img-fluid(src='/images/img/about/1.jpg', alt='...')
+          .timeline-panel
+            .timeline-heading
+              h4 2009-2011
+              h4.subheading Our Humble Beginnings
+            .timeline-body
+              p.text-muted
+                | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt ut voluptatum eius sapiente, totam reiciendis temporibus qui quibusdam, recusandae sit vero unde, sed, incidunt et ea quo dolore laudantium consectetur!
+        li.timeline-inverted
+          .timeline-image
+            img.rounded-circle.img-fluid(src='/images/img/about/2.jpg', alt='...')
+          .timeline-panel
+            .timeline-heading
+              h4 March 2011
+              h4.subheading An Agency is Born
+            .timeline-body
+              p.text-muted
+                | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt ut voluptatum eius sapiente, totam reiciendis temporibus qui quibusdam, recusandae sit vero unde, sed, incidunt et ea quo dolore laudantium consectetur!
+        li
+          .timeline-image
+            img.rounded-circle.img-fluid(src='/images/img/about/3.jpg', alt='...')
+          .timeline-panel
+            .timeline-heading
+              h4 December 2015
+              h4.subheading Transition to Full Service
+            .timeline-body
+              p.text-muted
+                | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt ut voluptatum eius sapiente, totam reiciendis temporibus qui quibusdam, recusandae sit vero unde, sed, incidunt et ea quo dolore laudantium consectetur!
+        li.timeline-inverted
+          .timeline-image
+            img.rounded-circle.img-fluid(src='/images/img/about/4.jpg', alt='...')
+          .timeline-panel
+            .timeline-heading
+              h4 July 2020
+              h4.subheading Phase Two Expansion
+            .timeline-body
+              p.text-muted
+                | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt ut voluptatum eius sapiente, totam reiciendis temporibus qui quibusdam, recusandae sit vero unde, sed, incidunt et ea quo dolore laudantium consectetur!
+        li.timeline-inverted
+          .timeline-image
+            h4
+              | Be Part
+              br
+              | Of Our
+              br
+              | Story!
+  section#team.page-section.bg-light
+    .container
+      .text-center
+        h2.section-heading.text-uppercase Our Amazing Team
+        h3.section-subheading.text-muted Lorem ipsum dolor sit amet consectetur.
+      .row
+        .col-lg-4
+          .team-member
+            img.mx-auto.rounded-circle(src='/images/img/team/1.jpg', alt='...')
+            h4 Parveen Anand
+            p.text-muted Lead Designer
+            a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Parveen Anand Twitter Profile')
+              i.fa.fa-twitter
+            a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Parveen Anand Facebook Profile')
+              i.fa.fa-facebook-f
+            a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Parveen Anand LinkedIn Profile')
+              i.fa.fa-google
+        .col-lg-4
+          .team-member
+            img.mx-auto.rounded-circle(src='/images/img/team/2.jpg', alt='...')
+            h4 Diana Petersen
+            p.text-muted Lead Marketer
+            a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Diana Petersen Twitter Profile')
+              i.fa.fa-twitter
+            a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Diana Petersen Facebook Profile')
+              i.fa.fa-facebook-f
+            a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Diana Petersen LinkedIn Profile')
+              i.fa.fa-google
+        .col-lg-4
+          .team-member
+            img.mx-auto.rounded-circle(src='/images/img/team/3.jpg', alt='...')
+            h4 Larry Parker
+            p.text-muted Lead Developer
+            a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Larry Parker Twitter Profile')
+              i.fa.fa-twitter
+            a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Larry Parker Facebook Profile')
+              i.fa.fa-facebook-f
+            a.btn.btn-dark.btn-social.mx-2(href='#!', aria-label='Larry Parker LinkedIn Profile')
+              i.fa.fa-google
+      .row
+        .col-lg-8.mx-auto.text-center
+          p.large.text-muted
+            | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eaque, laboriosam veritatis, quos non quis ad perspiciatis, totam corporis ea, alias ut unde.
+
+  .py-5
+    .container
+      .row.align-items-center
+        .col-md-3.col-sm-6.my-3
+          a(href='#!')
+            img.img-fluid.img-brand.d-block.mx-auto(src='/images/img/logos/microsoft.svg', alt='...', aria-label='Microsoft Logo')
+        .col-md-3.col-sm-6.my-3
+          a(href='#!')
+            img.img-fluid.img-brand.d-block.mx-auto(src='/images/img/logos/google.svg', alt='...', aria-label='Google Logo')
+        .col-md-3.col-sm-6.my-3
+          a(href='#!')
+            img.img-fluid.img-brand.d-block.mx-auto(src='/images/img/logos/facebook.svg', alt='...', aria-label='Facebook Logo')
+        .col-md-3.col-sm-6.my-3
+          a(href='#!')
+            img.img-fluid.img-brand.d-block.mx-auto(src='/images/img/logos/ibm.svg', alt='...', aria-label='IBM Logo')
+
+  .portfolio-modal.modal.fade(id=`portfolioModal-${'1'}` tabindex='-1', role='dialog', aria-hidden='true')
+    .modal-dialog
+      .modal-content
+        .close-modal(data-bs-dismiss='modal')
+          img(src='/images/img/close-icon.svg', alt='Close modal')
+        .container
+          .row.justify-content-center
+            .col-lg-8
+              .modal-body
+                // Project details
+                h2.text-uppercase Name
+                p.item-intro.text-muted
+                  | $3000
+                img.img-fluid.d-block.mx-auto(src='/images/img/portfolio/1.jpg', alt='...')
+                p Lorem ipsum, dolor sit amet consectetur adipisicing elit. Accusamus tempore facilis sapiente in cupiditate magnam, ducimus architecto dolorem iste iusto dolorum. Corporis odio voluptas non totam expedita mollitia? Eos, quibusdam!
+                ul.list-inline
+                  li
+                    strong Client: Threads
+                  li
+                    strong Category: Illustration
+                button.btn.btn-primary.btn-xl.text-uppercase(data-bs-dismiss='modal', type='button')
+                  i.fa.fa-xmark.me-1 Add to cart

@@ -1,0 +1,28 @@
+.notification
+  if messages.errors
+    .alert.alert-danger.fade.show
+      .d-flex.justify-content-between.align-items-center
+        .close(type='button', data-dismiss='alert')
+          i.fa.fa-times-circle-o
+        .progress
+          .progress-bar.progress-bar-striped.progress-bar-animated.bg-danger
+      for error in messages.errors
+        div= error.msg
+  if messages.info
+    .alert.alert-info.fade.show
+      .d-flex.justify-content-between.align-items-center
+        .close(type='button', data-dismiss='alert')
+          i.fa.fa-times-circle-o
+        .progress
+          .progress-bar.progress-bar-striped.progress-bar-animated.bg-info
+      for info in messages.info
+        div= info.msg
+  if messages.success
+    .alert.alert-success.fade.show
+      .d-flex.justify-content-between.align-items-center
+        .close(type='button', data-dismiss='alert')
+          i.fa.fa-times-circle-o
+        .progress
+          .progress-bar.progress-bar-striped.progress-bar-animated.bg-success
+      for success in messages.success
+        div= success.msg
