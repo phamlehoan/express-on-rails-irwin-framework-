@@ -15,6 +15,7 @@ export class HomeController extends ApplicationController {
       : 10;
 
     res.render("home.view/index", {
+      user: req.user,
       currentPage: currentPage,
       pageSize: pageSize,
     });

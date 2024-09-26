@@ -1,5 +1,6 @@
 import env from "@configs/env";
 import { HomeController } from "@controllers";
+import { CurrentUserMiddleware } from "@middlewares";
 import { Router } from "express";
 import { RestActions } from "../enum";
 import { AuthRoute } from "./auth.route";
@@ -8,9 +9,12 @@ import { UserRoute } from "./user.route";
 
 export class Route {
   private static path = Router();
+  private static currentUserMiddware = new CurrentUserMiddleware();
   private static homeController = new HomeController();
 
   public static draw() {
+    this.path.use(this.currentUserMiddware.execute);
+
     if (env.nodeEnv === "development") this.path.use("/dev", DevRoute.draw());
 
     this.path.use("/auth", AuthRoute.draw());

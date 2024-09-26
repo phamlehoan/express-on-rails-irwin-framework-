@@ -4,7 +4,7 @@ import { ApplicationController } from ".";
 export class DevController extends ApplicationController {
   public async index(req: Request, res: Response) {
     console.log(req.session);
-    res.render("home.view/index", { title: "Irwin Framework" });
+    res.render("home.view/index", { user: req.user, title: "Irwin Framework" });
   }
 
   public async show(req: Request, res: Response) {
@@ -12,7 +12,7 @@ export class DevController extends ApplicationController {
   }
 
   public async new(req: Request, res: Response) {
-    res.render("dev.view/new");
+    res.render("dev.view/new", { user: req.user });
   }
 
   public async create(req: Request, res: Response) {
@@ -20,7 +20,7 @@ export class DevController extends ApplicationController {
   }
 
   public async edit(req: Request, res: Response) {
-    res.render("dev.view/edit");
+    res.render("dev.view/edit", { user: req.user });
   }
 
   public async update(req: Request, res: Response) {}

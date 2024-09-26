@@ -1,5 +1,6 @@
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import cors from 'cors';
 import express, { Express, NextFunction, Request, Response } from "express";
 import flash from "express-flash";
 import session from "express-session";
@@ -44,6 +45,8 @@ class Application {
     this.app.use(flash());
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(methodOverride("_method"));
+
+    this.app.use(cors<Request>());
 
     // Xuất file tĩnh như CSS, Javascript và các thư viện như Bootstraps, Vue, ...
     this.app.use(express.static(join(resolve("app"), "assets")));

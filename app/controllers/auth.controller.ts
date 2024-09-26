@@ -4,6 +4,16 @@ import axios from "axios";
 import { Request, Response } from "express";
 import { ApplicationController } from ".";
 
+export type GoogleUser = {
+  email: string;
+  family_name: string;
+  given_name: string;
+  id: string;
+  name: string;
+  picture: string;
+  verified_email: boolean;
+}
+
 export class AuthController extends ApplicationController {
   public async loginWithGoogle(req: Request, res: Response) {
     res.redirect(
@@ -30,7 +40,7 @@ export class AuthController extends ApplicationController {
           Authorization: `Bearer ${access_token}`,
         },
       }
-    );
+    ) as { data: GoogleUser };
 
     const loginUser = await models.user.findUnique({
       where: {
@@ -41,8 +51,8 @@ export class AuthController extends ApplicationController {
     if (!loginUser) {
       const newUser = await models.user.create({
         data: {
-          firstName: googleUser.firstName,
-          lastName: googleUser.lastName,
+          firstName: googleUser.given_name,
+          lastName: googleUser.family_name,
           email: googleUser.email,
           avatarUrl: googleUser.picture,
         },
@@ -55,8 +65,8 @@ export class AuthController extends ApplicationController {
           id: loginUser.id,
         },
         data: {
-          firstName: googleUser.firstName,
-          lastName: googleUser.lastName,
+          firstName: googleUser.given_name,
+          lastName: googleUser.family_name,
           email: googleUser.email,
           avatarUrl: googleUser.picture,
         },
