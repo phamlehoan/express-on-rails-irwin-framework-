@@ -18,6 +18,7 @@
     "routes": "ts-node commands/routes.ts"
   },
   "dependencies": {
+    "@popperjs/core": "2.11.8",
     "axios": "1.7.3",
     "body-parser": "1.20.2",
     "bootstrap": "5.3.2",

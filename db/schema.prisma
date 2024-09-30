@@ -30,6 +30,7 @@ model User {
   // Relations
   roles       UserToRole[]
   permissions UserToPermission[]
+  passwords   Password[]
 
   roleCreated       Role[]       @relation("createdBy")
   roleUpdated       Role[]       @relation("updatedBy")
@@ -39,6 +40,21 @@ model User {
   permissionUpdated Permission[] @relation("updatedBy")
 
   @@map("users")
+}
+
+model Password {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  deleted   Boolean   @default(false) @map("deleted")
+
+  password String
+  userId   String
+
+  // Relation
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("passwords")
 }
 
 model Role {

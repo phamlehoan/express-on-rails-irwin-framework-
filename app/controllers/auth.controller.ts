@@ -12,7 +12,7 @@ export type GoogleUser = {
   name: string;
   picture: string;
   verified_email: boolean;
-}
+};
 
 export class AuthController extends ApplicationController {
   public async loginWithGoogle(req: Request, res: Response) {
@@ -33,14 +33,14 @@ export class AuthController extends ApplicationController {
       grant_type: "authorization_code",
     });
 
-    const { data: googleUser } = await axios.get(
+    const { data: googleUser } = (await axios.get(
       "https://www.googleapis.com/oauth2/v1/userinfo",
       {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
       }
-    ) as { data: GoogleUser };
+    )) as { data: GoogleUser };
 
     const loginUser = await models.user.findUnique({
       where: {
@@ -105,9 +105,6 @@ export class AuthController extends ApplicationController {
   public async destroy(req: Request, res: Response) {
     req.session.destroy((err: Error) => {
       if (err) console.log(err);
-      else {
-        res.redirect("https://accounts.google.com/logout");
-      }
     });
   }
 }

@@ -1,46 +1,27 @@
-html
-  head
-    title= title
-    link(rel="stylesheet" href="/css/bootstrap.min.css")
-    link(rel="stylesheet" href="/css/font-awesome/css/font-awesome.min.css")
-    link(rel="stylesheet" href="/stylesheets/login.css")
-  body
+extends ../layouts/auth/layout
 
-    .container
-      .d-flex.justify-content-center.h-100
-        .card
-          .card-header
-            h3 Sign In
-            a.d-flex.justify-content-end.social_icon(href='/auth/google')
-              span
-                i.fa.fa-google-plus-square
-          .card-body
-            form(action='/auth' method='POST')
-              .row
-                .col-12.mb-3
-                  .input-group.form-group
-                    .input-group-prepend
-                      span.input-group-text
-                        i.fa.fa-user
-                    input.form-control(type='email' name='email' placeholder='Email')
-                .col-12.mb-3
-                  .input-group.form-group
-                    .input-group-prepend
-                      span.input-group-text
-                        i.fa.fa-key
-                    input.form-control(type='password' name='password' placeholder='Password')
-                .col-12.mb-3.text-center
-                  .form-group
-                    input.btn.float-right.login_btn(type='submit' value='Login')
-          .card-footer
-            .d-flex.justify-content-center.links
-              | Don&apos;t have an account?
-              a(href='/users/new') Sign Up
-            .d-flex.justify-content-center.links
-              a(href='#') Forgot your password?
-
-    script(type="text/javascript" src="/js/bootstrap.min.js")
-    script(type="text/javascript" src="/js/jquery.min.js")
-    script(type="text/javascript" src="/js/vue.min.js")
-    script(type="text/javascript" src="/javascripts/main.js")
-    script(type="text/javascript" src="/javascripts/generated/bundle.js")
+block content
+  .row
+    .col-lg-6.d-none.d-lg-block.bg-login-image
+    .col-lg-6
+      .p-5
+        .text-center
+          h1.h4.text-gray-900.mb-4 Welcome Back!
+        form.user(action='/auth' method='POST')
+          .form-group
+            input#email.form-control.form-control-user(type='email' name='email' aria-describedby='emailHelp' placeholder='Enter Email Address')
+          .form-group
+            input#password.form-control.form-control-user(type='password' name='password' placeholder='Password')
+          input.btn.btn-primary.btn-user.btn-block(type='submit' value='Login')
+          hr
+          a.btn.btn-google.btn-user.btn-block(href='/auth/google')
+            i.fa.fa-google.fa-fw
+            |  Login with Google
+          //- a.btn.btn-facebook.btn-user.btn-block(href='index.html')
+          //-   i.fa.fa-facebook-f.fa-fw
+          //-   |  Login with Facebook
+        hr
+        .text-center
+          a.small(href='forgot-password.html') Forgot Password?
+        .text-center
+          a.small(href='register.html') Create an Account!

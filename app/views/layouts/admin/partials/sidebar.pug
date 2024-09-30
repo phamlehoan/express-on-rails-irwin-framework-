@@ -1,0 +1,45 @@
+// Sidebar
+ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion
+  // Sidebar - Brand
+  a.sidebar-brand.d-flex.align-items-center.justify-content-center(href='/admin')
+    .sidebar-brand-icon.rotate-n-15
+      i.fa.fa-laugh-wink
+    .sidebar-brand-text.mx-3
+      | Irwin Framework
+  // Divider
+  hr.sidebar-divider.my-0
+  // Nav Item - Dashboard
+  li.nav-item.active
+    a.nav-link(href='/admin')
+      i.fa.fa-fw.fa-tachometer-alt
+      span Dashboard
+  // Divider
+  hr.sidebar-divider
+  // Heading
+  .sidebar-heading
+    | Interface
+  // Nav Item - Pages Collapse Menu
+  li.nav-item
+    a.nav-link.collapsed(role='button' href='#' data-bs-toggle='collapse' data-target='#collapseUserAndPermission' aria-expanded='true' aria-controls='collapseUserAndPermission')
+      i.fa.fa-fw.fa-cog
+      span User & Permission
+    #collapseUserAndPermission.collapse(aria-labelledby='headingTwo' data-parent='#accordionSidebar')
+      .bg-white.py-2.collapse-inner.rounded
+        h6.collapse-header User & Permission:
+        a.collapse-item(href='/admin/users') User Management
+  // Nav Item - Utilities Collapse Menu
+  li.nav-item
+    a.nav-link.collapsed(role='button' href='#' data-bs-toggle='collapse' data-target='#collapseUtilities' aria-expanded='true' aria-controls='collapseUtilities')
+      i.fa.fa-fw.fa-wrench
+      span Utilities
+    #collapseUtilities.collapse(aria-labelledby='headingUtilities' data-parent='#accordionSidebar')
+      .bg-white.py-2.collapse-inner.rounded
+        h6.collapse-header Custom Utilities:
+        a.collapse-item(href='utilities-color.html') Colors
+
+  // Divider
+  hr.sidebar-divider.d-none.d-md-block
+  // Sidebar Toggler (Sidebar)
+  .text-center.d-none.d-md-inline
+    button#sidebarToggle.rounded-circle.border-0
+// End of Sidebar

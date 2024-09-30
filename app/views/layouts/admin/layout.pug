@@ -5,20 +5,27 @@ html
     link(rel="stylesheet" href="/css/bootstrap.min.css")
     link(rel="stylesheet" href="/css/font-awesome/css/font-awesome.min.css")
     link(rel="stylesheet" href="/stylesheets/utilities.css")
-    link(rel="stylesheet" href="/stylesheets/mainLayout/style.css")
+    link(rel="stylesheet" href="/stylesheets/adminLayout/style.css")
   body
     include ../utilities/flash
     #app
-      include partials/header
+      #wrapper
+        include partials/sidebar
 
-      div
-        block content
+        div
+          #content-wrapper.d-flex.flex-column
+            #content
+              include partials/header
+              block content
+          include partials/footer
 
-      include partials/footer
+      // Scroll to Top Button
+      a.scroll-to-top.rounded(href='#page-top')
+        i.fa.fa-angle-up
 
     script(type="text/javascript" src="/js/popper.min.js")
     script(type="text/javascript" src="/js/jquery.min.js")
     script(type="text/javascript" src="/js/bootstrap.min.js")
     script(type="text/javascript" src="/js/vue.min.js")
-    script(type="text/javascript" src="/javascripts/mainLayout/main.js")
+    script(type="text/javascript" src="/javascripts/adminLayout/main.js")
     script(type="text/javascript" src="/javascripts/generated/bundle.js")

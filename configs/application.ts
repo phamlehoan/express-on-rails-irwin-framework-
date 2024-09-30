@@ -1,6 +1,6 @@
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import cors from 'cors';
+// import cors from "cors";
 import express, { Express, NextFunction, Request, Response } from "express";
 import flash from "express-flash";
 import session from "express-session";
@@ -22,13 +22,12 @@ class Application {
   private readonly routes: RouteInfo[] = [];
 
   constructor() {
-    // Cài đặt template engine
     this.app.set("views", join(resolve("./app"), "views"));
     this.app.set("view engine", "pug");
 
-    // Cài đặt các công cụ giải mã
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
+    this.app.use(methodOverride("_method"));
     this.app.use(cookieParser());
     this.app.use(
       session({
@@ -44,11 +43,8 @@ class Application {
     );
     this.app.use(flash());
     this.app.use(bodyParser.urlencoded({ extended: false }));
-    this.app.use(methodOverride("_method"));
+    // this.app.use(cors<Request>());
 
-    this.app.use(cors<Request>());
-
-    // Xuất file tĩnh như CSS, Javascript và các thư viện như Bootstraps, Vue, ...
     this.app.use(express.static(join(resolve("app"), "assets")));
     this.app.use(
       "/css",
@@ -57,6 +53,10 @@ class Application {
     this.app.use(
       "/css/font-awesome",
       express.static(join(resolve("./node_modules"), "font-awesome"))
+    );
+    this.app.use(
+      "/js",
+      express.static(join(resolve("./node_modules"), "@popperjs/core/dist/umd"))
     );
     this.app.use(
       "/js",

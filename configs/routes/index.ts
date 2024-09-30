@@ -3,6 +3,7 @@ import { HomeController } from "@controllers";
 import { CurrentUserMiddleware } from "@middlewares";
 import { Router } from "express";
 import { RestActions } from "../enum";
+import { AdminRoute } from "./admin";
 import { AuthRoute } from "./auth.route";
 import { DevRoute } from "./dev.route";
 import { UserRoute } from "./user.route";
@@ -17,6 +18,7 @@ export class Route {
 
     if (env.nodeEnv === "development") this.path.use("/dev", DevRoute.draw());
 
+    this.path.use("/admin", AdminRoute.draw());
     this.path.use("/auth", AuthRoute.draw());
     this.path.use("/users", UserRoute.draw());
 

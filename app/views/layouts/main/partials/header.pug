@@ -1,16 +1,18 @@
 nav#mainNav.navbar.navbar-expand-lg.navbar-dark.navbar-shrink.fixed-top
   .container
     a.navbar-brand(href='/')
-      img(src='/images/img/navbar-logo.svg', alt='...')
-    button.navbar-toggler(type='button', data-bs-toggle='collapse', data-bs-target='#navbarResponsive', aria-controls='navbarResponsive', aria-expanded='false', aria-label='Toggle navigation')
+      img(src='/images/img/irwin-framework.png', alt='...')
+    a.navbar-toggler(role='button', data-bs-toggle='collapse' data-bs-target='#navbarResponsive' aria-controls='navbarResponsive')
       | Menu
-      i.fas.fa-bars.ms-1
+      i.fa.fa-bars.ms-1
     #navbarResponsive.collapse.navbar-collapse
       ul.navbar-nav.text-uppercase.ms-auto.py-4.py-lg-0
         li.nav-item
-          a.nav-link(href='/courses') Courses
+          a.nav-link(href='/admin') Admin
         li.nav-item
           a.nav-link(href='#services') Services
+        li.nav-item
+          a.nav-link(href='#products') Products
         li.nav-item
           a.nav-link(href='#about') About
         li.nav-item
@@ -19,10 +21,26 @@ nav#mainNav.navbar.navbar-expand-lg.navbar-dark.navbar-shrink.fixed-top
           li.nav-item
             a.nav-link(href='/auth') Login
         - else
-          li.nav-item
-            a.nav-link(href='/carts') Cart
-          li.nav-item
-            form.nav-link(method='POST' action='/auth?_method=DELETE')
-              img(style='width: 40px; height: 40px; border-radius: 50%' src=`${user.avatarUrl}`)
-              button.btn.btn-danger(type="submit")
-                | Logout
+          li.nav-item.dropdown.no-arrow
+            a#userDropdown.nav-link.dropdown-toggle.text-center(role='button' data-bs-toggle="dropdown")
+              .d-flex.align-items-center
+                img.img-profile.rounded-circle(src=`${user.avatarUrl ? user.avatarUrl : '/images/img/user.png'}`)
+                .d-lg-none.d-block.ms-2= user.firstName + ' ' + user.lastName
+            ul#userDropdownAria.dropdown-menu.shadow.animated--grow-in(aria-labelledby='userDropdown')
+              .text-center
+                img(style=' border-radius: 50%' src=`${user.avatarUrl ? user.avatarUrl : '/images/img/user.png'}`)
+                .fw-bold.mt-2
+                  = user.firstName + ' ' + user.lastName
+              .dropdown-divider
+              a.dropdown-item(href='#')
+                i.fa.fa-user.fa-sm.fa-fw.mr-2.text-gray-400.me-1
+                | Profile
+              a.dropdown-item(href='#')
+                i.fa.fa-cogs.fa-sm.fa-fw.mr-2.text-gray-400.me-1
+                | Change password
+              .dropdown-divider
+              form.nav-link(method='POST' action=`/auth/${user.id}?_method=DELETE`)
+                .text-center
+                  button.btn.btn-danger(type="submit")
+                    i.fa.fa-sign-out
+                    | Logout
