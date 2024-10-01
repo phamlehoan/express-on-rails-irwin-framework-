@@ -1,3 +1,4 @@
+import { FlashType } from "@configs/enum";
 import env from "@configs/env";
 import { Request, Response } from "express";
 import { google } from "googleapis";
@@ -53,7 +54,7 @@ export const sendMail = (
       res.redirect("/");
       return;
     } else {
-      req.flash("success", { msg: "Register successfully" });
+      req.flash(FlashType.Success, { msg: "Register successfully" });
       res.redirect("/");
       return;
     }

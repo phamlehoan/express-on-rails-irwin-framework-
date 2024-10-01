@@ -14,8 +14,14 @@ html
           .col-xl-10.col-lg-12.col-md-9
             .card.o-hidden.border-0.shadow-lg.my-5
               .card-body.p-0
+                .row.align-items-center.m-2
+                  .col
+                    a(href="/")
+                      i.fa.fa-angle-left
+                      .d-inline.ps-1 Back to Home
                 block content
 
+    script(type="text/javascript" src="/javascripts/main.js")
     script(type="text/javascript" src="/js/popper.min.js")
     script(type="text/javascript" src="/js/bootstrap.min.js")
     script(type="text/javascript" src="/js/jquery.min.js")

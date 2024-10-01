@@ -2,6 +2,7 @@ node_modules
 dist
 db/schema/*.db
 db/schema/*.db-journal
+db/dbml
 uploads
 app/assets/javascripts/generated
 .env

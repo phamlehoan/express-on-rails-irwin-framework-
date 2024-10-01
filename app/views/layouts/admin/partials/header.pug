@@ -1,5 +1,5 @@
 // Topbar
-nav.navbar.navbar-expand.navbar-light.bg-white.topbar.mb-4.static-top.shadow
+nav#accordion-header.navbar.navbar-expand.navbar-light.bg-white.topbar.static-top.shadow
   // Sidebar Toggle (Topbar)
   button#sidebarToggleTop.btn.btn-link.d-md-none.rounded-circle.mr-3
     i.fa.fa-bars
@@ -74,13 +74,12 @@ nav.navbar.navbar-expand.navbar-light.bg-white.topbar.mb-4.static-top.shadow
             .fw-bold.mt-2
               = user.firstName + ' ' + user.lastName
           .dropdown-divider
-        a.dropdown-item(href='#')
-          i.fa.fa-user.fa-sm.fa-fw.mr-2.text-gray-400.me-1
-          | Profile
-        a.dropdown-item(href='#')
-          i.fa.fa-cogs.fa-sm.fa-fw.mr-2.text-gray-400.me-1
-          | Change password
-        - if (user)
+          a.dropdown-item(href='/me')
+            i.fa.fa-user.fa-sm.fa-fw.mr-2.text-gray-400.me-1
+            | Profile
+          a.dropdown-item(href=`/auth/${user.email}/edit`)
+            i.fa.fa-cogs.fa-sm.fa-fw.mr-2.text-gray-400.me-1
+            | Change password
           .dropdown-divider
           form.nav-link(method='POST' action=`/auth/${user.id}?_method=DELETE`)
             .text-center

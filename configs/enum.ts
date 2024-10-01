@@ -7,3 +7,9 @@ export enum RestActions {
   Update = "update",
   Destroy = "destroy",
 }
+
+export enum FlashType {
+  Errors = 'errors',
+  Info = 'info',
+  Success = "success",
+}

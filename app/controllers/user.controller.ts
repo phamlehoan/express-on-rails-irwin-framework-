@@ -1,3 +1,4 @@
+import { FlashType } from "@configs/enum";
 import { getAccessToken, sendMail } from "@configs/mail";
 import models from "@models";
 import { Request, Response } from "express";
@@ -22,7 +23,7 @@ export class UserController extends ApplicationController {
     const accessToken = await getAccessToken();
 
     if (!accessToken) {
-      req.flash("errors", { msg: "Google token has been exprired." });
+      req.flash(FlashType.Errors, { msg: "Google token has been exprired." });
       res.redirect("/users");
     }
 
@@ -41,7 +42,7 @@ export class UserController extends ApplicationController {
       accessToken.token as string
     );
 
-    req.flash("success", {
+    req.flash(FlashType.Success, {
       msg: `Created user ${user.firstName}${
         user.middleName ? ` ${user.middleName}` : ""
       } ${user.lastName}`,

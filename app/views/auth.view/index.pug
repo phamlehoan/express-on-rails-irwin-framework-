@@ -2,12 +2,13 @@ extends ../layouts/auth/layout
 
 block content
   .row
-    .col-lg-6.d-none.d-lg-block.bg-login-image
+    .col-lg-6.d-none.d-lg-block
+      img.img-fluid(src='/images/img/login.png')
     .col-lg-6
       .p-5
         .text-center
           h1.h4.text-gray-900.mb-4 Welcome Back!
-        form.user(action='/auth' method='POST')
+        form.user(action='/auth/login' method='POST')
           .form-group
             input#email.form-control.form-control-user(type='email' name='email' aria-describedby='emailHelp' placeholder='Enter Email Address')
           .form-group
@@ -22,6 +23,6 @@ block content
           //-   |  Login with Facebook
         hr
         .text-center
-          a.small(href='forgot-password.html') Forgot Password?
+          a.small(href='/auth/new') Forgot Password?
         .text-center
-          a.small(href='register.html') Create an Account!
+          a.small(href='/users/new') Create an Account!

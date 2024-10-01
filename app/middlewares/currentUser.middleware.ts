@@ -8,7 +8,8 @@ export class CurrentUserMiddleware extends ApplicationMiddleware {
     next: NextFunction
   ) {
     const userId = req.session.userId;
-    req.user = userId ? await super.getUserById(userId) : null;
+    const isGetPermission = true;
+    req.user = userId ? await super.getUserById(userId, isGetPermission) : null;
 
     next();
   }

@@ -6,6 +6,10 @@ generator client {
   previewFeatures = ["filteredRelationCount"]
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
@@ -21,7 +25,7 @@ model User {
   lastName    String  @map("last_name")
   middleName  String? @map("middle_name")
   email       String  @unique @map("email")
-  status      String  @default("ACTIVE") @map("status") // ACTIVE, INACTIVE, PENDING
+  status      String  @default("PENDING") @map("status") // ACTIVE, INACTIVE, PENDING
   avatarUrl   String? @map("avatar_url")
   gender      String? @map("gender")
   phoneNumber String? @map("phone_number")
@@ -61,11 +65,11 @@ model Role {
   id          String    @id() @default(uuid()) @map("id")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @default(now()) @updatedAt @map("updated_at")
-  createdById String    @map("created_by_id")
+  createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deleted     Boolean   @default(false) @map("deleted")
 
-  code        String  @map("code")
+  code        String  @unique @map("code")
   name        String  @map("name")
   description String? @map("description")
   isReadOnly  Boolean @default(false) @map("is_read_only")
@@ -74,7 +78,7 @@ model Role {
   users       UserToRole[]
   permissions RoleToPermission[]
 
-  createdBy User  @relation("createdBy", fields: [createdById], references: [id])
+  createdBy User? @relation("createdBy", fields: [createdById], references: [id])
   updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
 
   @@map("roles")
@@ -98,11 +102,11 @@ model Feature {
   id          String    @id() @default(uuid()) @map("id")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @default(now()) @updatedAt @map("updated_at")
-  createdById String    @map("created_by_id")
+  createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deleted     Boolean   @default(false) @map("deleted")
 
-  code        String  @map("code")
+  code        String  @unique @map("code")
   name        String  @map("name")
   description String? @map("description")
   type        String  @default("FEATURE") @map("type") // SYSTEM, CORE, FEATURE
@@ -113,7 +117,7 @@ model Feature {
   childs      Feature[]    @relation("featureRelation")
   permissions Permission[]
 
-  createdBy User  @relation("createdBy", fields: [createdById], references: [id])
+  createdBy User? @relation("createdBy", fields: [createdById], references: [id])
   updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
 
   @@map("features")
@@ -123,7 +127,7 @@ model Permission {
   id          String    @id() @default(uuid()) @map("id")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @default(now()) @updatedAt @map("updated_at")
-  createdById String    @map("created_by_id")
+  createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deleted     Boolean   @default(false) @map("deleted")
 
@@ -138,8 +142,10 @@ model Permission {
   users   UserToPermission[]
   roles   RoleToPermission[]
 
-  createdBy User  @relation("createdBy", fields: [createdById], references: [id])
+  createdBy User? @relation("createdBy", fields: [createdById], references: [id])
   updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
+
+  @@map("permissions")
 }
 
 model UserToPermission {

@@ -1,0 +1,166 @@
+extends ../layouts/main/layout
+
+block content
+  section.bg-light
+    .container
+      // Page Heading
+      .d-sm-flex.align-items-center.justify-content-between.mb-4
+        h1.h3.mb-0.text-gray-800 Dashboard
+      // Content Row
+      .row
+        // Earnings (Monthly) Card Example
+        .col-xl-3.col-md-6.mb-4
+          .card.border-left-primary.shadow.h-100.py-2
+            .card-body
+              .row.no-gutters.align-items-center
+                .col.mr-2
+                  .text-xs.font-weight-bold.text-primary.text-uppercase.mb-1
+                    | Earnings (Monthly)
+                  .h5.mb-0.font-weight-bold.text-gray-800 $40,000
+                .col-auto
+                  i.fa.fa-calendar.fa-2x.text-gray-300
+        // Earnings (Monthly) Card Example
+        .col-xl-3.col-md-6.mb-4
+          .card.border-left-success.shadow.h-100.py-2
+            .card-body
+              .row.no-gutters.align-items-center
+                .col.mr-2
+                  .text-xs.font-weight-bold.text-success.text-uppercase.mb-1
+                    | Earnings (Annual)
+                  .h5.mb-0.font-weight-bold.text-gray-800 $215,000
+                .col-auto
+                  i.fa.fa-dollar-sign.fa-2x.text-gray-300
+        // Earnings (Monthly) Card Example
+        .col-xl-3.col-md-6.mb-4
+          .card.border-left-info.shadow.h-100.py-2
+            .card-body
+              .row.no-gutters.align-items-center
+                .col.mr-2
+                  .text-xs.font-weight-bold.text-info.text-uppercase.mb-1
+                    | Tasks
+                  .row.no-gutters.align-items-center
+                    .col-auto
+                      .h5.mb-0.mr-3.font-weight-bold.text-gray-800 50%
+                    .col
+                      .progress.progress-sm.mr-2
+                        .progress-bar.bg-info(role='progressbar' style='width: 50%' aria-valuenow='50' aria-valuemin='0' aria-valuemax='100')
+                .col-auto
+                  i.fa.fa-clipboard-list.fa-2x.text-gray-300
+        // Pending Requests Card Example
+        .col-xl-3.col-md-6.mb-4
+          .card.border-left-warning.shadow.h-100.py-2
+            .card-body
+              .row.no-gutters.align-items-center
+                .col.mr-2
+                  .text-xs.font-weight-bold.text-warning.text-uppercase.mb-1
+                    | Pending Requests
+                  .h5.mb-0.font-weight-bold.text-gray-800 18
+                .col-auto
+                  i.fa.fa-comments.fa-2x.text-gray-300
+      // Content Row
+      .row
+        // Content Column
+        .col-lg-6.mb-4
+          // Project Card Example
+          .card.shadow.mb-4
+            .card-header.py-3
+              h6.m-0.font-weight-bold.text-primary Projects
+            .card-body
+              h4.small.font-weight-bold
+                | Server Migration 
+                span.float-right 20%
+              .progress.mb-4
+                .progress-bar.bg-danger(role='progressbar' style='width: 20%' aria-valuenow='20' aria-valuemin='0' aria-valuemax='100')
+              h4.small.font-weight-bold
+                | Sales Tracking 
+                span.float-right 40%
+              .progress.mb-4
+                .progress-bar.bg-warning(role='progressbar' style='width: 40%' aria-valuenow='40' aria-valuemin='0' aria-valuemax='100')
+              h4.small.font-weight-bold
+                | Customer Database 
+                span.float-right 60%
+              .progress.mb-4
+                .progress-bar(role='progressbar' style='width: 60%' aria-valuenow='60' aria-valuemin='0' aria-valuemax='100')
+              h4.small.font-weight-bold
+                | Payout Details 
+                span.float-right 80%
+              .progress.mb-4
+                .progress-bar.bg-info(role='progressbar' style='width: 80%' aria-valuenow='80' aria-valuemin='0' aria-valuemax='100')
+              h4.small.font-weight-bold
+                | Account Setup 
+                span.float-right Complete!
+              .progress
+                .progress-bar.bg-success(role='progressbar' style='width: 100%' aria-valuenow='100' aria-valuemin='0' aria-valuemax='100')
+          // Color System
+          .row
+            .col-lg-6.mb-4
+              .card.bg-primary.text-white.shadow
+                .card-body
+                  | Primary
+                  .text-white-50.small #4e73df
+            .col-lg-6.mb-4
+              .card.bg-success.text-white.shadow
+                .card-body
+                  | Success
+                  .text-white-50.small #1cc88a
+            .col-lg-6.mb-4
+              .card.bg-info.text-white.shadow
+                .card-body
+                  | Info
+                  .text-white-50.small #36b9cc
+            .col-lg-6.mb-4
+              .card.bg-warning.text-white.shadow
+                .card-body
+                  | Warning
+                  .text-white-50.small #f6c23e
+            .col-lg-6.mb-4
+              .card.bg-danger.text-white.shadow
+                .card-body
+                  | Danger
+                  .text-white-50.small #e74a3b
+            .col-lg-6.mb-4
+              .card.bg-secondary.text-white.shadow
+                .card-body
+                  | Secondary
+                  .text-white-50.small #858796
+            .col-lg-6.mb-4
+              .card.bg-light.text-black.shadow
+                .card-body
+                  | Light
+                  .text-black-50.small #f8f9fc
+            .col-lg-6.mb-4
+              .card.bg-dark.text-white.shadow
+                .card-body
+                  | Dark
+                  .text-white-50.small #5a5c69
+        .col-lg-6.mb-4
+          // Illustrations
+          .card.shadow.mb-4
+            .card-header.py-3
+              h6.m-0.font-weight-bold.text-primary Illustrations
+            .card-body
+              .text-center
+                img.img-fluid.px-3.px-sm-4.mt-3.mb-4(style='width: 25rem;' src='/images/img/undraw_posting_photo.svg' alt='...')
+              p
+                | Add some quality, svg illustrations to your project courtesy of 
+                a(target='_blank' rel='nofollow' href='https://undraw.co/') unDraw
+                | , a
+                | constantly updated collection of beautiful svg images that you can use
+                | completely free and without attribution!
+              a(target='_blank' rel='nofollow' href='https://undraw.co/')
+                | Browse Illustrations on
+                | unDraw &rarr;
+          // Approach
+          .card.shadow.mb-4
+            .card-header.py-3
+              h6.m-0.font-weight-bold.text-primary Development Approach
+            .card-body
+              p
+                | SB Admin 2 makes extensive use of Bootstrap 4 utility classes in order to reduce
+                | CSS bloat and poor page performance. Custom CSS classes are used to create
+                | custom components and custom utility classes.
+              p.mb-0
+                | Before working with this theme, you should become familiar with the
+                | Bootstrap framework, especially the utility classes.
+      // /.container-fluid
+

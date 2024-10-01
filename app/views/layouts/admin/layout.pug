@@ -12,10 +12,10 @@ html
       #wrapper
         include partials/sidebar
 
-        div
-          #content-wrapper.d-flex.flex-column
-            #content
-              include partials/header
+        #content-wrapper.d-flex.flex-column
+          #content
+            include partials/header
+            #block-content
               block content
           include partials/footer
 
@@ -27,5 +27,6 @@ html
     script(type="text/javascript" src="/js/jquery.min.js")
     script(type="text/javascript" src="/js/bootstrap.min.js")
     script(type="text/javascript" src="/js/vue.min.js")
+    script(type="text/javascript" src="/javascripts/main.js")
     script(type="text/javascript" src="/javascripts/adminLayout/main.js")
     script(type="text/javascript" src="/javascripts/generated/bundle.js")

@@ -7,8 +7,12 @@ nav#mainNav.navbar.navbar-expand-lg.navbar-dark.navbar-shrink.fixed-top
       i.fa.fa-bars.ms-1
     #navbarResponsive.collapse.navbar-collapse
       ul.navbar-nav.text-uppercase.ms-auto.py-4.py-lg-0
-        li.nav-item
-          a.nav-link(href='/admin') Admin
+        - if (user?.features?.includes('AM'))
+          li.nav-item
+            a.nav-link(href='/admin') Admin
+        - if (process.env.NODE_ENV === 'development')
+          li.nav-item
+            a.nav-link(href='/dev') Dev
         li.nav-item
           a.nav-link(href='#services') Services
         li.nav-item
@@ -32,10 +36,10 @@ nav#mainNav.navbar.navbar-expand-lg.navbar-dark.navbar-shrink.fixed-top
                 .fw-bold.mt-2
                   = user.firstName + ' ' + user.lastName
               .dropdown-divider
-              a.dropdown-item(href='#')
+              a.dropdown-item(href='/me')
                 i.fa.fa-user.fa-sm.fa-fw.mr-2.text-gray-400.me-1
                 | Profile
-              a.dropdown-item(href='#')
+              a.dropdown-item(href=`/auth/${user.email}/edit`)
                 i.fa.fa-cogs.fa-sm.fa-fw.mr-2.text-gray-400.me-1
                 | Change password
               .dropdown-divider
