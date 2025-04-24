@@ -1,8 +1,7 @@
+import { Feature, RestActions } from "@configs/enum";
 import { AdminUserController } from "@controllers";
-import { Feature } from "@middlewares";
 import { Router } from "express";
 import { Route } from "..";
-import { RestActions } from "../../enum";
 
 export class AdminUserRoute {
   private static path = Router();
@@ -11,7 +10,7 @@ export class AdminUserRoute {
   public static draw() {
     Route.resource(this.path, this.adminUserController, {
       only: [RestActions.Index],
-      setPermissionFor: Feature.AdministrationManagement
+      setPermissionFor: Feature.AdministrationManagement,
     });
 
     return this.path;

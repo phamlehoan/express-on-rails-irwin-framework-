@@ -7,13 +7,17 @@ export class AuthRoute {
   private static authController = new AuthController();
 
   public static draw() {
-    this.path.route("/google").get(this.authController.loginWithGoogle.bind(this.authController));
+    this.path
+      .route("/google")
+      .get(this.authController.loginWithGoogle.bind(this.authController));
     this.path
       .route("/google/callback")
-      .get(this.authController.loginWithGoogleRedirect.bind(this.authController));
+      .get(
+        this.authController.loginWithGoogleRedirect.bind(this.authController)
+      );
     this.path
       .route("/login")
-      .post(this.authController.login.bind(this.authController))
+      .post(this.authController.login.bind(this.authController));
 
     Route.resource(this.path, this.authController);
 

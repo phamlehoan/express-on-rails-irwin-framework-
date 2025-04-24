@@ -6,7 +6,8 @@ import { RestActions } from "../enum";
 
 export class UserRoute {
   private static path = Router();
-  private static validateUserLoginMiddleware = new ValidateUserLoginMiddleware();
+  private static validateUserLoginMiddleware =
+    new ValidateUserLoginMiddleware();
   private static userController = new UserController();
 
   public static draw() {

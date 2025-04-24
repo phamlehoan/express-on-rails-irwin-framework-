@@ -12,11 +12,7 @@ export class DevRoute {
     Route.resource(this.path, this.devController, {
       except: [RestActions.Create],
     });
-    this.path.post(
-      "/",
-      upload.single("image"),
-      this.devController.create
-    );
+    this.path.post("/", upload.single("image"), this.devController.create);
 
     return this.path;
   }

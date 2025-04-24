@@ -48,14 +48,25 @@ export const sendMail = (
     },
   });
 
+  const isApiRequest = req.originalUrl.includes("/api");
   transporter.sendMail(mailOption, (err: Error | null, info: any) => {
     if (err) {
-      req.flash("error", err.message);
-      res.redirect("/");
+      if (isApiRequest) {
+        res.status(400).json({ success: false, error: err.message });
+      } else {
+        req.flash("error", err.message);
+        res.redirect("/");
+      }
       return;
     } else {
-      req.flash(FlashType.Success, { msg: "Register successfully" });
-      res.redirect("/");
+      if (isApiRequest) {
+        res
+          .status(400)
+          .json({ success: false, error: "Register successfully." });
+      } else {
+        req.flash(FlashType.Success, { msg: "Register successfully." });
+        res.redirect("/");
+      }
       return;
     }
   });

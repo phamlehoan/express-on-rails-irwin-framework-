@@ -6,5 +6,6 @@ db/dbml
 uploads
 app/assets/javascripts/generated
 .env
+render.yaml
 
 yarn-error.log

@@ -1,3 +1,9 @@
+export enum Feature {
+  AdministrationManagement = "AM",
+  Task = "TASK",
+  TaskType = "TASK_TYPE",
+}
+
 export enum RestActions {
   Index = "index",
   Show = "show",
@@ -9,7 +15,7 @@ export enum RestActions {
 }
 
 export enum FlashType {
-  Errors = 'errors',
-  Info = 'info',
+  Errors = "errors",
+  Info = "info",
   Success = "success",
 }

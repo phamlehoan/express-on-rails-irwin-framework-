@@ -1,1 +1,3 @@
-export class ApplicationController {}
+export class ApplicationController {
+  constructor() {}
+}

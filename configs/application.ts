@@ -32,10 +32,10 @@ class Application {
     this.app.use(
       session({
         secret: process.env.SESSION_SECRET || "a",
-        resave: true,
-        saveUninitialized: true,
+        resave: false,
+        saveUninitialized: false,
         cookie: {
-          secure: false,
+          secure: process.env.NODE_ENV === "production",
           httpOnly: true,
           maxAge: 1000 * 60 * 60 * 3,
         },
@@ -97,11 +97,13 @@ class Application {
   onErrorHandler() {
     this.app.use(
       (err: any, req: Request, res: Response, next: NextFunction) => {
-        // set locals, only providing error in development
         res.locals.message = err.message;
         res.locals.error = req.app.get("env") === "development" ? err : {};
 
-        // render the error page
+        if (err.message === "Invalid or expired token") {
+          return res.status(401).json({ message: err.message });
+        }
+
         res.status(err.status || 500);
         res.render("error");
       }
