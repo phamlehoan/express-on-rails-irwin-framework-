@@ -1,7 +1,6 @@
 export * from "./application.controller";
 
 export * from "./admin";
-export * from "./api";
 
 export * from "./auth.controller";
 export * from "./dev.controller";

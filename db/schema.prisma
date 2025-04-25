@@ -11,12 +11,12 @@ generator dbml {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String    @id() @default(uuid()) @map("id")
+  id        String    @id @default(uuid()) @map("id")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
   deleted   Boolean   @default(false) @map("deleted")
@@ -32,16 +32,19 @@ model User {
   address     String? @map("address")
 
   // Relations
-  roles       UserToRole[]
-  permissions UserToPermission[]
-  passwords   Password[]
-
-  roleCreated       Role[]       @relation("createdBy")
-  roleUpdated       Role[]       @relation("updatedBy")
-  featureCreated    Feature[]    @relation("createdBy")
-  featureUpdated    Feature[]    @relation("updatedBy")
-  permissionCreated Permission[] @relation("createdBy")
-  permissionUpdated Permission[] @relation("updatedBy")
+  roles             UserToRole[]
+  permissions       UserToPermission[]
+  passwords         Password[]
+  roleCreated       Role[]             @relation("createdBy")
+  roleUpdated       Role[]             @relation("updatedBy")
+  featureCreated    Feature[]          @relation("createdBy")
+  featureUpdated    Feature[]          @relation("updatedBy")
+  permissionCreated Permission[]       @relation("createdBy")
+  permissionUpdated Permission[]       @relation("updatedBy")
+  tasksCreated      Task[]             @relation("CreatedBy")
+  tasksAssigned     TaskToUser[]
+  taskTypesCreated  TaskType[]         @relation("CreatedBy")
+  activities        TaskActivity[]
 
   @@map("users")
 }
@@ -53,7 +56,7 @@ model Password {
   deleted   Boolean   @default(false) @map("deleted")
 
   password String
-  userId   String
+  userId   String @map("user_id")
 
   // Relation
   user User @relation(fields: [userId], references: [id])
@@ -62,7 +65,7 @@ model Password {
 }
 
 model Role {
-  id          String    @id() @default(uuid()) @map("id")
+  id          String    @id @default(uuid()) @map("id")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @default(now()) @updatedAt @map("updated_at")
   createdById String?   @map("created_by_id")
@@ -77,16 +80,15 @@ model Role {
   // Relations
   users       UserToRole[]
   permissions RoleToPermission[]
-
-  createdBy User? @relation("createdBy", fields: [createdById], references: [id])
-  updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
+  createdBy   User?              @relation("createdBy", fields: [createdById], references: [id])
+  updatedBy   User?              @relation("updatedBy", fields: [updatedById], references: [id])
 
   @@map("roles")
 }
 
 model UserToRole {
-  userId    String
-  roleId    String
+  userId    String    @map("user_id")
+  roleId    String    @map("role_id")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
 
@@ -99,7 +101,7 @@ model UserToRole {
 }
 
 model Feature {
-  id          String    @id() @default(uuid()) @map("id")
+  id          String    @id @default(uuid()) @map("id")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @default(now()) @updatedAt @map("updated_at")
   createdById String?   @map("created_by_id")
@@ -116,15 +118,14 @@ model Feature {
   parent      Feature?     @relation("featureRelation", fields: [parentId], references: [id])
   childs      Feature[]    @relation("featureRelation")
   permissions Permission[]
-
-  createdBy User? @relation("createdBy", fields: [createdById], references: [id])
-  updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
+  createdBy   User?        @relation("createdBy", fields: [createdById], references: [id])
+  updatedBy   User?        @relation("updatedBy", fields: [updatedById], references: [id])
 
   @@map("features")
 }
 
 model Permission {
-  id          String    @id() @default(uuid()) @map("id")
+  id          String    @id @default(uuid()) @map("id")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @default(now()) @updatedAt @map("updated_at")
   createdById String?   @map("created_by_id")
@@ -138,12 +139,11 @@ model Permission {
   featureId   String  @map("feature_id")
 
   // Relations
-  feature Feature            @relation(fields: [featureId], references: [id])
-  users   UserToPermission[]
-  roles   RoleToPermission[]
-
-  createdBy User? @relation("createdBy", fields: [createdById], references: [id])
-  updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
+  feature   Feature            @relation(fields: [featureId], references: [id])
+  users     UserToPermission[]
+  roles     RoleToPermission[]
+  createdBy User?              @relation("createdBy", fields: [createdById], references: [id])
+  updatedBy User?              @relation("updatedBy", fields: [updatedById], references: [id])
 
   @@map("permissions")
 }
@@ -174,4 +174,94 @@ model RoleToPermission {
 
   @@id([roleId, permissionId])
   @@map("role_to_permission")
+}
+
+model TaskType {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdBy String   @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation("CreatedBy", fields: [createdBy], references: [id])
+  tasks     Task[]
+
+  @@map("task_types")
+}
+
+model Task {
+  id          String           @id @default(uuid())
+  title       String
+  description String
+  typeId      String           @map("type_id")
+  status      String
+  dueDate     DateTime?        @map("due_date")
+  createdBy   String           @map("created_by")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  type        TaskType         @relation(fields: [typeId], references: [id])
+  creator     User             @relation("CreatedBy", fields: [createdBy], references: [id])
+  assignments TaskToUser[]
+  checklists  Checklist[]
+  attachments TaskAttachment[]
+  activities  TaskActivity[]
+  products    Product[]
+
+  @@map("tasks")
+}
+
+model TaskToUser {
+  taskId     String   @map("task_id")
+  userId     String   @map("user_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  task       Task     @relation(fields: [taskId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@id([taskId, userId])
+  @@map("task_to_user")
+}
+
+model Checklist {
+  id          String   @id @default(uuid())
+  taskId      String   @map("task_id")
+  title       String
+  isCompleted Boolean  @default(false) @map("is_completed")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  task        Task     @relation(fields: [taskId], references: [id])
+
+  @@map("checklists")
+}
+
+model TaskAttachment {
+  id        String   @id @default(uuid())
+  taskId    String   @map("task_id")
+  url       String
+  createdAt DateTime @default(now()) @map("created_at")
+  task      Task     @relation(fields: [taskId], references: [id])
+
+  @@map("task_attachments")
+}
+
+model TaskActivity {
+  id        String   @id @default(uuid())
+  taskId    String   @map("task_id")
+  userId    String   @map("user_id")
+  status    String
+  imageUrl  String?  @map("image_url")
+  score     Float?   @map("score")
+  createdAt DateTime @default(now()) @map("created_at")
+  task      Task     @relation(fields: [taskId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("task_activities")
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  taskId    String   @map("task_id")
+  code      String
+  createdAt DateTime @default(now()) @map("created_at")
+  task      Task     @relation(fields: [taskId], references: [id])
+
+  @@map("products")
 }
