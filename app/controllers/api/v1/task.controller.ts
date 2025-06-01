@@ -31,7 +31,7 @@ export class TaskController extends ApiV1Controller {
       where,
       include: {
         type: true,
-        creator: true,
+        createdBy: true,
         assignments: { include: { user: true } },
         checklists: true,
         attachments: true,
@@ -52,7 +52,7 @@ export class TaskController extends ApiV1Controller {
       where: { id },
       include: {
         type: true,
-        creator: true,
+        createdBy: true,
         assignments: { include: { user: true } },
         checklists: true,
         attachments: true,
@@ -111,7 +111,11 @@ export class TaskController extends ApiV1Controller {
       data: {
         title,
         description,
-        typeId,
+        type: {
+          connect: {
+            id: typeId,
+          },
+        },
         status,
         dueDate: dueDate ? new Date(dueDate) : undefined,
         createdBy: userId,
@@ -138,7 +142,7 @@ export class TaskController extends ApiV1Controller {
       },
       include: {
         type: true,
-        creator: true,
+        createdBy: true,
         assignments: { include: { user: true } },
         checklists: true,
         attachments: true,
@@ -231,7 +235,7 @@ export class TaskController extends ApiV1Controller {
       },
       include: {
         type: true,
-        creator: true,
+        createdBy: true,
         assignments: { include: { user: true } },
         checklists: true,
         attachments: true,

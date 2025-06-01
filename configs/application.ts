@@ -8,6 +8,7 @@ import createError from "http-errors";
 import methodOverride from "method-override";
 import { join, resolve } from "path";
 import serverless from "serverless-http";
+import env from "./env";
 import { Route } from "./routes";
 
 type RouteInfo = {
@@ -17,7 +18,7 @@ type RouteInfo = {
 };
 
 class Application {
-  private readonly port = process.env.PORT || "8000";
+  private readonly port = env.port || "8000";
   private readonly app: Express = express();
   private readonly routes: RouteInfo[] = [];
 
@@ -31,11 +32,11 @@ class Application {
     this.app.use(cookieParser());
     this.app.use(
       session({
-        secret: process.env.SESSION_SECRET || "a",
+        secret: env.sessionSecret,
         resave: false,
         saveUninitialized: false,
         cookie: {
-          secure: process.env.NODE_ENV === "production",
+          secure: env.nodeEnv === "production",
           httpOnly: true,
           maxAge: 1000 * 60 * 60 * 3,
         },

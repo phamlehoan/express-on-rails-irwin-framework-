@@ -43,21 +43,6 @@ export class TaskActivityController extends ApiV1Controller {
       ? await Promise.all(files.map((file) => uploadToCloudinary(file)))
       : [];
 
-    // Tạo activity
-    const activity = await models.taskActivity.create({
-      data: {
-        taskId,
-        userId,
-        status,
-        imageUrl: imageUrls[0] || null,
-        score: status === "HOAN_THANH" ? parseFloat(score) : null,
-      },
-      include: {
-        task: true,
-        user: true,
-      },
-    });
-
     // Cập nhật status của task
     await models.task.update({
       where: { id: taskId },
@@ -66,7 +51,6 @@ export class TaskActivityController extends ApiV1Controller {
 
     res.status(201).json({
       success: true,
-      data: activity,
     });
   }
 }

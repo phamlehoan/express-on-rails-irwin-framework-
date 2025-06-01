@@ -4,6 +4,7 @@ import {
   ValidateUserPermissionMiddleware,
 } from "@middlewares";
 import { Router } from "express";
+import { AuthRoute } from "./auth.route";
 import { ApiV1TaskRoute } from "./task.route";
 import { ApiV1TaskTypeRoute } from "./taskType.route";
 
@@ -17,6 +18,9 @@ export class ApiV1Route {
     new ValidateUserPermissionMiddleware("TASK::READ");
 
   public static draw() {
+    // Verify 3rd party token
+    this.path.use("/auth", AuthRoute.draw());
+
     this.path.use(this.validateUserLoginMiddleware.execute);
 
     // Permission routes

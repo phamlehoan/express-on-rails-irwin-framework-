@@ -31,6 +31,8 @@ model User {
   phoneNumber String? @map("phone_number")
   address     String? @map("address")
 
+  googleId String? @unique @map("google_id")
+
   // Relations
   roles             UserToRole[]
   permissions       UserToPermission[]
@@ -45,6 +47,8 @@ model User {
   tasksAssigned     TaskToUser[]
   taskTypesCreated  TaskType[]         @relation("CreatedBy")
   activities        TaskActivity[]
+  requestCreator    Request[]          @relation("CreatedBy")
+  requestApprover   Request[]          @relation("ApprovedBy")
 
   @@map("users")
 }
@@ -177,36 +181,61 @@ model RoleToPermission {
 }
 
 model TaskType {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  createdBy String   @map("created_by")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  user      User     @relation("CreatedBy", fields: [createdBy], references: [id])
+  id          String   @id @default(uuid())
+  name        String   @unique
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  createdBy User   @relation("CreatedBy", fields: [createdById], references: [id])
   tasks     Task[]
 
   @@map("task_types")
 }
 
 model Task {
-  id          String           @id @default(uuid())
-  title       String
-  description String
-  typeId      String           @map("type_id")
-  status      String
-  dueDate     DateTime?        @map("due_date")
-  createdBy   String           @map("created_by")
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
+  id          String   @id @default(uuid())
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  title       String    @map("title")
+  description String    @map("description")
+  typeId      String    @map("type_id")
+  status      String    @map("status")
+  dueDate     DateTime? @map("due_date")
+  cost        Float?    @map("cost")
+
+  priority   Int? @map("priority") // 1-5
+  score      Int? @map("score") // 1-5
+  difficulty Int? @map("difficulty") // 1-5
+
+  // Relations
   type        TaskType         @relation(fields: [typeId], references: [id])
-  creator     User             @relation("CreatedBy", fields: [createdBy], references: [id])
+  createdBy   User             @relation("CreatedBy", fields: [createdById], references: [id])
   assignments TaskToUser[]
   checklists  Checklist[]
   attachments TaskAttachment[]
   activities  TaskActivity[]
   products    Product[]
 
+  previousTasks TaskToTask[] @relation("PreviousTask")
+  nextTasks     TaskToTask[] @relation("NextTask")
+
   @@map("tasks")
+}
+
+model TaskToTask {
+  previousTaskId String @map("previous_task_id")
+  nextTaskId     String @map("next_task_id")
+
+  // Relations
+  previousTask Task @relation("PreviousTask", fields: [previousTaskId], references: [id])
+  nextTask     Task @relation("NextTask", fields: [nextTaskId], references: [id])
+
+  @@id([previousTaskId, nextTaskId])
+  @@map("task_to_task")
 }
 
 model TaskToUser {
@@ -221,37 +250,40 @@ model TaskToUser {
 }
 
 model Checklist {
-  id          String   @id @default(uuid())
-  taskId      String   @map("task_id")
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  taskId String @map("task_id")
+
   title       String
-  isCompleted Boolean  @default(false) @map("is_completed")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  task        Task     @relation(fields: [taskId], references: [id])
+  isCompleted Boolean @default(false) @map("is_completed")
+  task        Task    @relation(fields: [taskId], references: [id])
 
   @@map("checklists")
 }
 
 model TaskAttachment {
   id        String   @id @default(uuid())
-  taskId    String   @map("task_id")
-  url       String
   createdAt DateTime @default(now()) @map("created_at")
-  task      Task     @relation(fields: [taskId], references: [id])
+
+  taskId String @map("task_id")
+  url    String
+  task   Task   @relation(fields: [taskId], references: [id])
 
   @@map("task_attachments")
 }
 
 model TaskActivity {
   id        String   @id @default(uuid())
-  taskId    String   @map("task_id")
-  userId    String   @map("user_id")
-  status    String
-  imageUrl  String?  @map("image_url")
-  score     Float?   @map("score")
   createdAt DateTime @default(now()) @map("created_at")
-  task      Task     @relation(fields: [taskId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+
+  taskId      String  @map("task_id")
+  userId      String  @map("user_id")
+  description String  @map("description") // Markdown
+  imageUrl    String? @map("image_url")
+  task        Task    @relation(fields: [taskId], references: [id])
+  user        User    @relation(fields: [userId], references: [id])
 
   @@map("task_activities")
 }
@@ -264,4 +296,23 @@ model Product {
   task      Task     @relation(fields: [taskId], references: [id])
 
   @@map("products")
+}
+
+model Request {
+  id          String    @id @default(uuid())
+  createdById String    @map("created_by_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  requestType    String    @map("request_type") // CREATE_TASK
+  jsonParameters Json      @map("json_parameters")
+  status         String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy     String?   @map("approved_by")
+  approvedAt     DateTime? @map("approved_at")
+
+  // Relation
+  requester User  @relation("CreatedBy", fields: [createdById], references: [id])
+  approver  User? @relation("ApprovedBy", fields: [approvedBy], references: [id])
+
+  @@map("requests")
 }

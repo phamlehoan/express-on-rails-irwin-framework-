@@ -30,7 +30,7 @@ export class AuthController extends ApiV1Controller {
           .json({ success: false, message: "Invalid ID token" });
       }
 
-      const { email, given_name, family_name, picture } = payload;
+      const { email, given_name, family_name, picture, sub } = payload;
 
       let user = await models.user.findUnique({ where: { email } });
       if (!user) {
@@ -41,9 +41,21 @@ export class AuthController extends ApiV1Controller {
             lastName: family_name || "",
             avatarUrl: picture || "",
             status: "ACTIVE",
+            googleId: sub,
             roles: {
               create: [{ role: { connect: { code: "WORKER" } } }],
             },
+          },
+        });
+      } else {
+        user = await models.user.update({
+          where: { id: user.id },
+          data: {
+            firstName: given_name,
+            lastName: family_name,
+            email: email,
+            avatarUrl: picture,
+            googleId: user.googleId ? user.googleId : sub,
           },
         });
       }

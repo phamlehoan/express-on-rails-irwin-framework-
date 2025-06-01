@@ -31,34 +31,7 @@ export class ReportController extends ApiV1Controller {
     });
 
     // Tính năng suất
-    const productivity = await Promise.all(
-      userTasks.map(async (user) => {
-        const tasks = user.tasksAssigned.map((assignment) => assignment.task);
-        const scores = await models.taskActivity.findMany({
-          where: {
-            taskId: { in: tasks.map((task) => task.id) },
-            status: "HOAN_THANH",
-          },
-          select: { score: true },
-        });
-
-        const averageScore =
-          scores.length > 0
-            ? scores.reduce((sum, s) => sum + (s.score || 0), 0) / scores.length
-            : 0;
-
-        return {
-          userId: user.id,
-          fullName: `${user.firstName} ${user.lastName}`,
-          taskCount: tasks.length,
-          tasks: tasks.map((task) => ({
-            id: task.id,
-            title: task.title,
-          })),
-          averageProductivity: averageScore,
-        };
-      })
-    );
+    const productivity = {};
 
     res.status(200).json({
       success: true,
