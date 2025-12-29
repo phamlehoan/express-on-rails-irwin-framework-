@@ -39,7 +39,7 @@ export class UserController extends ApplicationController {
         req,
         res,
       },
-      accessToken.token as string
+      accessToken.access_token as string
     );
 
     req.flash(FlashType.Success, {

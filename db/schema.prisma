@@ -31,29 +31,32 @@ model User {
   phoneNumber String? @map("phone_number")
   address     String? @map("address")
 
-  // Relations
-  roles       UserToRole[]
-  permissions UserToPermission[]
-  passwords   Password[]
+  googleId String? @unique @map("google_id")
 
-  roleCreated       Role[]       @relation("createdBy")
-  roleUpdated       Role[]       @relation("updatedBy")
-  featureCreated    Feature[]    @relation("createdBy")
-  featureUpdated    Feature[]    @relation("updatedBy")
-  permissionCreated Permission[] @relation("createdBy")
-  permissionUpdated Permission[] @relation("updatedBy")
+  // Relations
+  roles             UserToRole[]
+  permissions       UserToPermission[]
+  passwords         Password[]
+  roleCreated       Role[]             @relation("createdBy")
+  roleUpdated       Role[]             @relation("updatedBy")
+  featureCreated    Feature[]          @relation("createdBy")
+  featureUpdated    Feature[]          @relation("updatedBy")
+  permissionCreated Permission[]       @relation("createdBy")
+  permissionUpdated Permission[]       @relation("updatedBy")
+  requestCreator    Request[]          @relation("createdBy")
+  requestApprover   Request[]          @relation("approvedBy")
 
   @@map("users")
 }
 
 model Password {
-  id        String    @id @default(uuid())
+  id        String    @id() @default(uuid())
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
   deleted   Boolean   @default(false) @map("deleted")
 
   password String
-  userId   String
+  userId   String @map("user_id")
 
   // Relation
   user User @relation(fields: [userId], references: [id])
@@ -77,16 +80,15 @@ model Role {
   // Relations
   users       UserToRole[]
   permissions RoleToPermission[]
-
-  createdBy User? @relation("createdBy", fields: [createdById], references: [id])
-  updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
+  createdBy   User?              @relation("createdBy", fields: [createdById], references: [id])
+  updatedBy   User?              @relation("updatedBy", fields: [updatedById], references: [id])
 
   @@map("roles")
 }
 
 model UserToRole {
-  userId    String
-  roleId    String
+  userId    String    @map("user_id")
+  roleId    String    @map("role_id")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
 
@@ -116,9 +118,8 @@ model Feature {
   parent      Feature?     @relation("featureRelation", fields: [parentId], references: [id])
   childs      Feature[]    @relation("featureRelation")
   permissions Permission[]
-
-  createdBy User? @relation("createdBy", fields: [createdById], references: [id])
-  updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
+  createdBy   User?        @relation("createdBy", fields: [createdById], references: [id])
+  updatedBy   User?        @relation("updatedBy", fields: [updatedById], references: [id])
 
   @@map("features")
 }
@@ -138,12 +139,11 @@ model Permission {
   featureId   String  @map("feature_id")
 
   // Relations
-  feature Feature            @relation(fields: [featureId], references: [id])
-  users   UserToPermission[]
-  roles   RoleToPermission[]
-
-  createdBy User? @relation("createdBy", fields: [createdById], references: [id])
-  updatedBy User? @relation("updatedBy", fields: [updatedById], references: [id])
+  feature   Feature            @relation(fields: [featureId], references: [id])
+  users     UserToPermission[]
+  roles     RoleToPermission[]
+  createdBy User?              @relation("createdBy", fields: [createdById], references: [id])
+  updatedBy User?              @relation("updatedBy", fields: [updatedById], references: [id])
 
   @@map("permissions")
 }
@@ -174,4 +174,23 @@ model RoleToPermission {
 
   @@id([roleId, permissionId])
   @@map("role_to_permission")
+}
+
+model Request {
+  id          String    @id() @default(uuid())
+  createdById String    @map("created_by_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  requestType    String    @map("request_type") // CREATE_TASK
+  jsonParameters String    @map("json_parameters")
+  status         String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy     String?   @map("approved_by")
+  approvedAt     DateTime? @map("approved_at")
+
+  // Relation
+  requester User  @relation("createdBy", fields: [createdById], references: [id])
+  approver  User? @relation("approvedBy", fields: [approvedBy], references: [id])
+
+  @@map("requests")
 }

@@ -19,33 +19,38 @@
   },
   "dependencies": {
     "@popperjs/core": "2.11.8",
+    "@supabase/supabase-js": "^2.49.4",
     "axios": "1.7.3",
     "body-parser": "1.20.2",
     "bootstrap": "5.3.2",
     "browserify": "17.0.0",
     "child_process": "1.0.2",
+    "cloudinary": "^2.6.0",
     "cookie-parser": "1.4.6",
     "cors": "2.8.5",
     "dayjs": "^1.11.12",
     "decimal.js": "^10.4.3",
-    "dotenv": "16.3.1",
+    "dotenv": "^16.5.0",
     "express": "4.18.2",
     "express-flash": "0.0.2",
     "express-session": "1.17.1",
     "font-awesome": "4.7.0",
+    "google-auth-library": "^9.15.1",
     "googleapis": "^140.0.1",
     "jquery": "3.7.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "4.17.5",
     "md5": "2.3.0",
     "method-override": "3.0.0",
-    "multer": "1.4.5-lts.1",
+    "multer": "^1.4.5-lts.2",
     "node-sass": "9.0.0",
-    "nodemailer": "6.9.14",
+    "nodemailer": "^6.10.1",
+    "prisma": "5.5.2",
     "pug": "3.0.2",
     "serverless": "3.36.0",
     "serverless-http": "3.2.0",
     "serverless-offline": "13.2.1",
+    "sharp": "^0.34.1",
     "sqlite3": "5.1.7",
     "tsconfig-paths": "4.2.0",
     "vue": "2.6.14"
@@ -64,13 +69,14 @@
     "@types/method-override": "0.0.35",
     "@types/multer": "1.4.11",
     "@types/node": "22.1.0",
-    "@types/nodemailer": "6.4.15",
+    "@types/nodemailer": "^6.4.17",
+    "@types/sharp": "0.31.1",
     "@types/validator": "10.11.3",
     "nodemon": "3.0.1",
-    "prisma": "5.5.2",
     "prisma-dbml-generator": "0.12.0",
+    "supabase": "^2.22.6",
     "ts-node": "10.9.1",
-    "typescript": "4.7.2"
+    "typescript": "^5.8.3"
   },
   "prisma": {
     "schema": "db/schema.prisma",
@@ -78,5 +84,6 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

@@ -61,6 +61,7 @@ export class AuthController extends ApplicationController {
           lastName: googleUser.family_name,
           email: googleUser.email,
           avatarUrl: googleUser.picture,
+          googleId: googleUser.id,
         },
       });
 
@@ -68,15 +69,15 @@ export class AuthController extends ApplicationController {
     } else {
       if (loginUser.deleted) {
         req.flash(FlashType.Errors, { msg: "User is deleted." });
-        return res.redirect('/auth');
+        return res.redirect("/auth");
       } else if (loginUser.status === UserStatus.INACTIVE) {
         req.flash(FlashType.Errors, { msg: "User is banned." });
-        return res.redirect('/auth');
+        return res.redirect("/auth");
       } else if (loginUser.status === UserStatus.PENDING) {
         req.flash(FlashType.Errors, {
-          msg: "Admin is reviewing your account creation request. Please wait.!"
+          msg: "Admin is reviewing your account creation request. Please wait.!",
         });
-        return res.redirect('/auth');
+        return res.redirect("/auth");
       }
 
       await models.user.update({
@@ -88,6 +89,7 @@ export class AuthController extends ApplicationController {
           lastName: googleUser.family_name,
           email: googleUser.email,
           avatarUrl: googleUser.picture,
+          googleId: loginUser.googleId ? loginUser.googleId : googleUser.id,
         },
       });
 
@@ -117,7 +119,7 @@ export class AuthController extends ApplicationController {
           some: {
             deleted: false,
             password: md5(password),
-          }
+          },
         },
         status: UserStatus.ACTIVE,
         deleted: false,
@@ -162,30 +164,33 @@ export class AuthController extends ApplicationController {
       select: {
         passwords: {
           where: {
-            deleted: false
+            deleted: false,
           },
           select: {
-            password: true
+            password: true,
           },
           orderBy: {
-            createdAt: Prisma.SortOrder.desc
-          }
-        }
-      }
+            createdAt: Prisma.SortOrder.desc,
+          },
+        },
+      },
     });
 
     if (!user) {
       req.flash(FlashType.Errors, { msg: "User is not found." });
-      return res.render('/auth/new');
+      return res.render("/auth/new");
     }
 
-    const token = user.passwords.length ? user.passwords[0]!.password : undefined;
+    const token = user.passwords.length
+      ? user.passwords[0]!.password
+      : undefined;
     if (!token && !req.user) {
       req.flash(FlashType.Errors, {
-        msg: "You are changing your password for the first time. " + 
-          "Please log in to your account using another method before changing your password."
+        msg:
+          "You are changing your password for the first time. " +
+          "Please log in to your account using another method before changing your password.",
       });
-      return res.redirect('/auth');
+      return res.redirect("/auth");
     }
 
     // TODO: Send email instead of redirect here
@@ -206,10 +211,11 @@ export class AuthController extends ApplicationController {
 
     if (!token && !req.user) {
       req.flash(FlashType.Errors, {
-        msg: "You are changing your password for the first time." + 
-          "Please log in to your account using another method before changing your password."
+        msg:
+          "You are changing your password for the first time." +
+          "Please log in to your account using another method before changing your password.",
       });
-      return res.redirect('/auth');
+      return res.redirect("/auth");
     }
 
     let isFirstTimeCreatePassword = false;
@@ -222,36 +228,36 @@ export class AuthController extends ApplicationController {
             some: {
               deleted: false,
               password: token,
-            }
+            },
           },
           status: UserStatus.ACTIVE,
           deleted: false,
         },
         select: {
-          passwords: true
-        }
+          passwords: true,
+        },
       });
 
       if (!user) {
         req.flash(FlashType.Errors, { msg: "User is not found." });
-        return res.redirect('/auth');
+        return res.redirect("/auth");
       }
     } else {
       const currentPassword = await models.password.findFirst({
         where: {
           userId: req.user.id,
-          deleted: false
-        }
+          deleted: false,
+        },
       });
 
       isFirstTimeCreatePassword = !currentPassword;
     }
 
-    res.render('auth.view/edit', {
+    res.render("auth.view/edit", {
       user: req.user,
       email: email,
       token: token,
-      isFirstTimeCreatePassword: isFirstTimeCreatePassword
+      isFirstTimeCreatePassword: isFirstTimeCreatePassword,
     });
   }
 
@@ -259,18 +265,20 @@ export class AuthController extends ApplicationController {
   public async update(req: Request, res: Response) {
     const { password, passwordConfirmation } = req.body;
     const email = req.params.id;
-    const oldPassword = req.user && req.body.oldPassword
-      ? md5(req.body.oldPassword) // Password in session
-      : req.body.oldPassword; // Password is a token from email
+    const oldPassword =
+      req.user && req.body.oldPassword
+        ? md5(req.body.oldPassword) // Password in session
+        : req.body.oldPassword; // Password is a token from email
 
     if (!oldPassword && !req.user) {
       req.flash(FlashType.Errors, {
-        msg: "You are changing your password for the first time." + 
-          "Please log in to your account using another method before changing your password."
+        msg:
+          "You are changing your password for the first time." +
+          "Please log in to your account using another method before changing your password.",
       });
-      return res.redirect('/auth');
+      return res.redirect("/auth");
     }
-    
+
     const user = await models.user.findUnique({
       where: {
         email,
@@ -279,8 +287,8 @@ export class AuthController extends ApplicationController {
             some: {
               password: oldPassword,
               deleted: false,
-            }
-          }
+            },
+          },
         }),
         status: UserStatus.ACTIVE,
         deleted: false,
@@ -288,7 +296,7 @@ export class AuthController extends ApplicationController {
       select: {
         id: true,
         passwords: true,
-      }
+      },
     });
 
     if (!user) {
@@ -301,32 +309,38 @@ export class AuthController extends ApplicationController {
       return res.redirect(`/auth/${email}/edit`);
     }
 
-    if (!password || !passwordConfirmation || password !== passwordConfirmation) {
-      req.flash(FlashType.Errors, { msg: "Password and confirmation do not match." });
+    if (
+      !password ||
+      !passwordConfirmation ||
+      password !== passwordConfirmation
+    ) {
+      req.flash(FlashType.Errors, {
+        msg: "Password and confirmation do not match.",
+      });
       return res.redirect(`/auth/${email}/edit`);
     }
 
     await models.user.update({
       where: {
-        id: user.id
+        id: user.id,
       },
       data: {
         passwords: {
           updateMany: {
             where: { deleted: false },
-            data: { deleted: true }
+            data: { deleted: true },
           },
           create: {
             password: md5(password),
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
 
     req.flash(FlashType.Success, {
-      msg: "Change password successfully. Please login to confirm your new password!"
+      msg: "Change password successfully. Please login to confirm your new password!",
     });
-    res.redirect('/auth');
+    res.redirect("/auth");
   }
 
   // Logout
@@ -334,9 +348,9 @@ export class AuthController extends ApplicationController {
     this.clearSession(req);
 
     req.flash(FlashType.Info, {
-      msg: "You are logged out!"
+      msg: "You are logged out!",
     });
-    res.redirect('/auth');
+    res.redirect("/auth");
   }
 
   private clearSession(req: Request) {

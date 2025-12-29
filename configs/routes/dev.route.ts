@@ -1,5 +1,5 @@
 import { RestActions } from "@configs/enum";
-import { upload } from "@configs/fileUpload";
+import { upload } from "@configs/fileAttachment";
 import { DevController } from "@controllers";
 import { Router } from "express";
 import { Route } from ".";

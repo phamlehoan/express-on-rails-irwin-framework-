@@ -1,6 +1,7 @@
+import env from "@configs/env";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
+const JWT_SECRET = env.jwtSecret || "fallback_secret";
 
 export const generateToken = (payload: object, expiresIn: string = "3h") => {
   return jwt.sign(payload, JWT_SECRET, { expiresIn });

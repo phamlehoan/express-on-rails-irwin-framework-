@@ -1,8 +1,8 @@
 import { FlashType } from "@configs/enum";
 import env from "@configs/env";
 import { Request, Response } from "express";
-import { google } from "googleapis";
-import { createTransport } from "nodemailer";
+import { Auth, google } from "googleapis";
+import { createTransport, Transporter } from "nodemailer";
 
 export type EmailOption = {
   from?: string; // email nguồn
@@ -12,7 +12,7 @@ export type EmailOption = {
   html?: string; // option 2: gửi nội dung email có chứa giao diện bằng html/css
 };
 
-export const getAccessToken = async () => {
+export const getAccessToken = async (): Promise<Auth.Credentials> => {
   const oAuth2Client = new google.auth.OAuth2(
     env.googleClientId,
     env.googleClientSecret,
@@ -21,7 +21,8 @@ export const getAccessToken = async () => {
 
   oAuth2Client.setCredentials({ refresh_token: env.googleRefreshToken });
 
-  return await oAuth2Client.getAccessToken();
+  const { token } = await oAuth2Client.getAccessToken();
+  return { access_token: token } as Auth.Credentials;
 };
 
 export const sendMail = (
@@ -36,7 +37,7 @@ export const sendMail = (
     from: options.from || env.emailFrom,
   };
 
-  const transporter = createTransport({
+  const transporter: Transporter = createTransport({
     service: "gmail",
     auth: {
       type: "OAuth2",
