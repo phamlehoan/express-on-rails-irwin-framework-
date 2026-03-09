@@ -14,13 +14,14 @@ export class ValidateUserPermissionMiddleware extends ApplicationMiddleware {
   public async execute(req: Request, res: Response, next: NextFunction) {
     const isApiRequest = req.originalUrl.includes("/api");
     if (!req.user) {
+      const t = (res.locals?.t as (k: string) => string) || ((k: string) => k);
       if (isApiRequest) {
         return res
           .status(403)
-          .json({ success: false, error: "You have to login first." });
+          .json({ success: false, error: t("flash.login_first") });
       } else {
-        req.flash(FlashType.Errors, { msg: "You have to login first." });
-        return res.redirect("/auth");
+        req.flash(FlashType.Errors, { msg: t("flash.no_permission") });
+        return res.redirect("/");
       }
     }
 
@@ -28,15 +29,62 @@ export class ValidateUserPermissionMiddleware extends ApplicationMiddleware {
     const user = await super.getUserById(req.user.id, isGetPermission);
 
     if (!user!.permissions?.includes(this.permissionCode)) {
+      const t = (res.locals?.t as (k: string) => string) || ((k: string) => k);
       if (isApiRequest) {
         return res.status(403).json({
           success: false,
-          error: "You don't have permission to access this page.",
+          error: t("flash.no_permission"),
         });
       } else {
-        req.flash(FlashType.Errors, {
-          msg: `You don't have permission to access this page.`,
+        req.flash(FlashType.Errors, { msg: t("flash.no_permission") });
+        return res.redirect(req.header("Referer") || "/");
+      }
+    }
+
+    next();
+  }
+}
+
+/**
+ * Kiểm tra user có ít nhất một trong các permission.
+ * Dùng cho admin khi chấp nhận AM hoặc UM.
+ */
+export class ValidateAnyPermissionMiddleware extends ApplicationMiddleware {
+  private permissionCodes: string[];
+
+  constructor(permissionCodes: string[]) {
+    super();
+    this.permissionCodes = permissionCodes;
+  }
+
+  public async execute(req: Request, res: Response, next: NextFunction) {
+    const isApiRequest = req.originalUrl.includes("/api");
+    if (!req.user) {
+      const t = (res.locals?.t as (k: string) => string) || ((k: string) => k);
+      if (isApiRequest) {
+        return res
+          .status(403)
+          .json({ success: false, error: t("flash.login_first") });
+      } else {
+        req.flash(FlashType.Errors, { msg: t("flash.no_permission") });
+        return res.redirect("/");
+      }
+    }
+
+    const user = await super.getUserById(req.user.id, true);
+    const hasAny = this.permissionCodes.some((code) =>
+      user!.permissions?.includes(code)
+    );
+
+    if (!hasAny) {
+      const t = (res.locals?.t as (k: string) => string) || ((k: string) => k);
+      if (isApiRequest) {
+        return res.status(403).json({
+          success: false,
+          error: t("flash.no_permission"),
         });
+      } else {
+        req.flash(FlashType.Errors, { msg: t("flash.no_permission") });
         return res.redirect(req.header("Referer") || "/");
       }
     }

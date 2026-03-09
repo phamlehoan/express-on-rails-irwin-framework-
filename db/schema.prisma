@@ -108,11 +108,12 @@ model Feature {
   updatedById String?   @map("updated_by_id")
   deleted     Boolean   @default(false) @map("deleted")
 
-  code        String  @unique @map("code")
+  code        String  @map("code")
   name        String  @map("name")
   description String? @map("description")
-  type        String  @default("FEATURE") @map("type") // SYSTEM, CORE, FEATURE
+  type        String  @default("FEATURE") @map("type") // MENU_GROUP (cha, không có permission), SYSTEM, CORE, FEATURE
   parentId    String? @map("parent_id")
+  sortOrder   Int     @default(0) @map("sort_order")
 
   // Relations
   parent      Feature?     @relation("featureRelation", fields: [parentId], references: [id])

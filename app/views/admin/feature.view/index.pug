@@ -1,0 +1,119 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item.active(aria-current="page")= t('admin.feature_management')
+
+    .card.mb-4.content-card
+      .card-header
+        h6.mb-0.text-uppercase.text-primary.fw-bold= t('admin.features_hierarchy')
+      .table-toolbar.d-flex.align-items-center.flex-wrap.gap-2.p-3.bg-light.border-bottom
+        form.d-flex.align-items-center.flex-grow-1(method="get" action="/admin/features" style="min-width: 0")
+          input(type="hidden" name="sortBy" value=sortBy)
+          .input-group.input-group-sm.me-auto(style="max-width: 500px")
+            input.form-control(type="search" name="search" placeholder=t('admin.search_by_code_name') value=search)
+            button.btn.btn-sm.btn-primary(type="submit" title=t('search'))
+              i.fa.fa-search
+          .d-flex.align-items-center.gap-2.ms-auto
+            select.form-select.form-select-sm(name="filterType" style="min-width: 120px" onchange="this.form.submit()")
+              option(value="")= t('admin.all_type')
+              option(value="MENU_GROUP" selected=filterType==='MENU_GROUP') MENU_GROUP
+              option(value="FEATURE" selected=filterType==='FEATURE') FEATURE
+              option(value="SYSTEM" selected=filterType==='SYSTEM') SYSTEM
+            button.btn.btn-sm.btn-outline-secondary(type="button" onclick="location.reload()" title=t('refresh'))
+              i.fa.fa-refresh
+        button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#newFeatureModal")
+          i.fa.fa-plus.me-1
+          | New Feature
+      .card-body
+        p.small.text-muted.mb-3 Tính năng có thể tạo mới và sửa. Những feature có type FEATURE thì không được phép sửa/xóa.
+        .table-responsive.rounded.border
+          table.table.table-hover.mb-0
+            thead
+              tr
+                th(style="width: 40%")= t('admin.code_name')
+                th= t('admin.type')
+                th= t('admin.permissions')
+            tbody
+              mixin featureRow(f, depth)
+                - const indent = depth * 1.5
+                tr.table-row-clickable(role="button" tabindex="0" data-href=`/admin/features/${f.id}`)
+                  td
+                    span(style=`padding-left: ${indent}rem`)
+                      if depth > 0
+                        i.fa.fa-level-up.fa-rotate-90.me-1.text-muted
+                      strong= f.code
+                      | 
+                      span.text-muted= f.name
+                  td
+                    span.badge(class=f.type==='MENU_GROUP'?'bg-secondary':'bg-info')= f.type
+                  td= (f.permissions || []).map(p => p.code).join(", ") || "-"
+                if f.children && f.children.length
+                  each child in f.children
+                    +featureRow(child, depth + 1)
+              each f in featuresTree
+                +featureRow(f, 0)
+
+    .card.mb-4.content-card
+      .card-header.d-flex.justify-content-between.align-items-center
+        h6.mb-0.text-uppercase.text-primary.fw-bold= t('admin.reorder_title')
+        button.btn.btn-sm.btn-primary(type="submit" form="reorderForm")
+          i.fa.fa-save.me-1
+          = t('admin.save_order')
+      .card-body
+        form#reorderForm(method="post" action="/admin/features/reorder")
+          .table-responsive.rounded
+            table.table.table-hover.mb-0
+              thead
+                tr
+                  th Feature
+                  th Parent (cha)
+                  th(style="width: 100px") Thứ tự
+              tbody
+                each f in features
+                  tr
+                    td
+                      strong= f.code
+                      | 
+                      span.text-muted= f.name
+                    td
+                      select.form-select.form-select-sm(name=`items[${f.id}][parentId]` style="min-width: 180px")
+                        option(value="")= t('no_parent')
+                        each p in features.filter(x => !x.parentId)
+                          option(value=p.id selected=f.parentId===p.id)= p.name
+                    td
+                      input.form-control.form-control-sm(type="number" name=`items[${f.id}][sortOrder]` value=f.sortOrder || 0 min="0" style="width: 70px")
+
+    //- New Feature Modal
+    #newFeatureModal.modal.fade(tabindex="-1" aria-labelledby="newFeatureModalLabel" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          form(method="post" action="/admin/features")
+            input(type="hidden" name="type" value="MENU_GROUP")
+            .modal-header
+              h5#newFeatureModalLabel.modal-title= t('admin.new_feature')
+              button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+            .modal-body
+              .mb-3
+                label.form-label= t('admin.code')
+                input.form-control(name="code" required placeholder="e.g. TASK_MANAGEMENT")
+              .mb-3
+                label.form-label= t('admin.name')
+                input.form-control(name="name" required placeholder="e.g. Task Management")
+              .mb-3
+                label.form-label= t('admin.parent')
+                select.form-select(name="parentId")
+                  option(value="")= t('admin.parent_none')
+                  each p in features.filter(x => !x.parentId)
+                    option(value=p.id)= p.name
+              .mb-3
+                label.form-label= t('admin.sort_order')
+                input.form-control(type="number" name="sortOrder" value="0" min="0")
+              .mb-3
+                label.form-label= t('admin.description')
+                textarea.form-control(name="description" rows="2" placeholder=t('optional'))
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal")= t('cancel')
+              button.btn.btn-primary(type="submit")= t('create')

@@ -1,16 +1,9 @@
-import { FlashType } from "@configs/enum";
+/**
+ * Mail config - OAuth token cho Gmail.
+ * Logic gửi email nằm trong app/mailers/ (ApplicationMailer).
+ */
 import env from "@configs/env";
-import { Request, Response } from "express";
 import { Auth, google } from "googleapis";
-import { createTransport, Transporter } from "nodemailer";
-
-export type EmailOption = {
-  from?: string; // email nguồn
-  to: string | string[]; // email nhận (1 hoặc nhiều email)
-  subject: string; // tiêu đề email
-  text?: string; // option 1: chỉ gửi mỗi nội dung là chữ cái
-  html?: string; // option 2: gửi nội dung email có chứa giao diện bằng html/css
-};
 
 export const getAccessToken = async (): Promise<Auth.Credentials> => {
   const oAuth2Client = new google.auth.OAuth2(
@@ -23,52 +16,4 @@ export const getAccessToken = async (): Promise<Auth.Credentials> => {
 
   const { token } = await oAuth2Client.getAccessToken();
   return { access_token: token } as Auth.Credentials;
-};
-
-export const sendMail = (
-  options: EmailOption,
-  httpInfo: { req: Request; res: Response },
-  accessToken: string
-) => {
-  const { req, res } = httpInfo;
-
-  const mailOption = {
-    ...options,
-    from: options.from || env.emailFrom,
-  };
-
-  const transporter: Transporter = createTransport({
-    service: "gmail",
-    auth: {
-      type: "OAuth2",
-      user: env.emailFrom,
-      clientId: env.googleClientId,
-      clientSecret: env.googleClientSecret,
-      refreshToken: env.googleRefreshToken,
-      accessToken,
-    },
-  });
-
-  const isApiRequest = req.originalUrl.includes("/api");
-  transporter.sendMail(mailOption, (err: Error | null, info: any) => {
-    if (err) {
-      if (isApiRequest) {
-        res.status(400).json({ success: false, error: err.message });
-      } else {
-        req.flash("error", err.message);
-        res.redirect("/");
-      }
-      return;
-    } else {
-      if (isApiRequest) {
-        res
-          .status(400)
-          .json({ success: false, error: "Register successfully." });
-      } else {
-        req.flash(FlashType.Success, { msg: "Register successfully." });
-        res.redirect("/");
-      }
-      return;
-    }
-  });
 };

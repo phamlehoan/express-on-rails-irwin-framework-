@@ -1,35 +1,37 @@
 import { FlashType } from "@configs/enum";
-import { Request, Response } from "express";
 import { ApplicationController } from ".";
 
 export class DevController extends ApplicationController {
-  public async index(req: Request, res: Response) {
-    res.render("dev.view/index", { user: req.user });
+  async index() {
+    this.renderView("dev.view/index", { user: this.req.user });
   }
 
-  public async show(req: Request, res: Response) {
-    res.render("dev.view/show", { user: req.user, part: req.params.part || 'colors' });
+  async show() {
+    this.renderView("dev.view/show", {
+      user: this.req.user,
+      part: this.req.params.part || this.req.params.id || "colors",
+    });
   }
 
-  public async new(req: Request, res: Response) {
-    res.render("dev.view/new", { user: req.user });
+  async new() {
+    this.renderView("dev.view/new", { user: this.req.user });
   }
 
-  public async create(req: Request, res: Response) {
-    req.flash(FlashType.Success, { msg: "Created" });
-    res.redirect("/dev");
+  async create() {
+    this.flash(FlashType.Success, { msg: this.t("flash.created") });
+    this.redirect("/dev");
   }
 
-  public async edit(req: Request, res: Response) {
-    res.render("dev.view/edit", { user: req.user });
+  async edit() {
+    this.renderView("dev.view/edit", { user: this.req.user });
   }
 
-  public async update(req: Request, res: Response) {
-    req.flash(FlashType.Success, { msg: "Updated" });
-    res.redirect("/dev");
+  async update() {
+    this.flash(FlashType.Success, { msg: this.t("flash.updated") });
+    this.redirect("/dev");
   }
 
-  public async destroy(req: Request, res: Response) {
-    res.redirect("/dev");
+  async destroy() {
+    this.redirect("/dev");
   }
 }

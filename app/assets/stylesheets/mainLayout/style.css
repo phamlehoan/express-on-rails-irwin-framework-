@@ -49,9 +49,16 @@ p {
   border-radius: 100%;
 }
 
-#userDropdown img {
-  width: 40px;
-  height: 40px;
+#userDropdown .img-profile {
+  width: 2rem;
+  height: 2rem;
+  object-fit: cover;
+}
+
+#userDropdown .dropdown-menu img {
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: cover;
 }
 
 #userDropdownAria {

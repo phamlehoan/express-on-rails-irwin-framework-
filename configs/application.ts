@@ -1,6 +1,15 @@
+import env from "./env";
+import { startCronJobs } from "./cron";
+import { initI18n } from "./i18n";
+import { AppError } from "@lib/errors";
+import { ApiResponse } from "@lib/response";
+import { i18nMiddleware } from "@middlewares/i18n.middleware";
+import { rateLimitMiddleware } from "@middlewares/rateLimit.middleware";
+import { requestIdMiddleware } from "@middlewares/requestId.middleware";
+import { requestLoggingMiddleware } from "@middlewares/requestLogging.middleware";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-// import cors from "cors";
+import cors from "cors";
 import express, { Express, NextFunction, Request, Response } from "express";
 import flash from "express-flash";
 import session from "express-session";
@@ -8,7 +17,6 @@ import createError from "http-errors";
 import methodOverride from "method-override";
 import { join, resolve } from "path";
 import serverless from "serverless-http";
-import env from "./env";
 import { Route } from "./routes";
 
 type RouteInfo = {
@@ -21,15 +29,25 @@ class Application {
   private readonly port = env.port || "8000";
   private readonly app: Express = express();
   private readonly routes: RouteInfo[] = [];
+  private i18nReady: Promise<void> = Promise.resolve();
 
   constructor() {
     this.app.set("views", join(resolve("./app"), "views"));
     this.app.set("view engine", "pug");
 
+    this.app.use(requestIdMiddleware);
+    this.app.use(requestLoggingMiddleware);
     this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: false }));
+    this.app.use(express.urlencoded({ extended: true }));
     this.app.use(methodOverride("_method"));
     this.app.use(cookieParser());
+    this.app.use(
+      cors({
+        origin: process.env.CORS_ORIGIN || true,
+        credentials: true,
+      })
+    );
+    this.app.use(rateLimitMiddleware());
     this.app.use(
       session({
         secret: env.sessionSecret,
@@ -43,8 +61,8 @@ class Application {
       })
     );
     this.app.use(flash());
-    this.app.use(bodyParser.urlencoded({ extended: false }));
-    // this.app.use(cors<Request>());
+    this.app.use(bodyParser.urlencoded({ extended: true }));
+    this.app.use(i18nMiddleware);
 
     this.app.use(express.static(join(resolve("app"), "assets")));
     this.app.use(
@@ -72,11 +90,21 @@ class Application {
       express.static(join(resolve("./node_modules"), "vue/dist"))
     );
 
+    // I18n, Cron (async init) - lưu promise để run() await
+    this.i18nReady = initI18n().then(() => startCronJobs());
+
     // Cài đặt các route được xây dựng trong hệ thống
     this.mountRoutes();
 
-    // Báo lỗi khi hệ thống ghi nhận sai sót
+    // API Documentation (Swagger) - paths được đăng ký từ từng route file
+    if (env.nodeEnv === "development") {
+      const { setupSwagger } = require("./swagger/index");
+      setupSwagger(this.app);
+    }
+
+    // 404 - catch-all cho route không tồn tại
     this.on404Handler();
+    // Global error handler
     this.onErrorHandler();
 
     // Hàm dùng để hỗ trợ lập trình viên kiểm tra những route đã được cài đặt trong hệ thống
@@ -88,24 +116,48 @@ class Application {
   }
 
   on404Handler() {
-    this.app.use(
-      (err: any, req: Request, res: Response, next: NextFunction) => {
-        next(createError(404));
-      }
-    );
+    this.app.use((_req: Request, _res: Response, next: NextFunction) => {
+      next(createError(404, "Not Found"));
+    });
   }
 
   onErrorHandler() {
     this.app.use(
-      (err: any, req: Request, res: Response, next: NextFunction) => {
-        res.locals.message = err.message;
-        res.locals.error = req.app.get("env") === "development" ? err : {};
+      (err: unknown, req: Request, res: Response, _next: NextFunction) => {
+        const isApiRequest = req.originalUrl?.includes("/api");
+        const isDev = req.app.get("env") === "development";
 
-        if (err.message === "Invalid or expired token") {
-          return res.status(401).json({ message: err.message });
+        res.locals.message = err instanceof Error ? err.message : "Internal Server Error";
+        res.locals.error = isDev && err instanceof Error ? err : {};
+
+        // AppError (BadRequestError, NotFoundError, ...)
+        if (err instanceof AppError) {
+          if (isApiRequest) {
+            const errors = (err as any).errors as
+              | Record<string, string[]>
+              | undefined;
+            return res.status(err.statusCode).json(
+              ApiResponse.error(err.message, errors)
+            );
+          }
+          res.status(err.statusCode);
+          return res.render("error");
         }
 
-        res.status(err.status || 500);
+        // JWT errors
+        if (err instanceof Error && err.message === "Invalid or expired token") {
+          return res.status(401).json(ApiResponse.error(err.message));
+        }
+
+        // http-errors và các lỗi khác
+        const status = (err as any)?.status ?? (err as any)?.statusCode ?? 500;
+        const message =
+          err instanceof Error ? err.message : "Internal Server Error";
+        if (isApiRequest) {
+          return res.status(status).json(ApiResponse.error(message));
+        }
+
+        res.status(status);
         res.render("error");
       }
     );
@@ -165,15 +217,17 @@ class Application {
     return serverless(this.app);
   }
 
-  run() {
+  async run() {
+    await this.i18nReady;
     this.app
       .listen(this.port, () => {
         const url = `http://localhost:${this.port}`;
-        console.log(`[server]:⚡️ Server is running at ${url}`);
-        // if (env.NODE_ENV === "development") exec(`start microsoft-edge:${url}`);
+        const { logger } = require("@lib/logger");
+        logger.info({ url }, `Server is running at ${url}`);
       })
-      .on("error", (_error) => {
-        return console.log("Error: ", _error.message);
+      .on("error", (_error: Error) => {
+        const { logger } = require("@lib/logger");
+        logger.error({ err: _error }, _error.message);
       });
   }
 }

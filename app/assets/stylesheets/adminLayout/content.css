@@ -1,0 +1,252 @@
+/**
+ * Content area styling - tables, cards, inputs, spacing.
+ * Chỉ áp dụng cho nội dung trong #block-content, không đụng sidebar/header.
+ */
+
+#block-content .container-fluid {
+  padding: 0 1rem;
+}
+
+/* Cards - bo cong, shadow nhẹ */
+#block-content .card {
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#block-content .card.content-card {
+  border-left: 4px solid #4f46e5;
+}
+
+#block-content .card-header {
+  border-radius: 0.5rem 0.5rem 0 0;
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+#block-content .card-body {
+  padding: 1.25rem;
+}
+
+/* Tables - spacing, hover, bo cong */
+#block-content .table {
+  font-size: 0.9rem;
+}
+
+#block-content .table-responsive.rounded {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+#block-content .table thead th {
+  font-weight: 600;
+  color: #374151;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+#block-content .table tbody td {
+  padding: 0.875rem 1rem;
+  vertical-align: middle;
+  background: #fff;
+}
+
+#block-content .table tbody tr:hover {
+  background: #f9fafb;
+}
+
+#block-content .table-hover tbody tr:hover {
+  background: #f9fafb;
+}
+
+#block-content .table th.text-center,
+#block-content .table td.text-center {
+  text-align: center;
+}
+
+/* Action column - không xuống dòng khi còn không gian */
+#block-content .table .table-actions {
+  white-space: nowrap;
+}
+
+/* Clickable table row - mở detail khi click vào record */
+#block-content .table-row-clickable {
+  cursor: pointer;
+}
+
+#block-content .table-row-clickable:hover {
+  background: #f3f4f6 !important;
+}
+
+/* Table block - list không dùng card */
+#block-content .table-block {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+#block-content .table-block .table-responsive.rounded-0 {
+  border: none;
+  border-radius: 0;
+}
+
+/* Inputs - bo cong, focus */
+#block-content .form-control,
+#block-content .form-select {
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+#block-content .form-control {
+  padding-right: 0.75rem;
+}
+
+#block-content .form-select {
+  padding-right: 2.25rem;
+  min-width: 5rem;
+}
+
+#block-content .form-control:focus,
+#block-content .form-select:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+#block-content .form-check-input {
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 0.25rem;
+}
+
+/* Checkbox Permission: text lề trái, checkbox lề phải - dùng flex */
+#block-content .form-check-right {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+#block-content .form-check-right .form-check-label {
+  flex: 1;
+  min-width: 0;
+  order: 1;
+}
+
+#block-content .form-check-right .form-check-input {
+  margin: 0;
+  flex-shrink: 0;
+  order: 2;
+}
+
+/* Select All: chữ lề phải, ngay cạnh checkbox */
+#block-content .form-check-select-all {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#block-content .form-check-select-all .form-check-input {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* Input-group: input trước, nút search sau - bo góc trái cho input, phải cho nút */
+#block-content .input-group .form-control:first-child {
+  border-radius: 0.375rem 0 0 0.375rem;
+}
+#block-content .input-group .form-control:not(:first-child):not(:last-child) {
+  border-radius: 0;
+}
+#block-content .input-group .btn:last-child {
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+#block-content .input-group .input-group-text {
+  border-radius: 0.375rem 0 0 0.375rem;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+}
+
+/* Buttons */
+#block-content .btn {
+  border-radius: 0.375rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+}
+
+#block-content .btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Breadcrumb */
+#block-content .breadcrumb {
+  padding: 0.75rem 0;
+  font-size: 0.875rem;
+}
+
+/* Fixed breadcrumb - cố định như header, luôn hiển thị khi scroll */
+:root {
+  --breadcrumb-fixed-height: 2.75rem;
+  --breadcrumb-content-margin-top: 5rem;
+  /* margin-top cho nội dung, đủ lớn để không bị che */
+}
+
+#block-content nav.breadcrumb-sticky {
+  position: fixed;
+  top: 4.375rem;
+  left: 14rem;
+  right: 0;
+  width: calc(100% - 14rem);
+  height: var(--breadcrumb-fixed-height);
+  min-height: var(--breadcrumb-fixed-height);
+  display: flex;
+  align-items: center;
+  z-index: 1038;
+  background-color: #f8f9fc;
+  padding: 0 1rem;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+}
+
+#block-content nav.breadcrumb-sticky .breadcrumb {
+  padding: 0;
+  margin: 0;
+}
+
+body.sidebar-toggled #block-content nav.breadcrumb-sticky {
+  left: 6.5rem;
+  width: calc(100% - 6.5rem);
+}
+
+/* Dành chỗ cho breadcrumb fixed - tránh nội dung bị che khi scroll */
+#block-content .container-fluid>nav.breadcrumb-sticky+* {
+  margin-top: var(--breadcrumb-content-margin-top) !important;
+}
+
+#block-content .breadcrumb-item+.breadcrumb-item::before {
+  color: #9ca3af;
+}
+
+/* Spacing giữa các section */
+#block-content .card.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+#block-content .mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+/* Pagination */
+#block-content .pagination .page-link {
+  border-radius: 0.375rem;
+  margin: 0 0.125rem;
+}

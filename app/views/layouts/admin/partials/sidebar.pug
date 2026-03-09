@@ -10,33 +10,34 @@ ul#accordion-sidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordi
   li.nav-item
     a.nav-link(href='/')
       i.fa.fa-fw.fa-home
-      span Web App
+      span= t('sidebar.web_app')
 
   hr.sidebar-divider
   
-  .sidebar-heading
-    | Administration Management
-  li.nav-item.active
+  .sidebar-heading= t('sidebar.admin_management')
+  li.nav-item(class=activeMenu === 'users' ? 'active' : '')
     a.nav-link(href='/admin/users')
       i.fa.fa-fw.fa-users
-      span Account Management
-  li.nav-item
-    a.nav-link(href='/admin/users')
+      span= t('sidebar.account_management')
+  li.nav-item(class=activeMenu === 'roles' ? 'active' : '')
+    a.nav-link(href='/admin/roles')
+      i.fa.fa-fw.fa-shield
+      span= t('sidebar.roles_permissions')
+  li.nav-item(class=activeMenu === 'features' ? 'active' : '')
+    a.nav-link(href='/admin/features')
       i.fa.fa-fw.fa-cog
-      span Roles & Permissions
+      span= t('sidebar.features')
 
   - if (process.env.NODE_ENV === 'development')
     hr.sidebar-divider.my-0
-    // Nav Item - Dev Collapse Menu
-    li.nav-item
-      a.nav-link.collapsed(role='button' href='#' data-bs-toggle='collapse' data-bs-target='#collapseDev' aria-expanded='true' aria-controls='collapseDev')
+    li.nav-item(class=activeMenu === 'dev' ? 'active' : '')
+      a.nav-link(role='button' href='#' data-bs-toggle='collapse' data-bs-target='#collapseDev' aria-expanded=activeMenu === 'dev' ? 'true' : 'false' aria-controls='collapseDev' class=activeMenu === 'dev' ? 'nav-link' : 'nav-link collapsed')
         i.fa.fa-fw.fa-wrench
-        span Dev
-      #collapseDev.collapse(aria-labelledby='headingDev' data-parent='#accordion-sidebar')
+        span= t('sidebar.dev')
+      #collapseDev.collapse(aria-labelledby='headingDev' data-parent='#accordion-sidebar' class=activeMenu === 'dev' ? 'collapse show' : 'collapse')
         .bg-white.py-2.collapse-inner.rounded
-          h6.collapse-header Development Tools:
-          a.collapse-item(href='/dev') UI Utilities
+          h6.collapse-header= t('sidebar.dev_tools')
+          a.collapse-item(href='/dev' class=activeMenu === 'dev' ? 'active' : '')= t('sidebar.ui_utilities')
 
-  // Sidebar Toggler (Sidebar)
   .text-center.d-none.d-md-inline
     button#sidebarToggle.rounded-circle.border-0

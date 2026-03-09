@@ -1,52 +1,39 @@
 import { FlashType } from "@configs/enum";
-import { getAccessToken, sendMail } from "@configs/mail";
+import { UserMailer } from "@mailers/user.mailer";
 import models from "@models";
-import { Request, Response } from "express";
 import { ApplicationController } from ".";
 
 export class UserController extends ApplicationController {
-  public async index(req: Request, res: Response) {
-    res.render("user.view/index", { user: req.user });
+  async index() {
+    this.renderView("user.view/index", { user: this.req.user });
   }
 
-  public async new(req: Request, res: Response) {
-    res.render("user.view/new", { user: req.user });
+  async new() {
+    this.renderView("user.view/new", { user: this.req.user });
   }
 
-  public async create(req: Request, res: Response) {
+  async create() {
     const user = await models.user.create({
-      data: {
-        ...req.body,
-      },
+      data: this.params as any,
     });
 
-    const accessToken = await getAccessToken();
-
-    if (!accessToken) {
-      req.flash(FlashType.Errors, { msg: "Google token has been exprired." });
-      res.redirect("/users");
+    try {
+      await UserMailer.createdUser(
+        user.email,
+        user.firstName,
+        user.lastName,
+        user.middleName ?? undefined
+      );
+    } catch {
+      this.flash(FlashType.Errors, { msg: "Google token has been expired." });
+      return this.redirect("/users");
     }
 
-    sendMail(
-      {
-        to: user.email,
-        subject: "Created user",
-        text: `You has been created user ${user.firstName}${
-          user.middleName ? ` ${user.middleName}` : ""
-        } ${user.lastName}`,
-      },
-      {
-        req,
-        res,
-      },
-      accessToken.access_token as string
-    );
-
-    req.flash(FlashType.Success, {
+    this.flash(FlashType.Success, {
       msg: `Created user ${user.firstName}${
         user.middleName ? ` ${user.middleName}` : ""
       } ${user.lastName}`,
     });
-    res.redirect("/users");
+    this.redirect("/users");
   }
 }

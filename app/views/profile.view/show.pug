@@ -1,0 +1,107 @@
+extends ../layouts/main/layout
+
+block content
+  section.page-section
+    .container
+      h2.section-heading My Profile
+
+      #profileApp
+        .card.mb-4(style="max-width: 600px; margin: 0 auto")
+          .card-header.d-flex.justify-content-between.align-items-center
+            h6.mb-0 Personal Information
+            button.btn.btn-sm(:class="isEdit ? 'btn-outline-secondary' : 'btn-warning'" @click="toggleEdit")
+              | {{ isEdit ? 'Cancel' : 'Edit' }}
+          .card-body
+            template(v-if="!isEdit")
+              .row
+                .col-md-6.mb-3
+                  label.text-muted.small First Name
+                  p.mb-0.fw-semibold {{ user.firstName }}
+                .col-md-6.mb-3
+                  label.text-muted.small Last Name
+                  p.mb-0.fw-semibold {{ user.lastName }}
+                .col-md-6.mb-3
+                  label.text-muted.small Email
+                  p.mb-0.fw-semibold {{ user.email }}
+                .col-md-6.mb-3(v-if="user.phoneNumber")
+                  label.text-muted.small Phone
+                  p.mb-0.fw-semibold {{ user.phoneNumber }}
+                .col-md-6.mb-3(v-if="user.gender")
+                  label.text-muted.small Gender
+                  p.mb-0.fw-semibold {{ user.gender }}
+                .col-12.mb-3(v-if="user.address")
+                  label.text-muted.small Address
+                  p.mb-0 {{ user.address }}
+            form(v-else @submit.prevent="saveProfile")
+              .row
+                .col-md-6.mb-3
+                  label.form-label First Name
+                  input.form-control(v-model="form.firstName" required)
+                .col-md-6.mb-3
+                  label.form-label Last Name
+                  input.form-control(v-model="form.lastName" required)
+                .col-md-6.mb-3
+                  label.form-label Email
+                  input.form-control(type="text" :value="user.email" disabled)
+                  small.text-muted Email cannot be changed
+                .col-md-6.mb-3
+                  label.form-label Phone
+                  input.form-control(v-model="form.phoneNumber")
+                .col-md-6.mb-3
+                  label.form-label Gender
+                  select.form-select(v-model="form.gender")
+                    option(value="") -- Select --
+                    option(value="male") Male
+                    option(value="female") Female
+                    option(value="other") Other
+                .col-12.mb-3
+                  label.form-label Address
+                  textarea.form-control(v-model="form.address" rows="2")
+              button.btn.btn-primary(type="submit") Save
+
+  script.
+    (function() {
+      const user = !{JSON.stringify(user)};
+      new Vue({
+        el: '#profileApp',
+        data: {
+          user,
+          isEdit: false,
+          form: {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phoneNumber: user.phoneNumber || '',
+            address: user.address || '',
+            gender: user.gender || ''
+          }
+        },
+        methods: {
+          toggleEdit() {
+            this.isEdit = !this.isEdit;
+            if (!this.isEdit) this.resetForm();
+          },
+          resetForm() {
+            this.form = {
+              firstName: this.user.firstName,
+              lastName: this.user.lastName,
+              phoneNumber: this.user.phoneNumber || '',
+              address: this.user.address || '',
+              gender: this.user.gender || ''
+            };
+          },
+          saveProfile() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/me?_method=PUT';
+            ['firstName','lastName','phoneNumber','address','gender'].forEach(k => {
+              const i = document.createElement('input');
+              i.name = k;
+              i.value = this.form[k] || '';
+              form.appendChild(i);
+            });
+            document.body.appendChild(form);
+            form.submit();
+          }
+        }
+      });
+    })();

@@ -1,0 +1,6 @@
+extends ../../layouts/admin/layout
+
+block content
+  #featureDetailApp
+  script#featureData(type="application/json")
+    != JSON.stringify({ feature, features })

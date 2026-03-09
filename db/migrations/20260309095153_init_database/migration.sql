@@ -68,6 +68,7 @@ CREATE TABLE "features" (
     "description" TEXT,
     "type" TEXT NOT NULL DEFAULT 'FEATURE',
     "parent_id" TEXT,
+    "sort_order" INTEGER NOT NULL DEFAULT 0,
     CONSTRAINT "features_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "features" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "features_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "users" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "features_updated_by_id_fkey" FOREIGN KEY ("updated_by_id") REFERENCES "users" ("id") ON DELETE SET NULL ON UPDATE CASCADE
@@ -138,6 +139,3 @@ CREATE UNIQUE INDEX "users_google_id_key" ON "users"("google_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "roles_code_key" ON "roles"("code");
-
--- CreateIndex
-CREATE UNIQUE INDEX "features_code_key" ON "features"("code");

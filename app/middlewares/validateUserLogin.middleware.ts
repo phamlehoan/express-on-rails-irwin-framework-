@@ -10,12 +10,13 @@ export class ValidateUserLoginMiddleware extends ApplicationMiddleware {
   public async execute(req: Request, res: Response, next: NextFunction) {
     if (!req.user) {
       const isApiRequest = req.originalUrl.includes("/api");
+      const t = (res.locals?.t as (k: string) => string) || ((k: string) => k);
       if (isApiRequest) {
         return res
           .status(403)
-          .json({ success: false, error: "You have to login first." });
+          .json({ success: false, error: t("flash.login_first") });
       } else {
-        req.flash(FlashType.Errors, { msg: "You have to login first." });
+        req.flash(FlashType.Errors, { msg: t("flash.login_first") });
         return res.redirect("/auth");
       }
     }

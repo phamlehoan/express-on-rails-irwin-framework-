@@ -1,0 +1,43 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item
+          a(href="/admin/features")= t('admin.feature_management')
+        li.breadcrumb-item.active(aria-current="page")= t('admin.new_feature')
+
+    .card.mb-4.content-card
+      .card-header
+        h6.mb-0.text-uppercase.text-primary.fw-bold Feature Information
+      .card-body
+        form(method="post" action="/admin/features")
+          .row
+            .col-md-4.mb-3
+              label.form-label Code
+              input.form-control(name="code" required placeholder="e.g. TASK_CREATE")
+            .col-md-4.mb-3
+              label.form-label Name
+              input.form-control(name="name" required placeholder="e.g. Create Task")
+            .col-md-4.mb-3
+              label.form-label Type
+              select.form-select(name="type")
+                option(value="FEATURE") FEATURE
+                option(value="MENU_GROUP") MENU_GROUP
+                option(value="SYSTEM") SYSTEM
+            .col-md-4.mb-3
+              label.form-label Parent
+              select.form-select(name="parentId")
+                option(value="") -- None --
+                each p in features
+                  option(value=p.id)= p.name
+            .col-md-4.mb-3
+              label.form-label Sort Order
+              input.form-control(type="number" name="sortOrder" value="0" min="0")
+            .col-12.mb-3
+              label.form-label Description
+              textarea.form-control(name="description" rows="2" placeholder="Optional")
+          .d-flex.gap-2
+            button.btn.btn-primary(type="submit") Create
+            a.btn.btn-outline-secondary(href="/admin/features") Cancel

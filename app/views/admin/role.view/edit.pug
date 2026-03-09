@@ -1,0 +1,88 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item
+          a(href="/admin/roles")= t('sidebar.roles_permissions')
+        li.breadcrumb-item
+          a(href=`/admin/roles/${role.id}`)= role.name
+        li.breadcrumb-item.active(aria-current="page")= t('edit')
+
+    form(method="post" action=`/admin/roles/${role.id}?_method=PUT`)
+      .row
+        .col-lg-8
+          //- Role Information
+          .card.mb-4.content-card
+            .card-header
+              h6.mb-0.text-uppercase.text-primary.fw-bold Role Information
+            .card-body
+              .row
+                .col-md-4.mb-3
+                  label.form-label Code
+                  input.form-control(name="code" value=role.code required readonly=role.isReadOnly)
+                .col-md-4.mb-3
+                  label.form-label Name
+                  input.form-control(name="name" value=role.name required readonly=role.isReadOnly)
+                .col-md-12.mb-3
+                  label.form-label Description
+                  textarea.form-control(name="description" rows="2")= role.description || ''
+
+        .col-lg-4
+          //- Permission Information
+          .card.mb-4.content-card
+            .card-header.d-flex.justify-content-between.align-items-center
+              span.text-uppercase.text-primary.fw-bold Permissions
+              button.btn.btn-sm.btn-primary(type="submit")
+                i.fa.fa-check.me-1
+                | Update
+            .card-body
+              p.small.text-muted.mb-2 Check the checkbox to grant permission
+              .form-check.form-check-select-all.mb-2.pb-2.border-bottom
+                label.form-check-label(for="selectAllPerms") Select All
+                input.form-check-input#selectAllPerms(type="checkbox" title="Select all permissions")
+              .accordion#functions-accordion
+                each f in features
+                  .accordion-item.border.rounded.mb-2
+                    h2.accordion-header
+                      button.accordion-button.collapsed(type="button" data-bs-toggle="collapse" data-bs-target=`#collapse-${f.id}`)
+                        = f.name
+                    .accordion-collapse.collapse(id=`collapse-${f.id}`)
+                      .accordion-body.pt-0
+                        each p in f.permissions
+                          - const hasPerm = role.permissions.some(rp => rp.permissionId === p.id)
+                          .form-check.form-check-right
+                            label.form-check-label(for=`perm-${p.id}`)= p.code
+                            input.form-check-input(
+                              type="checkbox"
+                              name="permissionIds"
+                              value=p.id
+                              id=`perm-${p.id}`
+                              checked=hasPerm
+                            )
+
+      .d-flex.gap-2.mb-4
+        button.btn.btn-primary(type="submit")
+          i.fa.fa-save.me-1
+          | Update
+        a.btn.btn-outline-secondary(href=`/admin/roles/${role.id}`) Cancel
+
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('input[name="permissionIds"]').forEach(cb => {
+        cb.addEventListener('change', function() { updateSelectAllPerms(); });
+      });
+      var selectAllPerms = document.getElementById('selectAllPerms');
+      if (selectAllPerms) {
+        selectAllPerms.addEventListener('change', function() {
+          document.querySelectorAll('input[name="permissionIds"]').forEach(p => p.checked = this.checked);
+        });
+      }
+      function updateSelectAllPerms() {
+        var all = document.querySelectorAll('input[name="permissionIds"]');
+        var checked = document.querySelectorAll('input[name="permissionIds"]:checked');
+        if (selectAllPerms) selectAllPerms.checked = all.length > 0 && checked.length === all.length;
+      }
+      updateSelectAllPerms();
+    });

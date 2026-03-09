@@ -1,0 +1,98 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item.active(aria-current="page")= t('sidebar.roles_permissions')
+
+    .table-block.mb-4
+      .table-toolbar.d-flex.align-items-center.flex-wrap.gap-2.p-3.bg-light.rounded-top.border.border-bottom-0
+        form.d-flex.align-items-center.flex-grow-1(method="get" action="/admin/roles" style="min-width: 0")
+          input(type="hidden" name="sortBy" value=sortBy)
+          input(type="hidden" name="sortOrder" value=sortOrder)
+          input(type="hidden" name="perPage" value=perPage)
+          .input-group.input-group-sm.me-auto(style="max-width: 500px")
+            input.form-control(type="search" name="search" placeholder=t('admin.search_by_code_name') value=search)
+            button.btn.btn-sm.btn-primary(type="submit" title=t('search'))
+              i.fa.fa-search
+          .d-flex.align-items-center.gap-2.ms-auto
+            button.btn.btn-sm.btn-outline-secondary(type="button" onclick="location.reload()" title=t('refresh'))
+              i.fa.fa-refresh
+        button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#newRoleModal")
+          i.fa.fa-plus.me-1
+          = t('admin.new_role')
+      .table-responsive.rounded-0
+        table.table.table-hover.mb-0
+          thead
+            tr
+              th
+                a.text-decoration-none(href=buildSortUrl('code')) Code
+                if sortBy === 'code'
+                  i.fa.ms-1(class=sortOrder==='desc'?'fa-sort-desc':'fa-sort-asc' style="opacity:0.7")
+              th
+                a.text-decoration-none(href=buildSortUrl('name')) Name
+                if sortBy === 'name'
+                  i.fa.ms-1(class=sortOrder==='desc'?'fa-sort-desc':'fa-sort-asc' style="opacity:0.7")
+              th Permissions
+              th.text-center.table-actions Actions
+          tbody
+            each r in roles
+              tr.table-row-clickable(role="button" tabindex="0" data-href=`/admin/roles/${r.id}`)
+                td= r.code
+                td= r.name
+                td= r.permissions.map(rp => `${rp.permission.feature.code}::${rp.permission.code}`).join(", ") || "-"
+                td.text-center.table-actions( onclick="event.stopPropagation()")
+                  if !r.isReadOnly
+                    form.d-inline(method="post" action=`/admin/roles/${r.id}?_method=DELETE` onsubmit=`return confirm("${t('admin.delete_role_confirm')}")`)
+                      button.btn.btn-sm.btn-link.text-danger.p-0(type="submit" title="Delete")
+                        i.fa.fa-trash
+      .table-footer.d-flex.justify-content-between.align-items-center.p-3.border-top.bg-light.rounded-bottom
+        span.text-muted.small
+          | Showing #{(page-1)*perPage+1}-#{Math.min(page*perPage, total)} of #{total} roles
+        .d-flex.align-items-center.gap-2
+          form.d-inline(method="get" action="/admin/roles")
+            input(type="hidden" name="search" value=search)
+            input(type="hidden" name="sortBy" value=sortBy)
+            input(type="hidden" name="sortOrder" value=sortOrder)
+            input(type="hidden" name="perPage" value=perPage)
+            select.form-select.form-select-sm(name="perPage" style="min-width: 70px" onchange="this.form.submit()")
+              option(value="10" selected=perPage===10) 10
+              option(value="25" selected=perPage===25) 25
+              option(value="50" selected=perPage===50) 50
+            span.small.text-muted.ms-1= t('per_page')
+          if total > perPage
+            nav
+              ul.pagination.pagination-sm.mb-0
+                - const totalPages = Math.ceil(total / perPage)
+                - const baseUrl = "/admin/roles?page="
+                - const qs = buildQueryString()
+                li.page-item(class=page<=1?'disabled':'')
+                  a.page-link(href=page<=1?'#':baseUrl+(page-1)+qs) &lsaquo;
+                - for (let p = 1; p <= Math.min(totalPages, 10); p++)
+                  li.page-item(class=p===page?'active':'')
+                    a.page-link(href=baseUrl+p+qs)= p
+                li.page-item(class=page>=totalPages?'disabled':'')
+                  a.page-link(href=page>=totalPages?'#':baseUrl+(page+1)+qs) &rsaquo;
+
+    //- New Role Modal
+    #newRoleModal.modal.fade(tabindex="-1" aria-labelledby="newRoleModalLabel" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          form(method="post" action="/admin/roles")
+            .modal-header
+              h5#newRoleModalLabel.modal-title= t('admin.new_role')
+              button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+            .modal-body
+              .mb-3
+                label.form-label= t('admin.code')
+                input.form-control(name="code" required placeholder=t('admin.code_placeholder'))
+              .mb-3
+                label.form-label= t('admin.name')
+                input.form-control(name="name" required placeholder=t('admin.name_placeholder'))
+              .mb-3
+                label.form-label= t('admin.description')
+                textarea.form-control(name="description" rows="2" placeholder=t('admin.description_placeholder'))
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal")= t('cancel')
+              button.btn.btn-primary(type="submit")= t('create')

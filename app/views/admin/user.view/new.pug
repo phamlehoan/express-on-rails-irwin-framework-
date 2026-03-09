@@ -1,0 +1,27 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item
+          a(href="/admin/users")= t('sidebar.account_management')
+        li.breadcrumb-item.active(aria-current="page")= t('admin.new_user')
+
+    form(method="post" action="/admin/users")
+      .mb-3
+        label.form-label First Name
+        input.form-control(name="firstName" required)
+      .mb-3
+        label.form-label Last Name
+        input.form-control(name="lastName" required)
+      .mb-3
+        label.form-label Email
+        input.form-control(name="email" type="email" required)
+      .mb-3
+        label.form-label Roles
+        each r in roles
+          .form-check
+            input.form-check-input(type="checkbox" name="roleIds" value=r.id)
+            label.form-check-label= r.name
+      button.btn.btn-primary(type="submit") Create

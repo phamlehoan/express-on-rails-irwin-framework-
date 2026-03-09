@@ -1,0 +1,108 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item
+          a(href="/admin/users")= t('sidebar.account_management')
+        li.breadcrumb-item
+          a(href=`/admin/users/${targetUser.id}`)= targetUser.email
+        li.breadcrumb-item.active(aria-current="page")= t('edit')
+
+    form(method="post" action=`/admin/users/${targetUser.id}?_method=PUT`)
+      .row
+        .col-lg-8
+          //- Personal Information
+          .card.mb-4.content-card
+            .card-header
+              h6.mb-0.text-uppercase.text-primary.fw-bold Personal Information
+            .card-body
+              .row
+                .col-md-6.mb-3
+                  label.form-label First Name
+                  input.form-control(name="firstName" value=targetUser.firstName required)
+                .col-md-6.mb-3
+                  label.form-label Last Name
+                  input.form-control(name="lastName" value=targetUser.lastName required)
+                .col-md-6.mb-3
+                  label.form-label Email
+                  input.form-control(name="email" type="email" value=targetUser.email required)
+                .col-md-6.mb-3
+                  label.form-label Status
+                  select.form-select(name="status")
+                    option(value="ACTIVE" selected=targetUser.status==="ACTIVE") ACTIVE
+                    option(value="INACTIVE" selected=targetUser.status==="INACTIVE") INACTIVE
+                    option(value="PENDING" selected=targetUser.status==="PENDING") PENDING
+                .col-md-6.mb-3
+                  label.form-label Phone
+                  input.form-control(name="phoneNumber" value=targetUser.phoneNumber || '')
+                .col-12.mb-3
+                  label.form-label Address
+                  textarea.form-control(name="address" rows="2")= targetUser.address || ''
+
+          //- Roles
+          .card.mb-4.content-card
+            .card-header
+              h6.mb-0.text-uppercase.text-primary.fw-bold Roles
+            .card-body
+              each r in roles
+                - const hasRole = targetUser.roles.some(ur => ur.roleId === r.id)
+                .form-check
+                  input.form-check-input(type="checkbox" name="roleIds" value=r.id checked=hasRole id=`role-${r.id}`)
+                  label.form-check-label(for=`role-${r.id}`)= r.name
+
+        .col-lg-4
+          //- Direct Permissions (like Roles & Permissions)
+          .card.mb-4.content-card
+            .card-header
+              span.text-uppercase.text-primary.fw-bold Direct Permissions
+            .card-body
+              p.small.text-muted.mb-2 Permissions ngoài role, ghi đè cho user này
+              .form-check.form-check-select-all.mb-2.pb-2.border-bottom
+                label.form-check-label(for="selectAllUserPerms") Select All
+                input.form-check-input#selectAllUserPerms(type="checkbox" title="Select all permissions")
+              .accordion#userPermsEditAccordion
+                each f in features
+                  .accordion-item.border.rounded.mb-2
+                    h2.accordion-header
+                      button.accordion-button.collapsed(type="button" data-bs-toggle="collapse" data-bs-target=`#edit-collapse-${f.id}`)
+                        = f.name
+                    .accordion-collapse.collapse(id=`edit-collapse-${f.id}`)
+                      .accordion-body.pt-0
+                        each p in f.permissions
+                          - const hasPerm = targetUser.permissions.some(up => up.permissionId === p.id)
+                          .form-check.form-check-right
+                            label.form-check-label(for=`perm-${p.id}`)= p.code
+                            input.form-check-input(
+                              type="checkbox"
+                              name="permissionIds"
+                              value=p.id
+                              id=`perm-${p.id}`
+                              checked=hasPerm
+                            )
+
+      .d-flex.gap-2.mb-4
+        button.btn.btn-primary(type="submit")
+          i.fa.fa-save.me-1
+          | Update
+        a.btn.btn-outline-secondary(href=`/admin/users/${targetUser.id}`) Cancel
+
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      var selectAll = document.getElementById('selectAllUserPerms');
+      if (selectAll) {
+        selectAll.addEventListener('change', function() {
+          document.querySelectorAll('input[name="permissionIds"]').forEach(p => p.checked = this.checked);
+        });
+        function updateSelectAll() {
+          var all = document.querySelectorAll('input[name="permissionIds"]');
+          var checked = document.querySelectorAll('input[name="permissionIds"]:checked');
+          selectAll.checked = all.length > 0 && checked.length === all.length;
+        }
+        document.querySelectorAll('input[name="permissionIds"]').forEach(cb => {
+          cb.addEventListener('change', updateSelectAll);
+        });
+        updateSelectAll();
+      }
+    });

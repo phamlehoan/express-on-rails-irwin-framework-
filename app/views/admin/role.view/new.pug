@@ -1,0 +1,30 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item
+          a(href="/admin/roles")= t('sidebar.roles_permissions')
+        li.breadcrumb-item.active(aria-current="page")= t('admin.new_role')
+
+    .card.mb-4.content-card
+      .card-header
+        h6.mb-0.text-uppercase.text-primary.fw-bold Role Information
+      .card-body
+        form(method="post" action="/admin/roles")
+          .row
+            .col-md-4.mb-3
+              label.form-label Code
+              input.form-control(name="code" required placeholder="e.g. ADMIN")
+            .col-md-4.mb-3
+              label.form-label Name
+              input.form-control(name="name" required placeholder="e.g. Administrator")
+            .col-md-12.mb-3
+              label.form-label Description
+              textarea.form-control(name="description" rows="2" placeholder="Optional description")
+          .d-flex.gap-2
+            button.btn.btn-primary(type="submit")
+              i.fa.fa-save.me-1
+              | Create
+            a.btn.btn-outline-secondary(href="/admin/roles") Cancel

@@ -1,0 +1,7 @@
+{
+  "not_found": "Không tìm thấy",
+  "bad_request": "Yêu cầu không hợp lệ",
+  "unauthorized": "Chưa đăng nhập",
+  "forbidden": "Không có quyền truy cập",
+  "unprocessable": "Dữ liệu không hợp lệ"
+}

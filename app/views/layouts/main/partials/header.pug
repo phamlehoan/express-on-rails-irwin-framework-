@@ -7,9 +7,10 @@ nav#mainNav.navbar.navbar-expand-lg.navbar-dark.navbar-shrink.fixed-top
       i.fa.fa-bars.ms-1
     #navbarResponsive.collapse.navbar-collapse
       ul.navbar-nav.text-uppercase.ms-auto.py-4.py-lg-0
-        - if (user?.features?.includes('AM'))
+        - const canAccessAdmin = typeof hasAdminAccess !== 'undefined' ? hasAdminAccess : (user && (user.permissions || []).some(function(p) { return p.indexOf('AM::') === 0 || p.indexOf('UM::') === 0; }));
+        - if (canAccessAdmin)
           li.nav-item
-            a.nav-link(href='/admin') Admin
+            a.nav-link.btn.btn-primary.btn-sm.text-white.ms-2(href='/admin' style='padding: 0.5rem 1rem') Admin
         - if (process.env.NODE_ENV === 'development')
           li.nav-item
             a.nav-link(href='/dev') Dev

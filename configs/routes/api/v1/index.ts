@@ -1,24 +1,32 @@
+import env from "@configs/env";
 import { MyPermissionController } from "@controllers/api";
+import { action } from "@lib/controllerHelpers";
 import { ValidateUserLoginMiddleware } from "@middlewares";
 import { Router } from "express";
-import { AuthRoute } from "./auth.route";
+import { ApiV1AdminRoute } from "./admin";
+import { AuthRoute } from "./auth";
+import { DevRoute } from "./dev";
 
 export class ApiV1Route {
   private static path = Router();
   private static validateUserLoginMiddleware =
     new ValidateUserLoginMiddleware();
-  private static myPermissionController = new MyPermissionController();
 
   public static draw() {
-    // Verify 3rd party token
+    if (env.nodeEnv === "development") {
+      this.path.use("/dev", DevRoute.draw());
+    }
     this.path.use("/auth", AuthRoute.draw());
 
     this.path.use(this.validateUserLoginMiddleware.execute);
 
-    // Permission routes
+    // Permission routes - action(Controller, "index") tạo instance mới mỗi request
     this.path
       .route("/permissions/me")
-      .get(this.myPermissionController.index.bind(this.myPermissionController));
+      .get(action(MyPermissionController, "index"));
+
+    // Admin routes - yêu cầu AM permission
+    this.path.use("/admin", ApiV1AdminRoute.draw());
 
     return this.path;
   }

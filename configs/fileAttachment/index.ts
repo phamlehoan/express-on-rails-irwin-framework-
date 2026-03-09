@@ -1,4 +1,5 @@
 import env from "@configs/env";
+import { ALLOWED_IMAGE_TYPES, MAX_FILE_SIZE } from "@configs/fileUpload";
 import { createClient } from "@supabase/supabase-js";
 import { v2 as cloudinary } from "cloudinary";
 import { Request } from "express";
@@ -21,9 +22,16 @@ cloudinary.config({
 
 export const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10000000, files: 5 },
+  limits: { fileSize: MAX_FILE_SIZE, files: 5 },
   fileFilter(req: Request, file: Express.Multer.File, cb: FileFilterCallback) {
-    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+    if (!(ALLOWED_IMAGE_TYPES as readonly string[]).includes(file.mimetype)) {
+      return cb(
+        new Error(
+          `Invalid file type. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}`
+        )
+      );
+    }
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/i)) {
       return cb(new Error("Please upload a valid image file (jpg, jpeg, png)"));
     }
     cb(null, true);

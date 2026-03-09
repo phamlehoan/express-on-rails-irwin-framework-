@@ -1,0 +1,48 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item
+          a(href="/admin/roles")= t('sidebar.roles_permissions')
+        li.breadcrumb-item
+          a(href=`/admin/roles/${role.id}`)= role.name
+        li.breadcrumb-item.active(aria-current="page")= t('admin.assign_user')
+
+    .card.mb-4.content-card
+      .card-body
+        form(method="get" action=`/admin/roles/${role.id}/assign`)
+          .mb-3
+            label.form-label Search by Account Name, Email
+            .input-group
+              input.form-control(type="search" name="search" placeholder=t('admin.search_by_account_email') value=search)
+              button.btn.btn-primary(type="submit" title=t('search'))
+                i.fa.fa-search
+
+        form(method="post" action=`/admin/roles/${role.id}/assign-user`)
+          if usersToAssign.length
+            table.table.table-hover
+              thead
+                tr
+                  th
+                    input(type="checkbox" id="selectAll")
+                  th Account Name
+                  th Email
+              tbody
+                each u in usersToAssign
+                  tr
+                    td
+                      input.form-check-input(type="checkbox" name="userIds" value=u.id)
+                    td= `${u.firstName || ''} ${u.lastName || ''}`.trim() || '-'
+                    td= u.email
+            button.btn.btn-primary(type="submit") Assign Selected
+          else
+            p.text-muted No users available to assign. All users may already be in this role.
+
+  script.
+    document.getElementById('selectAll')?.addEventListener('change', function() {
+      document.querySelectorAll('input[name="userIds"]').forEach(cb => {
+        cb.checked = this.checked;
+      });
+    });

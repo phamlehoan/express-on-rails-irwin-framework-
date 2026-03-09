@@ -1,0 +1,293 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item
+          a(href="/admin/roles")= t('sidebar.roles_permissions')
+        li.breadcrumb-item.active(aria-current="page")= role.name
+
+    //- Role Information
+    .card.mb-4.content-card
+      .card-header.d-flex.justify-content-between.align-items-center
+        h6.mb-0.text-uppercase.text-primary.fw-bold Role Information
+        .d-flex.gap-2
+          button.btn.btn-sm.btn-warning(type="button" data-bs-toggle="modal" data-bs-target="#editRoleModal")
+            i.fa.fa-edit.me-1
+            | Edit
+          if !role.isReadOnly
+            form.d-inline(method="post" action=`/admin/roles/${role.id}?_method=DELETE` onsubmit="return confirm('Delete this role?')")
+              button.btn.btn-sm.btn-danger(type="submit")
+                i.fa.fa-trash.me-1
+                | Delete
+      .card-body
+        .row
+          .col-md-3
+            label.text-muted.small Role Name
+            p.mb-2.fw-semibold= role.name
+          .col-md-3
+            label.text-muted.small Role ID
+            p.mb-2.fw-semibold= role.code
+          .col-md-6
+            label.text-muted.small Description
+            p.mb-2= role.description || '-'
+
+    //- Assigned Users
+    .card.mb-4.content-card
+      .card-header
+        span.text-uppercase.text-primary.fw-bold Assigned Users
+      .table-toolbar.d-flex.align-items-center.flex-wrap.gap-2.p-3.bg-light.border-bottom
+        form.d-flex.align-items-center.flex-grow-1(method="get" action=`/admin/roles/${role.id}` style="min-width: 0")
+          input(type="hidden" name="sortBy" value=sortBy)
+          input(type="hidden" name="sortOrder" value=sortOrder)
+          input(type="hidden" name="perPage" value=perPage)
+          .input-group.input-group-sm.me-auto(style="max-width: 500px")
+            input.form-control(type="search" name="search" placeholder=t('admin.search_by_account_email') value=search)
+            button.btn.btn-sm.btn-primary(type="submit" title=t('search'))
+              i.fa.fa-search
+          .d-flex.align-items-center.gap-2.ms-auto
+            select.form-select.form-select-sm(name="filterStatus" style="min-width: 110px" onchange="this.form.submit()")
+              option(value="")= t('admin.all_status')
+              option(value="ACTIVE" selected=filterStatus==='ACTIVE') ACTIVE
+              option(value="INACTIVE" selected=filterStatus==='INACTIVE') INACTIVE
+              option(value="PENDING" selected=filterStatus==='PENDING') PENDING
+            button.btn.btn-sm.btn-outline-secondary(type="button" onclick="location.reload()" title=t('refresh'))
+              i.fa.fa-refresh
+        button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#assignUserModal")
+          i.fa.fa-plus.me-1
+          | Assign User
+      .card-body.p-0
+        .px-3.pt-2
+          .table-responsive.rounded
+            table.table.table-hover.mb-0
+              thead
+                tr
+                  th
+                    a.text-decoration-none(href=buildSortUrl('accountName'))
+                      | Account Name
+                      if sortBy === 'accountName'
+                        i.fa.ms-1(class=sortOrder==='desc'?'fa-sort-desc':'fa-sort-asc' style="opacity:0.7")
+                  th
+                    a.text-decoration-none(href=buildSortUrl('email'))
+                      | Email
+                      if sortBy === 'email'
+                        i.fa.ms-1(class=sortOrder==='desc'?'fa-sort-desc':'fa-sort-asc' style="opacity:0.7")
+                  th Account Type
+                  th.text-center.table-actions(style="width: 80px") Action
+              tbody
+                each u in assignedUsers
+                  tr
+                    td= `${u.firstName || ''} ${u.lastName || ''}`.trim() || '-'
+                    td= u.email
+                    td= u.status || 'User'
+                    td.text-center.table-actions
+                      form.d-inline(method="post" action=`/admin/roles/${role.id}/users/${u.id}?_method=DELETE`)
+                        button.btn.btn-sm.btn-link.text-danger.p-0(type="submit" onclick="return confirm('Unassign this user?')")
+                          i.fa.fa-trash
+                else
+                  tr
+                    td(colspan="4").text-muted.text-center.py-4 No users assigned
+        .table-footer.d-flex.justify-content-between.align-items-center.p-3.border-top.bg-light.rounded-bottom
+          span.text-muted.small
+            | Showing #{Math.min((page-1)*perPage+1, totalAssigned)}-#{Math.min(page*perPage, totalAssigned)} of #{totalAssigned} users
+          .d-flex.align-items-center.gap-2
+            form.d-inline(method="get" action=`/admin/roles/${role.id}`)
+              input(type="hidden" name="search" value=search)
+              input(type="hidden" name="sortBy" value=sortBy)
+              input(type="hidden" name="sortOrder" value=sortOrder)
+              input(type="hidden" name="filterStatus" value=filterStatus)
+              select.form-select.form-select-sm(name="perPage" style="min-width: 70px" onchange="this.form.submit()")
+                option(value="10" selected=perPage===10) 10
+                option(value="25" selected=perPage===25) 25
+                option(value="50" selected=perPage===50) 50
+              span.small.text-muted.ms-1 Items per page
+            if totalAssigned > perPage
+              nav
+                ul.pagination.pagination-sm.mb-0
+                  - const totalPages = Math.ceil(totalAssigned / perPage)
+                  - const baseUrl = `/admin/roles/${role.id}?page=`
+                  - const qs = buildQueryString()
+                  li.page-item(class=page<=1?'disabled':'')
+                    a.page-link(href=page<=1?'#':baseUrl+(page-1)+qs) &lsaquo;
+                  - for (let p = 1; p <= totalPages; p++)
+                    li.page-item(class=p===page?'active':'')
+                      a.page-link(href=baseUrl+p+qs)= p
+                  li.page-item(class=page>=totalPages?'disabled':'')
+                    a.page-link(href=page>=totalPages?'#':baseUrl+(page+1)+qs) &rsaquo;
+
+    //- Permission Information
+    .card.mb-4.content-card
+      .card-header.d-flex.justify-content-between.align-items-center
+        span.text-uppercase.text-primary.fw-bold Permission Information
+        button.btn.btn-sm.btn-primary(type="submit" form="permForm")
+          i.fa.fa-check.me-1
+          | Apply Permissions
+      .card-body
+        form#permForm(method="post" action=`/admin/roles/${role.id}?_method=PUT`)
+          .row
+            .col-md-4.border-end.pe-4
+              h6.small.text-uppercase.text-muted.mb-2 Modules List
+              p.small.text-muted Check the checkbox to grant permission
+              .form-check.form-check-select-all.mb-2.pb-2.border-bottom
+                label.form-check-label(for="selectAllModules") Select All
+                input.form-check-input#selectAllModules(type="checkbox" title="Select all modules")
+              .modules-list
+                each f in features
+                  - const hasAny = role.permissions.some(rp => rp.permission.featureId === f.id)
+                  .form-check.py-2.border-bottom.form-check-right
+                    label.form-check-label(for=`mod-${f.id}`)= f.name
+                    input.form-check-input.module-check(
+                      type="checkbox"
+                      id=`mod-${f.id}`
+                      data-feature=f.id
+                      checked=hasAny
+                    )
+            .col-md-8
+              h6.small.text-uppercase.text-muted.mb-2 Functions & Components
+              p.small.text-muted Expand each module to configure permissions
+              .form-check.form-check-select-all.mb-2.pb-2.border-bottom
+                label.form-check-label(for="selectAllPerms") Select All
+                input.form-check-input#selectAllPerms(type="checkbox" title="Select all permissions")
+              .accordion#functions-accordion
+                each f in features
+                  .accordion-item.border.rounded.mb-2
+                    h2.accordion-header
+                      button.accordion-button.collapsed(type="button" data-bs-toggle="collapse" data-bs-target=`#collapse-${f.id}`)
+                        = f.name
+                    .accordion-collapse.collapse(id=`collapse-${f.id}`)
+                      .accordion-body.pt-0
+                        each p in f.permissions
+                          - const hasPerm = role.permissions.some(rp => rp.permissionId === p.id)
+                          .form-check.form-check-right
+                            label.form-check-label(for=`perm-${p.id}`)= p.code
+                            input.form-check-input(
+                              type="checkbox"
+                              name="permissionIds"
+                              value=p.id
+                              id=`perm-${p.id}`
+                              checked=hasPerm
+                            )
+
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.module-check').forEach(cb => {
+        cb.addEventListener('change', function() {
+          if (!this.checked) {
+            const fid = this.dataset.feature;
+            document.querySelectorAll('#collapse-' + fid + ' input[name="permissionIds"]').forEach(p => p.checked = false);
+          }
+          updateSelectAllModules();
+          updateSelectAllPerms();
+        });
+      });
+      document.querySelectorAll('input[name="permissionIds"]').forEach(cb => {
+        cb.addEventListener('change', function() { updateSelectAllPerms(); });
+      });
+      var selectAllModules = document.getElementById('selectAllModules');
+      var selectAllPerms = document.getElementById('selectAllPerms');
+      if (selectAllModules) {
+        selectAllModules.addEventListener('change', function() {
+          document.querySelectorAll('.module-check').forEach(cb => cb.checked = this.checked);
+          if (!this.checked) document.querySelectorAll('input[name="permissionIds"]').forEach(p => p.checked = false);
+          updateSelectAllPerms();
+        });
+      }
+      if (selectAllPerms) {
+        selectAllPerms.addEventListener('change', function() {
+          document.querySelectorAll('input[name="permissionIds"]').forEach(p => p.checked = this.checked);
+          if (this.checked) document.querySelectorAll('.module-check').forEach(cb => cb.checked = true);
+          else updateSelectAllModules();
+        });
+      }
+      function updateSelectAllModules() {
+        var all = document.querySelectorAll('.module-check');
+        var checked = document.querySelectorAll('.module-check:checked');
+        if (selectAllModules) selectAllModules.checked = all.length > 0 && checked.length === all.length;
+      }
+      function updateSelectAllPerms() {
+        var all = document.querySelectorAll('input[name="permissionIds"]');
+        var checked = document.querySelectorAll('input[name="permissionIds"]:checked');
+        if (selectAllPerms) selectAllPerms.checked = all.length > 0 && checked.length === all.length;
+      }
+      updateSelectAllModules();
+      updateSelectAllPerms();
+    });
+
+  //- Edit Role Modal
+  #editRoleModal.modal.fade(tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true")
+    .modal-dialog
+      .modal-content
+        form(method="post" action=`/admin/roles/${role.id}?_method=PUT`)
+          .modal-header
+            h5#editRoleModalLabel.modal-title Edit Role
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            .mb-3
+              label.form-label Code
+              input.form-control(name="code" value=role.code required readonly=role.isReadOnly)
+            .mb-3
+              label.form-label Name
+              input.form-control(name="name" value=role.name required)
+            .mb-3
+              label.form-label Description
+              textarea.form-control(name="description" rows="2")= role.description || ''
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancel
+            button.btn.btn-primary(type="submit") Save
+
+  //- Assign User Modal
+  #assignUserModal.modal.fade(tabindex="-1" aria-labelledby="assignUserModalLabel" aria-hidden="true")
+    .modal-dialog.modal-lg
+      .modal-content
+        form#assignUserForm(method="post" action=`/admin/roles/${role.id}/assign-user`)
+          .modal-header
+            h5#assignUserModalLabel.modal-title Assign User to #{role.name}
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            .mb-3
+              label.form-label= t('admin.search_by_account_email')
+              .input-group
+                input.form-control#assignSearch(type="search" placeholder=t('admin.search_by_account_email'))
+                button.btn.btn-primary(type="button" onclick="loadAssignUsers()" title=t('search'))
+                  i.fa.fa-search
+            #assignUsersContent
+              p.text-muted.text-center.py-4 Loading...
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
+            button.btn.btn-primary(type="submit" id="assignSubmitBtn" disabled) Assign Selected
+
+  script.
+      const roleId = '#{role.id}';
+      function loadAssignUsers() {
+        const container = document.getElementById('assignUsersContent');
+        if (!container) return;
+        container.innerHTML = '<p class="text-muted text-center py-4">Loading...</p>';
+        const search = document.getElementById('assignSearch')?.value || '';
+        fetch(`/admin/roles/${roleId}/assign-users.json?search=${encodeURIComponent(search)}`, {
+          headers: { 'Accept': 'application/json' }
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.usersToAssign.length === 0) {
+              container.innerHTML = '<p class="text-muted text-center py-4">No users available to assign.</p>';
+              document.getElementById('assignSubmitBtn').disabled = true;
+              return;
+            }
+            let html = '<table class="table table-hover"><thead><tr><th><input type="checkbox" id="assignSelectAll" onchange="toggleAssignAll(this)"></th><th>Account Name</th><th>Email</th></tr></thead><tbody>';
+            data.usersToAssign.forEach(u => {
+              const name = `${u.firstName || ''} ${u.lastName || ''}`.trim() || '-';
+              html += `<tr><td><input type="checkbox" class="form-check-input" name="userIds" value="${u.id}"></td><td>${name}</td><td>${u.email}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+            document.getElementById('assignSubmitBtn').disabled = false;
+          })
+          .catch(() => {
+            document.getElementById('assignUsersContent').innerHTML = '<p class="text-danger">Failed to load users.</p>';
+          });
+      }
+      function toggleAssignAll(cb) {
+        document.querySelectorAll('#assignUsersContent input[name="userIds"]').forEach(i => i.checked = cb.checked);
+      }
+      document.getElementById('assignUserModal')?.addEventListener('shown.bs.modal', loadAssignUsers);

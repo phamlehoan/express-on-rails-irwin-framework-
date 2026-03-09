@@ -7,22 +7,19 @@ block content
     .col-lg-6
       .p-5
         .text-center
-          h1.h4.text-gray-900.mb-4 Welcome Back!
+          h1.h4.text-gray-900.mb-4= t('auth.welcome_back')
         form.user(action='/auth/login' method='POST')
           .form-group
-            input#email.form-control.form-control-user(type='email' name='email' aria-describedby='emailHelp' placeholder='Enter Email Address')
+            input#email.form-control.form-control-user(type='email' name='email' aria-describedby='emailHelp' placeholder=t('auth.enter_email'))
           .form-group
-            input#password.form-control.form-control-user(type='password' name='password' placeholder='Password')
-          input.btn.btn-primary.btn-user.btn-block(type='submit' value='Login')
+            input#password.form-control.form-control-user(type='password' name='password' placeholder=t('auth.password'))
+          input.btn.btn-primary.btn-user.btn-block(type='submit' value=t('auth.login'))
           hr
           a.btn.btn-google.btn-user.btn-block(href='/auth/google')
             i.fa.fa-google.fa-fw
-            |  Login with Google
-          //- a.btn.btn-facebook.btn-user.btn-block(href='index.html')
-          //-   i.fa.fa-facebook-f.fa-fw
-          //-   |  Login with Facebook
+            = ' ' + t('auth.login_with_google')
         hr
         .text-center
-          a.small(href='/auth/new') Forgot Password?
+          a.small(href='/auth/new')= t('auth.forgot_password')
         .text-center
-          a.small(href='/users/new') Create an Account!
+          a.small(href='/users/new')= t('auth.create_account')

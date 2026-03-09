@@ -1,0 +1,5 @@
+{
+  "required": "{{field}} là bắt buộc",
+  "invalid_email": "Email không hợp lệ",
+  "invalid_format": "{{field}} có định dạng không hợp lệ"
+}

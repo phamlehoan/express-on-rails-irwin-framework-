@@ -29,7 +29,7 @@
 }
 
 #wrapper #content-wrapper #content #block-content {
-  margin-top: 5.875rem;
+  margin-top: 8rem;
   min-height: calc(100vh - 10.875rem);
 }
 
@@ -171,6 +171,13 @@ body.sidebar-toggled #wrapper #accordion-header {
   height: 2rem;
   width: 2rem;
   margin-left: 0.5rem;
+  object-fit: cover;
+}
+
+.topbar .dropdown-menu .img-profile-dropdown {
+  height: 2.5rem;
+  width: 2.5rem;
+  object-fit: cover;
 }
 
 .topbar {

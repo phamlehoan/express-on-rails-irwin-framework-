@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     /* Visit https://aka.ms/tsconfig to read more about this file */
     /* Projects */
     "incremental": true /* Save .tsbuildinfo files to allow for incremental compilation of projects. */,
@@ -63,6 +63,42 @@
       ],
       "@controllers/*": [
         "app/controllers/*"
+      ],
+      "@jobs": [
+        "app/jobs"
+      ],
+      "@jobs/*": [
+        "app/jobs/*"
+      ],
+      "@mailers": [
+        "app/mailers"
+      ],
+      "@mailers/*": [
+        "app/mailers/*"
+      ],
+      "@validators": [
+        "app/validators"
+      ],
+      "@validators/*": [
+        "app/validators/*"
+      ],
+      "@lib": [
+        "lib"
+      ],
+      "@lib/*": [
+        "lib/*"
+      ],
+      "@services": [
+        "app/services"
+      ],
+      "@services/*": [
+        "app/services/*"
+      ],
+      "@routes": [
+        "configs/routes"
+      ],
+      "@routes/*": [
+        "configs/routes/*"
       ]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
@@ -141,7 +177,9 @@
   },
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "__tests__",
+    "vite.config.ts"
   ],
   "ts-node": {
     "require": [

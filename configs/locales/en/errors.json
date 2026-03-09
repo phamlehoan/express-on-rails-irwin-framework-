@@ -1,0 +1,7 @@
+{
+  "not_found": "Not Found",
+  "bad_request": "Bad Request",
+  "unauthorized": "Unauthorized",
+  "forbidden": "Forbidden",
+  "unprocessable": "Validation failed"
+}

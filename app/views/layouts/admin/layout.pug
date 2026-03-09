@@ -6,6 +6,7 @@ html
     link(rel="stylesheet" href="/css/font-awesome/css/font-awesome.min.css")
     link(rel="stylesheet" href="/stylesheets/utilities.css")
     link(rel="stylesheet" href="/stylesheets/adminLayout/style.css")
+    link(rel="stylesheet" href="/stylesheets/adminLayout/content.css")
   body
     include ../utilities/flash
     #app
@@ -19,14 +20,14 @@ html
               block content
           include partials/footer
 
-      // Scroll to Top Button
       a.scroll-to-top.rounded(href='#page-top')
         i.fa.fa-angle-up
 
     script(type="text/javascript" src="/js/popper.min.js")
     script(type="text/javascript" src="/js/jquery.min.js")
     script(type="text/javascript" src="/js/bootstrap.min.js")
-    script(type="text/javascript" src="/js/vue.min.js")
+    script(type="text/javascript").
+      window.__I18N__ = !{JSON.stringify({ locale: typeof locale !== 'undefined' ? locale : 'en', messages: typeof i18nMessages !== 'undefined' ? i18nMessages : {} })};
     script(type="text/javascript" src="/javascripts/main.js")
+    script(type="text/javascript" src="/generated/bundle.js")
     script(type="text/javascript" src="/javascripts/adminLayout/main.js")
-    script(type="text/javascript" src="/javascripts/generated/bundle.js")

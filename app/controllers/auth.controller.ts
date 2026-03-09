@@ -3,8 +3,12 @@ import { FlashType } from "@configs/enum";
 import env from "@configs/env";
 import models from "@models";
 import { Prisma } from "@prisma/client";
+import {
+  CreatePasswordValidator,
+  LoginValidator,
+  UpdatePasswordValidator,
+} from "@validators/auth.validator";
 import axios from "axios";
-import { Request, Response } from "express";
 import md5 from "md5";
 import { ApplicationController } from ".";
 
@@ -19,16 +23,14 @@ export type GoogleUser = {
 };
 
 export class AuthController extends ApplicationController {
-  // Submit login with Google
-  public async loginWithGoogle(req: Request, res: Response) {
-    res.redirect(
-      `https://accounts.google.com/o/oauth2/v2/auth?client_id=${env.googleClientId}&redirect_uri=${env.googleRedirectUri}&response_type=code&scope=profile email`
+  async loginWithGoogle() {
+    this.redirect(
+      `https://accounts.google.com/o/oauth2/v2/auth?client_id=${env.googleClientId}&redirect_uri=${env.googleRedirectUri}&response_type=code&scope=profile email`,
     );
   }
 
-  // Login with Google callback
-  public async loginWithGoogleRedirect(req: Request, res: Response) {
-    const { code } = req.query;
+  async loginWithGoogleRedirect() {
+    const { code } = this.req.query;
     const {
       data: { access_token },
     } = await axios.post("https://oauth2.googleapis.com/token", {
@@ -45,13 +47,11 @@ export class AuthController extends ApplicationController {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     )) as { data: GoogleUser };
 
     const loginUser = await models.user.findUnique({
-      where: {
-        email: googleUser.email,
-      },
+      where: { email: googleUser.email },
     });
 
     if (!loginUser) {
@@ -64,53 +64,58 @@ export class AuthController extends ApplicationController {
           googleId: googleUser.id,
         },
       });
-
-      req.session.userId = newUser.id;
-    } else {
-      if (loginUser.deleted) {
-        req.flash(FlashType.Errors, { msg: "User is deleted." });
-        return res.redirect("/auth");
-      } else if (loginUser.status === UserStatus.INACTIVE) {
-        req.flash(FlashType.Errors, { msg: "User is banned." });
-        return res.redirect("/auth");
-      } else if (loginUser.status === UserStatus.PENDING) {
-        req.flash(FlashType.Errors, {
-          msg: "Admin is reviewing your account creation request. Please wait.!",
-        });
-        return res.redirect("/auth");
-      }
-
-      await models.user.update({
-        where: {
-          id: loginUser.id,
-        },
-        data: {
-          firstName: googleUser.given_name,
-          lastName: googleUser.family_name,
-          email: googleUser.email,
-          avatarUrl: googleUser.picture,
-          googleId: loginUser.googleId ? loginUser.googleId : googleUser.id,
-        },
+      this.req.session!.userId = newUser.id;
+      this.req.session!.save((err) => {
+        if (err) return this.redirect("/auth");
+        this.flash(FlashType.Success, { msg: this.t("flash.login_success") });
+        this.redirect("/");
       });
-
-      req.session.userId = loginUser.id;
+      return;
+    }
+    if (loginUser.deleted) {
+      this.flash(FlashType.Errors, { msg: this.t("flash.user_deleted") });
+      return this.redirect("/auth");
+    }
+    if (loginUser.status === UserStatus.INACTIVE) {
+      this.flash(FlashType.Errors, { msg: "User is banned." });
+      return this.redirect("/auth");
+    }
+    if (loginUser.status === UserStatus.PENDING) {
+      this.flash(FlashType.Errors, {
+        msg: this.t("flash.admin_reviewing_full"),
+      });
+      return this.redirect("/auth");
     }
 
-    req.flash(FlashType.Success, { msg: "Login successfully" });
+    await models.user.update({
+      where: { id: loginUser.id },
+      data: {
+        firstName: googleUser.given_name,
+        lastName: googleUser.family_name,
+        email: googleUser.email,
+        avatarUrl: googleUser.picture,
+        googleId: loginUser.googleId ? loginUser.googleId : googleUser.id,
+      },
+    });
+    this.req.session!.userId = loginUser.id;
 
-    res.redirect("/");
+    this.req.session!.save((err) => {
+      if (err) return this.redirect("/auth");
+      this.flash(FlashType.Success, { msg: this.t("flash.login_success") });
+      this.redirect("/");
+    });
   }
 
-  // Login form
-  public async index(req: Request, res: Response) {
-    this.clearSession(req);
-
-    res.render("auth.view/index");
+  async index() {
+    this.clearSession();
+    this.renderView("auth.view/index");
   }
 
-  // Submit login
-  public async login(req: Request, res: Response) {
-    const { email, password } = req.body;
+  async login() {
+    const { email, password } = await this.params(LoginValidator).permit(
+      "email",
+      "password",
+    );
 
     const user = await models.user.findUnique({
       where: {
@@ -127,33 +132,33 @@ export class AuthController extends ApplicationController {
     });
 
     if (user) {
-      req.session.userId = user.id;
-      req.flash(FlashType.Success, { msg: "Login successfully" });
+      this.req.session!.userId = user.id;
+      this.req.session!.save((err) => {
+        if (err) {
+          this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
+          return this.redirect("/auth");
+        }
+        this.flash(FlashType.Success, { msg: this.t("flash.login_success") });
+        this.redirect("/");
+      });
     } else {
-      req.flash(FlashType.Errors, { msg: "User is not found." });
-      return res.redirect("/auth");
+      this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
+      return this.redirect("/auth");
     }
-
-    res.redirect("/");
   }
 
-  // Forgot password submited respponse
-  public async show(req: Request, res: Response) {}
-
-  // Forgot password form
-  public async new(req: Request, res: Response) {
-    // Logs out current user if user requests to change password for another account
-    const email = req.params.id;
-    if (req.user && email !== req.user.email) {
-      this.clearSession(req);
+  async new() {
+    const email = this.req.params.id;
+    if (this.req.user && email !== this.req.user.email) {
+      this.clearSession();
     }
-
-    res.render("auth.view/new");
+    this.renderView("auth.view/new");
   }
 
-  // Submit forgot password
-  public async create(req: Request, res: Response) {
-    const { email } = req.body;
+  async create() {
+    const { email } = await this.params(CreatePasswordValidator).permit(
+      "email",
+    );
 
     const user = await models.user.findUnique({
       where: {
@@ -163,64 +168,48 @@ export class AuthController extends ApplicationController {
       },
       select: {
         passwords: {
-          where: {
-            deleted: false,
-          },
-          select: {
-            password: true,
-          },
-          orderBy: {
-            createdAt: Prisma.SortOrder.desc,
-          },
+          where: { deleted: false },
+          select: { password: true },
+          orderBy: { createdAt: Prisma.SortOrder.desc },
         },
       },
     });
 
     if (!user) {
-      req.flash(FlashType.Errors, { msg: "User is not found." });
-      return res.render("/auth/new");
+      this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
+      return this.renderView("auth.view/new");
     }
 
     const token = user.passwords.length
       ? user.passwords[0]!.password
       : undefined;
-    if (!token && !req.user) {
-      req.flash(FlashType.Errors, {
-        msg:
-          "You are changing your password for the first time. " +
-          "Please log in to your account using another method before changing your password.",
+    if (!token && !this.req.user) {
+      this.flash(FlashType.Errors, {
+        msg: this.t("flash.first_time_password"),
       });
-      return res.redirect("/auth");
+      return this.redirect("/auth");
     }
 
-    // TODO: Send email instead of redirect here
-    return res.redirect(`/auth/${email}/edit?token=${token}`);
-
-    res.redirect(`/auth/${email}`);
+    return this.redirect(`/auth/${email}/edit?token=${token}`);
   }
 
-  // Change password form
-  public async edit(req: Request, res: Response) {
-    const email = req.params.id;
-    const token = req.query.token as string;
+  async edit() {
+    const email = this.req.params.id;
+    const token = this.req.query.token as string;
 
-    // Logs out current user if user requests to change password for another account
-    if (req.user && email !== req.user.email) {
-      this.clearSession(req);
+    if (this.req.user && email !== this.req.user.email) {
+      this.clearSession();
     }
 
-    if (!token && !req.user) {
-      req.flash(FlashType.Errors, {
-        msg:
-          "You are changing your password for the first time." +
-          "Please log in to your account using another method before changing your password.",
+    if (!token && !this.req.user) {
+      this.flash(FlashType.Errors, {
+        msg: this.t("flash.first_time_password"),
       });
-      return res.redirect("/auth");
+      return this.redirect("/auth");
     }
 
     let isFirstTimeCreatePassword = false;
-    // Confirm token if user is forgot password and confirmed by url from email
-    if (!req.user || !req.session.userId) {
+    if (!this.req.user || !this.req.session!.userId) {
       const user = await models.user.findUnique({
         where: {
           email,
@@ -233,59 +222,53 @@ export class AuthController extends ApplicationController {
           status: UserStatus.ACTIVE,
           deleted: false,
         },
-        select: {
-          passwords: true,
-        },
+        select: { passwords: true },
       });
 
       if (!user) {
-        req.flash(FlashType.Errors, { msg: "User is not found." });
-        return res.redirect("/auth");
+        this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
+        return this.redirect("/auth");
       }
     } else {
       const currentPassword = await models.password.findFirst({
         where: {
-          userId: req.user.id,
+          userId: this.req.user!.id,
           deleted: false,
         },
       });
-
       isFirstTimeCreatePassword = !currentPassword;
     }
 
-    res.render("auth.view/edit", {
-      user: req.user,
-      email: email,
-      token: token,
-      isFirstTimeCreatePassword: isFirstTimeCreatePassword,
+    this.renderView("auth.view/edit", {
+      user: this.req.user,
+      email,
+      token,
+      isFirstTimeCreatePassword,
     });
   }
 
-  // Submit change password
-  public async update(req: Request, res: Response) {
-    const { password, passwordConfirmation } = req.body;
-    const email = req.params.id;
-    const oldPassword =
-      req.user && req.body.oldPassword
-        ? md5(req.body.oldPassword) // Password in session
-        : req.body.oldPassword; // Password is a token from email
+  async update() {
+    const { password, passwordConfirmation, oldPassword } = await this.params(
+      UpdatePasswordValidator,
+    ).permit("password", "passwordConfirmation", "oldPassword");
+    const email = this.req.params.id;
+    const oldPasswordValue =
+      this.req.user && oldPassword ? md5(oldPassword) : oldPassword;
 
-    if (!oldPassword && !req.user) {
-      req.flash(FlashType.Errors, {
-        msg:
-          "You are changing your password for the first time." +
-          "Please log in to your account using another method before changing your password.",
+    if (!oldPasswordValue && !this.req.user) {
+      this.flash(FlashType.Errors, {
+        msg: this.t("flash.first_time_password"),
       });
-      return res.redirect("/auth");
+      return this.redirect("/auth");
     }
 
     const user = await models.user.findUnique({
       where: {
         email,
-        ...(oldPassword && {
+        ...(oldPasswordValue && {
           passwords: {
             some: {
-              password: oldPassword,
+              password: oldPasswordValue,
               deleted: false,
             },
           },
@@ -300,13 +283,13 @@ export class AuthController extends ApplicationController {
     });
 
     if (!user) {
-      req.flash(FlashType.Errors, { msg: "User is not found." });
-      return res.redirect(`/auth/${email}/edit`);
+      this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
+      return this.redirect(`/auth/${email}/edit`);
     }
 
-    if (!oldPassword && user.passwords.length) {
-      req.flash(FlashType.Errors, { msg: "Please input your old password." });
-      return res.redirect(`/auth/${email}/edit`);
+    if (!oldPasswordValue && user.passwords.length) {
+      this.flash(FlashType.Errors, { msg: this.t("flash.input_old_password") });
+      return this.redirect(`/auth/${email}/edit`);
     }
 
     if (
@@ -314,16 +297,12 @@ export class AuthController extends ApplicationController {
       !passwordConfirmation ||
       password !== passwordConfirmation
     ) {
-      req.flash(FlashType.Errors, {
-        msg: "Password and confirmation do not match.",
-      });
-      return res.redirect(`/auth/${email}/edit`);
+      this.flash(FlashType.Errors, { msg: this.t("flash.password_mismatch") });
+      return this.redirect(`/auth/${email}/edit`);
     }
 
     await models.user.update({
-      where: {
-        id: user.id,
-      },
+      where: { id: user.id },
       data: {
         passwords: {
           updateMany: {
@@ -337,26 +316,22 @@ export class AuthController extends ApplicationController {
       },
     });
 
-    req.flash(FlashType.Success, {
-      msg: "Change password successfully. Please login to confirm your new password!",
+    this.flash(FlashType.Success, {
+      msg: this.t("flash.password_changed_relogin"),
     });
-    res.redirect("/auth");
+    this.redirect("/auth");
   }
 
-  // Logout
-  public destroy(req: Request, res: Response) {
-    this.clearSession(req);
-
-    req.flash(FlashType.Info, {
-      msg: "You are logged out!",
-    });
-    res.redirect("/auth");
+  destroy() {
+    this.clearSession();
+    this.flash(FlashType.Info, { msg: this.t("flash.logged_out") });
+    this.redirect("/auth");
   }
 
-  private clearSession(req: Request) {
-    if (req.user) {
-      req.session.userId = undefined;
-      req.user = undefined;
+  private clearSession() {
+    if (this.req.user) {
+      this.req.session!.userId = undefined;
+      (this.req as any).user = undefined;
     }
   }
 }

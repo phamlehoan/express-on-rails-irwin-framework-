@@ -1,0 +1,6 @@
+extends ../../layouts/admin/layout
+
+block content
+  #userDetailApp
+  script#userData(type="application/json")
+    != JSON.stringify({ targetUser, roles, features })

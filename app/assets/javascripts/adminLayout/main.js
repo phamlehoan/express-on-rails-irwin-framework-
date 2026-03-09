@@ -47,18 +47,22 @@
     }
   });
 
-  // Smooth scrolling using jQuery easing
+  // Smooth scroll to top
   $(document).on("click", "a.scroll-to-top", function (e) {
-    var $anchor = $(this);
-    $("html, body")
-      .stop()
-      .animate(
-        {
-          scrollTop: $($anchor.attr("href")).offset().top,
-        },
-        1000,
-        "easeInOutExpo"
-      );
     e.preventDefault();
+    $("html, body").stop().animate({ scrollTop: 0 }, 400, "swing");
+  });
+
+  // Clickable table row - navigate to detail on click (tr với data-href)
+  $(document).on("click", ".table-row-clickable", function (e) {
+    var href = $(this).data("href");
+    if (href && !$(e.target).closest(".table-actions, a, button, input, select, form").length) {
+      window.location.href = href;
+    }
+  });
+  $(document).on("keydown", ".table-row-clickable", function (e) {
+    if (e.key === "Enter" && $(this).data("href")) {
+      window.location.href = $(this).data("href");
+    }
   });
 })(jQuery); // End of use strict

@@ -1,0 +1,45 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item
+          a(href="/admin/features")= t('admin.feature_management')
+        li.breadcrumb-item
+          a(href=`/admin/features/${feature.id}`)= feature.name
+        li.breadcrumb-item.active(aria-current="page")= t('edit')
+
+    .card.mb-4.content-card
+      .card-header
+        h6.mb-0.text-uppercase.text-primary.fw-bold Feature Information
+      .card-body
+        form(method="post" action=`/admin/features/${feature.id}?_method=PUT`)
+          .row
+            .col-md-4.mb-3
+              label.form-label Code
+              input.form-control(name="code" value=feature.code required)
+            .col-md-4.mb-3
+              label.form-label Name
+              input.form-control(name="name" value=feature.name required)
+            .col-md-4.mb-3
+              label.form-label Type
+              select.form-select(name="type")
+                option(value="FEATURE" selected=feature.type==='FEATURE') FEATURE
+                option(value="MENU_GROUP" selected=feature.type==='MENU_GROUP') MENU_GROUP
+                option(value="SYSTEM" selected=feature.type==='SYSTEM') SYSTEM
+            .col-md-4.mb-3
+              label.form-label Parent
+              select.form-select(name="parentId")
+                option(value="") -- None --
+                each p in features.filter(f => f.id !== feature.id)
+                  option(value=p.id selected=feature.parentId===p.id)= p.name
+            .col-md-4.mb-3
+              label.form-label Sort Order
+              input.form-control(type="number" name="sortOrder" value=feature.sortOrder || 0 min="0")
+            .col-12.mb-3
+              label.form-label Description
+              textarea.form-control(name="description" rows="2")= feature.description || ''
+          .d-flex.gap-2
+            button.btn.btn-primary(type="submit") Update
+            a.btn.btn-outline-secondary(href=`/admin/features/${feature.id}`) Cancel

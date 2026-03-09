@@ -1,23 +1,18 @@
-import { Request, Response } from "express";
+import { HomePageValidator } from "@validators/common.validator";
 import { ApplicationController } from ".";
 
 export class HomeController extends ApplicationController {
-  public async index(req: Request, res: Response) {
-    const currentPage = req.body.currentPage
-      ? +req.body.currentPage
-      : req.query.currentPage
-      ? +req.query.currentPage
-      : 1;
-    const pageSize = req.body.pageSize
-      ? +req.body.pageSize
-      : req.query.pageSize
-      ? +req.query.pageSize
-      : 10;
+  async index() {
+    const data = await this.params(HomePageValidator).permit(
+      "currentPage",
+      "pageSize",
+    );
+    const { currentPage = 1, pageSize = 10 } = data;
 
-    res.render("home.view/index", {
-      user: req.user,
-      currentPage: currentPage,
-      pageSize: pageSize,
+    this.renderView("home.view/index", {
+      user: this.req.user,
+      currentPage,
+      pageSize,
     });
   }
 }
