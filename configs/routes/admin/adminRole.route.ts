@@ -1,50 +1,35 @@
-import { Feature, RestActions } from "@configs/enum";
+import { Feature } from "@configs/enum";
 import { AdminRoleController } from "@controllers";
-import { action } from "@lib/controllerHelpers";
-import { Permission, ValidateAnyPermissionMiddleware } from "@middlewares";
-import { Router } from "express";
-import { Route } from "..";
+import { action, RailsRoute, RestActions } from "@lib";
+import { Permission } from "@middlewares";
 
-const perm = new ValidateAnyPermissionMiddleware([
-  `${Feature.AdministrationManagement}::${Permission.Update}`,
-  `${Feature.UserManagement}::${Permission.Update}`,
-]);
-
-export class AdminRoleRoute {
-  private static path = Router();
-
-  public static draw() {
-    Route.resource(this.path, AdminRoleController, {
-      only: [
-        RestActions.Index,
-        RestActions.Show,
-        RestActions.Create,
-        RestActions.Edit,
-        RestActions.Update,
-        RestActions.Destroy,
-      ],
+export class AdminRoleRoute extends RailsRoute {
+  public draw() {
+    this.resource(AdminRoleController, {
+      except: [RestActions.New],
       setPermissionForAny: [Feature.AdministrationManagement],
     });
-    this.path.get(
-      "/:id/assign",
-      perm.execute.bind(perm),
-      action(AdminRoleController, "assignPage")
-    );
-    this.path.get(
+
+    const updatePerms = [
+      `${Feature.AdministrationManagement}::${Permission.Update}`,
+      `${Feature.UserManagement}::${Permission.Update}`,
+    ];
+
+    this.get("/:id/assign", action(AdminRoleController, "assignPage"), {
+      setPermissionForAny: updatePerms,
+    });
+    this.get(
       "/:id/assign-users.json",
-      perm.execute.bind(perm),
-      action(AdminRoleController, "assignUsersJson")
+      action(AdminRoleController, "assignUsersJson"),
+      { setPermissionForAny: updatePerms },
     );
-    this.path.post(
-      "/:id/assign-user",
-      perm.execute.bind(perm),
-      action(AdminRoleController, "assignUser")
-    );
-    this.path.delete(
+    this.post("/:id/assign-user", action(AdminRoleController, "assignUser"), {
+      setPermissionForAny: updatePerms,
+    });
+    this.delete(
       "/:id/users/:userId",
-      perm.execute.bind(perm),
-      action(AdminRoleController, "unassignUser")
+      action(AdminRoleController, "unassignUser"),
+      { setPermissionForAny: updatePerms },
     );
-    return this.path;
   }
 }

@@ -3,18 +3,17 @@ import { ApplicationController } from ".";
 
 export class DevController extends ApplicationController {
   async index() {
-    this.renderView("dev.view/index", { user: this.req.user });
+    this.render("dev.view/index");
   }
 
   async show() {
-    this.renderView("dev.view/show", {
-      user: this.req.user,
+    this.render("dev.view/show", {
       part: this.req.params.part || this.req.params.id || "colors",
     });
   }
 
   async new() {
-    this.renderView("dev.view/new", { user: this.req.user });
+    this.render("dev.view/new");
   }
 
   async create() {
@@ -23,7 +22,7 @@ export class DevController extends ApplicationController {
   }
 
   async edit() {
-    this.renderView("dev.view/edit", { user: this.req.user });
+    this.render("dev.view/edit");
   }
 
   async update() {

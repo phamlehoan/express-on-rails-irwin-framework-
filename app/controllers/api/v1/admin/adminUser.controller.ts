@@ -1,9 +1,4 @@
-import { ApiDoc } from "@lib/apiDoc";
-import { NotFoundError } from "@lib/errors";
-import {
-  buildPaginatedResponse,
-  parsePagination,
-} from "@lib/pagination";
+import { NotFoundError, buildPaginatedResponse, parsePagination } from "@lib";
 import models from "@models";
 import {
   CreateUserValidator,
@@ -13,9 +8,11 @@ import {
 import { ApiV1Controller } from "..";
 
 export class ApiV1AdminUserController extends ApiV1Controller {
-  @ApiDoc({ summary: "List users (AM)", params: PaginationValidator })
   async index() {
-    const permitted = await this.params(PaginationValidator).permit("page", "perPage");
+    const permitted = await this.params(PaginationValidator).permit(
+      "page",
+      "perPage",
+    );
     const { page, perPage, skip } = parsePagination(permitted as any);
     const [users, total] = await Promise.all([
       models.user.findMany({
@@ -30,10 +27,9 @@ export class ApiV1AdminUserController extends ApiV1Controller {
       models.user.count({ where: { deleted: false } }),
     ]);
     const result = buildPaginatedResponse(users, total, { page, perPage });
-    this.render(result);
+    this.renderJson(result);
   }
 
-  @ApiDoc({ summary: "Show user (AM)" })
   async show() {
     const user = await models.user.findFirst({
       where: { id: this.req.params.id, deleted: false },
@@ -47,19 +43,22 @@ export class ApiV1AdminUserController extends ApiV1Controller {
       },
     });
     if (!user) throw new NotFoundError("User not found");
-    this.render(user);
+    this.renderJson(user);
   }
 
-  @ApiDoc({ summary: "Create user (AM)", body: CreateUserValidator })
   async create() {
     const data = await this.params(CreateUserValidator).permit(
       "firstName",
       "lastName",
       "email",
-      "roleIds"
+      "roleIds",
     );
     const { firstName, lastName, email, roleIds } = data;
-    const roleIdsArr = Array.isArray(roleIds) ? roleIds : roleIds ? [roleIds] : [];
+    const roleIdsArr = Array.isArray(roleIds)
+      ? roleIds
+      : roleIds
+        ? [roleIds]
+        : [];
 
     const user = await models.user.create({
       data: {
@@ -75,10 +74,9 @@ export class ApiV1AdminUserController extends ApiV1Controller {
       },
       include: { roles: { include: { role: true } } },
     });
-    this.render(user, 201);
+    this.renderJson(user, 201);
   }
 
-  @ApiDoc({ summary: "Update user (AM)", body: UpdateUserValidator })
   async update() {
     const id = this.req.params.id;
     const data = await this.params(UpdateUserValidator).permit(
@@ -87,14 +85,20 @@ export class ApiV1AdminUserController extends ApiV1Controller {
       "email",
       "status",
       "roleIds",
-      "permissionIds"
+      "permissionIds",
     );
     const { firstName, lastName, email, status, roleIds, permissionIds } = data;
 
-    const roleIdsArr = Array.isArray(roleIds) ? roleIds : roleIds ? [roleIds] : [];
+    const roleIdsArr = Array.isArray(roleIds)
+      ? roleIds
+      : roleIds
+        ? [roleIds]
+        : [];
     const permissionIdsArr = Array.isArray(permissionIds)
       ? permissionIds
-      : permissionIds ? [permissionIds] : [];
+      : permissionIds
+        ? [permissionIds]
+        : [];
 
     await models.user.update({
       where: { id },
@@ -131,16 +135,15 @@ export class ApiV1AdminUserController extends ApiV1Controller {
         },
       },
     });
-    this.render(user);
+    this.renderJson(user);
   }
 
-  @ApiDoc({ summary: "Delete user (AM)" })
   async destroy() {
     const id = this.req.params.id;
     await models.user.update({
       where: { id },
       data: { deleted: true },
     });
-    this.render({ deleted: true });
+    this.renderJson({ deleted: true });
   }
 }

@@ -1,20 +1,15 @@
 import { AuthController } from "@controllers";
-import { action } from "@lib/controllerHelpers";
-import { Router } from "express";
-import { Route } from ".";
+import { action, RailsRoute } from "@lib";
 
-export class AuthRoute {
-  private static path = Router();
+export class AuthRoute extends RailsRoute {
+  public draw() {
+    this.get("/google", action(AuthController, "loginWithGoogle"));
+    this.get(
+      "/google/callback",
+      action(AuthController, "loginWithGoogleRedirect"),
+    );
+    this.post("/login", action(AuthController, "login"));
 
-  public static draw() {
-    this.path.route("/google").get(action(AuthController, "loginWithGoogle"));
-    this.path
-      .route("/google/callback")
-      .get(action(AuthController, "loginWithGoogleRedirect"));
-    this.path.route("/login").post(action(AuthController, "login"));
-
-    Route.resource(this.path, AuthController);
-
-    return this.path;
+    this.resource(AuthController);
   }
 }

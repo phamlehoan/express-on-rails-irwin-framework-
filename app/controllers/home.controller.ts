@@ -9,8 +9,7 @@ export class HomeController extends ApplicationController {
     );
     const { currentPage = 1, pageSize = 10 } = data;
 
-    this.renderView("home.view/index", {
-      user: this.req.user,
+    this.render("home.view/index", {
       currentPage,
       pageSize,
     });

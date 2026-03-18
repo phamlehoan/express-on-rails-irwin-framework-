@@ -1,4 +1,5 @@
 import { FlashType } from "@configs/enum";
+import { User } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import { ApplicationMiddleware } from "./application.middleware";
 
@@ -12,8 +13,9 @@ export class ValidateUserPermissionMiddleware extends ApplicationMiddleware {
   }
 
   public async execute(req: Request, res: Response, next: NextFunction) {
+    const user = req.user as User & { permissions?: string[] };
     const isApiRequest = req.originalUrl.includes("/api");
-    if (!req.user) {
+    if (!user) {
       const t = (res.locals?.t as (k: string) => string) || ((k: string) => k);
       if (isApiRequest) {
         return res
@@ -25,10 +27,7 @@ export class ValidateUserPermissionMiddleware extends ApplicationMiddleware {
       }
     }
 
-    const isGetPermission = true;
-    const user = await super.getUserById(req.user.id, isGetPermission);
-
-    if (!user!.permissions?.includes(this.permissionCode)) {
+    if (!user.permissions?.includes(this.permissionCode)) {
       const t = (res.locals?.t as (k: string) => string) || ((k: string) => k);
       if (isApiRequest) {
         return res.status(403).json({
@@ -58,8 +57,9 @@ export class ValidateAnyPermissionMiddleware extends ApplicationMiddleware {
   }
 
   public async execute(req: Request, res: Response, next: NextFunction) {
+    const user = req.user as User & { permissions?: string[] };
     const isApiRequest = req.originalUrl.includes("/api");
-    if (!req.user) {
+    if (!user) {
       const t = (res.locals?.t as (k: string) => string) || ((k: string) => k);
       if (isApiRequest) {
         return res
@@ -71,9 +71,8 @@ export class ValidateAnyPermissionMiddleware extends ApplicationMiddleware {
       }
     }
 
-    const user = await super.getUserById(req.user.id, true);
     const hasAny = this.permissionCodes.some((code) =>
-      user!.permissions?.includes(code)
+      user.permissions?.includes(code),
     );
 
     if (!hasAny) {

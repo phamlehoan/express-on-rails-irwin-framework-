@@ -1,12 +1,9 @@
-import { ApiResponse } from "@lib/response";
-import { Router } from "express";
+import { ApiResponse, RailsRoute } from "@lib";
 import { ApiV1Route } from "./v1";
 
-export class ApiRoute {
-  private static path = Router();
-
-  public static draw() {
-    this.path.get("/health", (_req, res) => {
+export class ApiRoute extends RailsRoute {
+  public draw() {
+    this.get("/health", (_req, res) => {
       ApiResponse.sendOk(res, {
         status: "ok",
         timestamp: new Date().toISOString(),
@@ -14,8 +11,6 @@ export class ApiRoute {
       });
     });
 
-    this.path.use("/v1", ApiV1Route.draw());
-
-    return this.path;
+    this.path("/v1", ApiV1Route.draw());
   }
 }

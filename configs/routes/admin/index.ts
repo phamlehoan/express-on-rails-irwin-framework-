@@ -1,26 +1,24 @@
+import { Feature } from "@configs/enum";
 import { AdminController } from "@controllers";
-import { Router } from "express";
-import { Route } from "..";
-import { Feature, RestActions } from "../../enum";
+import { RailsRoute, RestActions } from "@lib";
 import { AdminFeatureRoute } from "./adminFeature.route";
 import { AdminProfileRoute } from "./adminProfile.route";
 import { AdminRoleRoute } from "./adminRole.route";
 import { AdminUserRoute } from "./adminUser.route";
 
-export class AdminRoute {
-  private static path = Router();
+export class AdminRoute extends RailsRoute {
+  public draw() {
+    this.path("/me", AdminProfileRoute.draw());
+    this.path("/users", AdminUserRoute.draw());
+    this.path("/roles", AdminRoleRoute.draw());
+    this.path("/features", AdminFeatureRoute.draw());
 
-  public static draw() {
-    this.path.use("/", AdminProfileRoute.draw());
-    this.path.use("/users", AdminUserRoute.draw());
-    this.path.use("/roles", AdminRoleRoute.draw());
-    this.path.use("/features", AdminFeatureRoute.draw());
-
-    Route.resource(this.path, AdminController, {
+    this.resource(AdminController, {
       only: [RestActions.Index],
-      setPermissionForAny: [Feature.AdministrationManagement, Feature.UserManagement],
+      setPermissionForAny: [
+        Feature.AdministrationManagement,
+        Feature.UserManagement,
+      ],
     });
-
-    return this.path;
   }
 }

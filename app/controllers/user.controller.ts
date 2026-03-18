@@ -5,11 +5,11 @@ import { ApplicationController } from ".";
 
 export class UserController extends ApplicationController {
   async index() {
-    this.renderView("user.view/index", { user: this.req.user });
+    this.render("user.view/index");
   }
 
   async new() {
-    this.renderView("user.view/new", { user: this.req.user });
+    this.render("user.view/new");
   }
 
   async create() {
@@ -22,7 +22,7 @@ export class UserController extends ApplicationController {
         user.email,
         user.firstName,
         user.lastName,
-        user.middleName ?? undefined
+        user.middleName ?? undefined,
       );
     } catch {
       this.flash(FlashType.Errors, { msg: "Google token has been expired." });

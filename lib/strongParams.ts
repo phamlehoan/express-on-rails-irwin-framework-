@@ -1,7 +1,6 @@
 import { plainToInstance } from "class-transformer";
-import { validate } from "class-validator";
+import { validate, ValidationError } from "class-validator";
 import { UnprocessableEntityError } from "./errors";
-import { formatValidationErrors } from "@models/concerns/validatable";
 
 /**
  * Strong Parameters - Rails style: params.require(:model).permit(:field1, :field2)
@@ -13,6 +12,25 @@ import { formatValidationErrors } from "@models/concerns/validatable";
 /** Constructor type để InstanceType<M> suy ra đúng kiểu instance, không bị rút gọn thành object */
 export type ValidatorClass = new (...args: any[]) => any;
 
+/** Helper format lỗi từ class-validator (chuyển vào lib để tránh phụ thuộc ngược) */
+function formatValidationErrors(
+  errors: ValidationError[],
+): Record<string, string[]> {
+  const result: Record<string, string[]> = {};
+  for (const error of errors) {
+    const constraints = error.constraints;
+    if (constraints) {
+      result[error.property] = Object.values(constraints);
+    }
+    if (error.children && error.children.length > 0) {
+      const childrenErrors = formatValidationErrors(error.children);
+      // Merge children errors (đơn giản hóa cho ví dụ này)
+      Object.assign(result, childrenErrors);
+    }
+  }
+  return result;
+}
+
 /**
  * Whitelist: chỉ giữ các field được permit, bỏ phần còn lại.
  * Validate qua class-validator nếu Model có decorators.
@@ -20,7 +38,7 @@ export type ValidatorClass = new (...args: any[]) => any;
 export async function strongParams<T extends object>(
   input: unknown,
   ValidatorCls: new () => T,
-  fields: string[]
+  fields: string[],
 ): Promise<T> {
   const data = (input ?? {}) as Record<string, unknown>;
   const picked: Record<string, unknown> = {};
@@ -44,7 +62,7 @@ export async function strongParams<T extends object>(
 export class ParamsProxy<M extends ValidatorClass = ValidatorClass> {
   constructor(
     private readonly data: Record<string, unknown>,
-    private readonly Model?: M
+    private readonly Model?: M,
   ) {}
 
   /**
@@ -54,7 +72,7 @@ export class ParamsProxy<M extends ValidatorClass = ValidatorClass> {
     const value = this.data[key];
     if (value === undefined || value === null) {
       throw new UnprocessableEntityError(
-        `param is missing or the value is empty: ${key}`
+        `param is missing or the value is empty: ${key}`,
       );
     }
     const obj =
@@ -72,7 +90,9 @@ export class ParamsProxy<M extends ValidatorClass = ValidatorClass> {
     if (!this.Model) {
       throw new Error("params(Model).permit(...) - Model is required");
     }
-    return strongParams(this.data, this.Model, fields) as Promise<InstanceType<M>>;
+    return strongParams(this.data, this.Model, fields) as Promise<
+      InstanceType<M>
+    >;
   }
 
   get(key: string): unknown {
@@ -110,8 +130,9 @@ export type ParamsWithModel<M extends ValidatorClass> = ParamsProxyWithData & {
 };
 
 export function createParamsProxy(
-  data: Record<string, unknown>
-): (<M extends ValidatorClass>(Model: M) => ParamsWithModel<M>) & ParamsProxyWithData {
+  data: Record<string, unknown>,
+): (<M extends ValidatorClass>(Model: M) => ParamsWithModel<M>) &
+  ParamsProxyWithData {
   const root = new ParamsProxy(data);
   const result = wrapProxy(root);
 
@@ -121,7 +142,7 @@ export function createParamsProxy(
   };
 
   return Object.assign(callable, result) as (<M extends ValidatorClass>(
-    Model: M
+    Model: M,
   ) => ParamsWithModel<M>) &
     ParamsProxyWithData;
 }

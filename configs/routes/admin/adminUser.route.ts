@@ -1,15 +1,14 @@
 import { Feature } from "@configs/enum";
 import { AdminUserController } from "@controllers";
-import { Router } from "express";
-import { Route } from "..";
+import { RailsRoute } from "@lib";
 
-export class AdminUserRoute {
-  private static path = Router();
-
-  public static draw() {
-    Route.resource(this.path, AdminUserController, {
-      setPermissionForAny: [Feature.AdministrationManagement, Feature.UserManagement],
+export class AdminUserRoute extends RailsRoute {
+  public draw() {
+    this.resource(AdminUserController, {
+      setPermissionForAny: [
+        Feature.AdministrationManagement,
+        Feature.UserManagement,
+      ],
     });
-    return this.path;
   }
 }

@@ -3,97 +3,111 @@
  */
 import { upload } from "@configs/fileAttachment";
 import { ApiV1DevController } from "@controllers/api";
-import { action } from "@lib/controllerHelpers";
-import { route, doc } from "@routes/helpers";
+import { action, RailsRoute } from "@lib";
 import {
   CreateItemValidator,
   EchoValidator,
   PaginationValidator,
   UpdateItemValidator,
 } from "@validators/dev.validator";
-import { Router } from "express";
 
-export class DevRoute {
-  private static path = Router();
-
-  public static draw() {
-    const r = this.path;
-    const C = ApiV1DevController;
-
+export class ApiV1DevRoute extends RailsRoute {
+  public draw() {
     // Custom routes trước (tránh /:id match "health", "echo"...)
-    route(r, "get", "/health", doc("dev/health", {
-      summary: "Health check",
-      tags: ["Dev"],
-      responses: { 200: "OK" },
-    }), action(C, "health"));
+    this.get("/health", action(ApiV1DevController, "health"), {
+      document: {
+        summary: "Health check",
+        tags: ["Dev"],
+      },
+    });
 
-    route(r, "get", "/echo", doc("dev/echo", {
-      summary: "Echo (params.permit)",
-      tags: ["Dev"],
-      params: EchoValidator,
-      responses: { 200: "OK" },
-    }), action(C, "echo"));
+    this.get("/echo", action(ApiV1DevController, "echo"), {
+      document: {
+        summary: "Echo (params.permit)",
+        tags: ["Dev"],
+        params: EchoValidator,
+      },
+    });
 
-    route(r, "get", "/me", doc("dev/me", {
-      summary: "Current user",
-      tags: ["Dev"],
-      auth: true,
-      responses: { 200: "OK", 403: "Unauthorized" },
-    }), action(C, "me"));
+    this.get("/me", action(ApiV1DevController, "me"), {
+      document: {
+        summary: "Current user",
+        tags: ["Dev"],
+        auth: true,
+        responses: { 200: "OK", 403: "Unauthorized" },
+      },
+    });
 
-    route(r, "post", "/upload", doc("dev/upload", {
-      summary: "File upload",
-      tags: ["Dev"],
-      file: true,
-      responses: { 200: "OK" },
-    }), upload.single("file"), action(C, "upload"));
+    this.post(
+      "/upload",
+      [upload.single("file"), action(ApiV1DevController, "upload")],
+      {
+        document: {
+          summary: "File upload",
+          tags: ["Dev"],
+          file: true,
+        },
+      },
+    );
 
-    route(r, "get", "/errors/not-found", doc("dev/errors/not-found", {
-      summary: "Example NotFoundError",
-      tags: ["Dev"],
-      responses: { 404: "Not Found" },
-    }), action(C, "errorNotFound"));
+    this.get("/errors/not-found", action(ApiV1DevController, "errorNotFound"), {
+      document: {
+        summary: "Example NotFoundError",
+        tags: ["Dev"],
+        responses: { 404: "Not Found" },
+      },
+    });
 
-    route(r, "get", "/errors/bad-request", doc("dev/errors/bad-request", {
-      summary: "Example BadRequestError",
-      tags: ["Dev"],
-      responses: { 400: "Bad Request" },
-    }), action(C, "errorBadRequest"));
+    this.get(
+      "/errors/bad-request",
+      action(ApiV1DevController, "errorBadRequest"),
+      {
+        document: {
+          summary: "Example BadRequestError",
+          tags: ["Dev"],
+          responses: { 400: "Bad Request" },
+        },
+      },
+    );
 
     // REST
-    route(r, "get", "/", doc("dev/", {
-      summary: "List items (index)",
-      tags: ["Dev"],
-      params: PaginationValidator,
-      responses: { 200: "OK" },
-    }), action(C, "index"));
+    this.get(action(ApiV1DevController, "index"), {
+      document: {
+        summary: "List items (index)",
+        tags: ["Dev"],
+        params: PaginationValidator,
+      },
+    });
 
-    route(r, "get", "/:id", doc("dev/:id", {
-      summary: "Show item",
-      tags: ["Dev"],
-      responses: { 200: "OK" },
-    }), action(C, "show"));
+    this.get("/:id", action(ApiV1DevController, "show"), {
+      document: {
+        summary: "Show item",
+        tags: ["Dev"],
+      },
+    });
 
-    route(r, "post", "/", doc("dev/create", {
-      summary: "Create item",
-      tags: ["Dev"],
-      body: CreateItemValidator,
-      responses: { 201: "Created", 422: "Validation failed" },
-    }), action(C, "create"));
+    this.post(action(ApiV1DevController, "create"), {
+      document: {
+        summary: "Create item",
+        tags: ["Dev"],
+        body: CreateItemValidator,
+        responses: { 201: "Created", 422: "Validation failed" },
+      },
+    });
 
-    route(r, "put", "/:id", doc("dev/:id/update", {
-      summary: "Update item",
-      tags: ["Dev"],
-      body: UpdateItemValidator,
-      responses: { 200: "OK" },
-    }), action(C, "update"));
+    this.put("/:id", action(ApiV1DevController, "update"), {
+      document: {
+        summary: "Update item",
+        tags: ["Dev"],
+        body: UpdateItemValidator,
+      },
+    });
 
-    route(r, "delete", "/:id", doc("dev/:id/destroy", {
-      summary: "Destroy item",
-      tags: ["Dev"],
-      responses: { 200: "OK" },
-    }), action(C, "destroy"));
-
-    return r;
+    this.delete("/:id", action(ApiV1DevController, "destroy"), {
+      document: {
+        summary: "Destroy item",
+        tags: ["Dev"],
+      },
+    });
   }
 }

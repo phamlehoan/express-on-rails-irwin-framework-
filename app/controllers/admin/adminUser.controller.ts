@@ -1,11 +1,11 @@
 import { FlashType } from "@configs/enum";
-import { NotFoundError } from "@lib/errors";
+import { NotFoundError } from "@lib";
 import models from "@models";
 import {
   CreateUserValidator,
   UpdateUserValidator,
 } from "@validators/admin.validator";
-import { AdminController } from ".";
+import { AdminController } from "./admin.controller";
 
 export class AdminUserController extends AdminController {
   async index() {
@@ -57,7 +57,7 @@ export class AdminUserController extends AdminController {
 
     const roles = await models.role.findMany({ where: { deleted: false } });
 
-    this.renderView("admin/user.view/index", {
+    this.render("admin/user.view/index", {
       user: this.req.user,
       users,
       roles,
@@ -87,7 +87,7 @@ export class AdminUserController extends AdminController {
       }),
     ]);
 
-    this.renderView("admin/user.view/show", {
+    this.render("admin/user.view/show", {
       user: this.req.user,
       targetUser,
       roles,
@@ -97,7 +97,7 @@ export class AdminUserController extends AdminController {
 
   async new() {
     const roles = await models.role.findMany({ where: { deleted: false } });
-    this.renderView("admin/user.view/new", {
+    this.render("admin/user.view/new", {
       user: this.req.user,
       roles,
     });
@@ -147,7 +147,7 @@ export class AdminUserController extends AdminController {
       }),
     ]);
 
-    this.renderView("admin/user.view/edit", {
+    this.render("admin/user.view/edit", {
       user: this.req.user,
       targetUser,
       roles,

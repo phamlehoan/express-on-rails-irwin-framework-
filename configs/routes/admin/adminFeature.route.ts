@@ -1,32 +1,18 @@
-import { Feature, RestActions } from "@configs/enum";
+import { Feature } from "@configs/enum";
 import { AdminFeatureController } from "@controllers";
-import { action } from "@lib/controllerHelpers";
-import { Permission, ValidateAnyPermissionMiddleware } from "@middlewares";
-import { Router } from "express";
-import { Route } from "..";
+import { action, RailsRoute } from "@lib";
+import { Permission } from "@middlewares";
 
-const perm = new ValidateAnyPermissionMiddleware([
-  `${Feature.AdministrationManagement}::${Permission.Update}`,
-  `${Feature.UserManagement}::${Permission.Update}`,
-]);
-
-export class AdminFeatureRoute {
-  private static path = Router();
-
-  public static draw() {
-    Route.resource(this.path, AdminFeatureController, {
-      only: [
-        RestActions.Index,
-        RestActions.Show,
-        RestActions.New,
-        RestActions.Create,
-        RestActions.Edit,
-        RestActions.Update,
-        RestActions.Destroy,
-      ],
+export class AdminFeatureRoute extends RailsRoute {
+  public draw() {
+    this.resource(AdminFeatureController, {
       setPermissionForAny: [Feature.AdministrationManagement],
     });
-    this.path.post("/reorder", perm.execute.bind(perm), action(AdminFeatureController, "reorder"));
-    return this.path;
+    this.post("/reorder", action(AdminFeatureController, "reorder"), {
+      setPermissionForAny: [
+        `${Feature.AdministrationManagement}::${Permission.Update}`,
+        `${Feature.UserManagement}::${Permission.Update}`,
+      ],
+    });
   }
 }

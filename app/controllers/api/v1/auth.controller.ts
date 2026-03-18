@@ -8,6 +8,6 @@ export class AuthController extends ApiV1Controller {
       "idToken",
     );
     const result = await new AuthGoogleVerifyService().execute(idToken);
-    this.render(result);
+    this.renderJson(result);
   }
 }

@@ -1,5 +1,5 @@
 import { FlashType } from "@configs/enum";
-import { NotFoundError } from "@lib/errors";
+import { NotFoundError } from "@lib";
 import { buildFeatureTree } from "@middlewares/adminFeatures.middleware";
 import models from "@models";
 import {
@@ -7,7 +7,7 @@ import {
   FeatureUpdateValidator,
 } from "@validators/admin.validator";
 import { randomUUID } from "crypto";
-import { AdminController } from ".";
+import { AdminController } from "./admin.controller";
 
 export class AdminFeatureController extends AdminController {
   async index() {
@@ -54,7 +54,7 @@ export class AdminFeatureController extends AdminController {
       return `/admin/features?${new URLSearchParams({ ...q, sortBy: col, sortOrder: order }).toString()}`;
     };
 
-    this.renderView("admin/feature.view/index", {
+    this.render("admin/feature.view/index", {
       user: this.req.user,
       features: allFeatures,
       featuresTree,
@@ -79,7 +79,7 @@ export class AdminFeatureController extends AdminController {
       where: { deleted: false },
       orderBy: { code: "asc" },
     });
-    this.renderView("admin/feature.view/show", {
+    this.render("admin/feature.view/show", {
       user: this.req.user,
       feature,
       features,
@@ -91,7 +91,7 @@ export class AdminFeatureController extends AdminController {
       where: { deleted: false },
       orderBy: { code: "asc" },
     });
-    this.renderView("admin/feature.view/new", {
+    this.render("admin/feature.view/new", {
       user: this.req.user,
       features,
     });
@@ -156,7 +156,7 @@ export class AdminFeatureController extends AdminController {
       where: { deleted: false },
       orderBy: { code: "asc" },
     });
-    this.renderView("admin/feature.view/edit", {
+    this.render("admin/feature.view/edit", {
       user: this.req.user,
       feature,
       features,
@@ -187,9 +187,7 @@ export class AdminFeatureController extends AdminController {
     );
     const { code, name, description, type, parentId, sortOrder } = data;
 
-    const updateData: Parameters<typeof models.feature.update>[0]["data"] & {
-      sortOrder?: number;
-    } = {};
+    const updateData: any = {};
     if (code !== undefined) updateData.code = code;
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
@@ -205,7 +203,7 @@ export class AdminFeatureController extends AdminController {
     if (Object.keys(updateData).length) {
       await models.feature.update({
         where: { id },
-        data: updateData as Parameters<typeof models.feature.update>[0]["data"],
+        data: updateData,
       });
     }
 

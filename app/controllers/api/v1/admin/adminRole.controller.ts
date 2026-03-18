@@ -1,10 +1,8 @@
-import { ApiDoc } from "@lib/apiDoc";
-import { NotFoundError } from "@lib/errors";
+import { NotFoundError } from "@lib";
 import models from "@models";
 import { ApiV1Controller } from "..";
 
 export class ApiV1AdminRoleController extends ApiV1Controller {
-  @ApiDoc({ summary: "List roles (AM)" })
   async index() {
     const roles = await models.role.findMany({
       where: { deleted: false },
@@ -16,10 +14,9 @@ export class ApiV1AdminRoleController extends ApiV1Controller {
         },
       },
     });
-    this.render(roles);
+    this.renderJson(roles);
   }
 
-  @ApiDoc({ summary: "Show role (AM)" })
   async show() {
     const role = await models.role.findFirst({
       where: { id: this.req.params.id, deleted: false },
@@ -32,6 +29,6 @@ export class ApiV1AdminRoleController extends ApiV1Controller {
       },
     });
     if (!role) throw new NotFoundError("Role not found");
-    this.render(role);
+    this.renderJson(role);
   }
 }

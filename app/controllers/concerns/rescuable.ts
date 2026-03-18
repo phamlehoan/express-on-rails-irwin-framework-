@@ -1,6 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { AppError } from "@lib/errors";
-import { ApiResponse } from "@lib/response";
+import { ApiResponse, AppError } from "@lib";
+import { NextFunction, Request, Response } from "express";
 
 /**
  * Rescuable concern - tương tự Rails rescue_from.
@@ -10,11 +9,11 @@ export type ErrorHandler = (
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => void | Promise<void>;
 
 export function rescueFrom(
-  handler: ErrorHandler
+  handler: ErrorHandler,
 ): (err: Error, req: Request, res: Response, next: NextFunction) => void {
   return (err, req, res, next) => {
     Promise.resolve(handler(err, req, res, next)).catch(next);
@@ -25,7 +24,7 @@ export function handleAppError(
   err: unknown,
   req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ): void {
   if (err instanceof AppError) {
     const isApi = req.originalUrl?.includes("/api");

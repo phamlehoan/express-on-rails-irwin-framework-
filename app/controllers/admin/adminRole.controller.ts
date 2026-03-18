@@ -1,11 +1,11 @@
 import { FlashType } from "@configs/enum";
-import { NotFoundError } from "@lib/errors";
+import { NotFoundError } from "@lib";
 import models from "@models";
 import {
   RoleCreateValidator,
   RoleUpdateValidator,
 } from "@validators/admin.validator";
-import { AdminController } from ".";
+import { AdminController } from "./admin.controller";
 
 const DEFAULT_PER_PAGE = 10;
 const PER_PAGE_OPTIONS = [10, 25, 50];
@@ -59,7 +59,7 @@ export class AdminRoleController extends AdminController {
       return `/admin/roles?${new URLSearchParams({ ...q, sortBy: col, sortOrder: next, page: "1" }).toString()}`;
     };
 
-    this.renderView("admin/role.view/index", {
+    this.render("admin/role.view/index", {
       user: this.req.user,
       roles,
       total,
@@ -165,7 +165,7 @@ export class AdminRoleController extends AdminController {
       return `/admin/roles/${roleId}?${params.toString()}`;
     };
 
-    this.renderView("admin/role.view/show", {
+    this.render("admin/role.view/show", {
       user: this.req.user,
       role,
       features,
@@ -188,7 +188,7 @@ export class AdminRoleController extends AdminController {
     if (this.req.headers["accept"]?.includes("application/json")) {
       return this.res.json({ role, usersToAssign, search });
     }
-    this.renderView("admin/role.view/assign", {
+    this.render("admin/role.view/assign", {
       user: this.req.user,
       role,
       usersToAssign,
@@ -298,7 +298,7 @@ export class AdminRoleController extends AdminController {
       },
     });
 
-    this.renderView("admin/role.view/edit", {
+    this.render("admin/role.view/edit", {
       user: this.req.user,
       role,
       features,
@@ -352,7 +352,7 @@ export class AdminRoleController extends AdminController {
   }
 
   async new() {
-    this.renderView("admin/role.view/new", {
+    this.render("admin/role.view/new", {
       user: this.req.user,
     });
   }

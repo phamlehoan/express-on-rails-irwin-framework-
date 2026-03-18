@@ -108,7 +108,7 @@ export class AuthController extends ApplicationController {
 
   async index() {
     this.clearSession();
-    this.renderView("auth.view/index");
+    this.render("auth.view/index");
   }
 
   async login() {
@@ -152,7 +152,7 @@ export class AuthController extends ApplicationController {
     if (this.req.user && email !== this.req.user.email) {
       this.clearSession();
     }
-    this.renderView("auth.view/new");
+    this.render("auth.view/new");
   }
 
   async create() {
@@ -177,7 +177,7 @@ export class AuthController extends ApplicationController {
 
     if (!user) {
       this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
-      return this.renderView("auth.view/new");
+      return this.render("auth.view/new");
     }
 
     const token = user.passwords.length
@@ -239,8 +239,7 @@ export class AuthController extends ApplicationController {
       isFirstTimeCreatePassword = !currentPassword;
     }
 
-    this.renderView("auth.view/edit", {
-      user: this.req.user,
+    this.render("auth.view/edit", {
       email,
       token,
       isFirstTimeCreatePassword,

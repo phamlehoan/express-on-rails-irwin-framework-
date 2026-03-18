@@ -1,26 +1,29 @@
 import { FlashType } from "@configs/enum";
+import { BeforeAction } from "@lib";
 import models from "@models";
 import { UpdateProfileValidator } from "@validators/profile.validator";
 import { ApplicationController } from ".";
 
+@BeforeAction("requireLogin")
 export class ProfileController extends ApplicationController {
   async show() {
-    const user = this.req.user;
-    if (!user) return this.redirect("/auth");
-
     const currentUser = await models.user.findFirst({
-      where: { id: user.id, deleted: false },
+      where: { id: this.currentUser!.id, deleted: false },
     });
-    if (!currentUser) return this.redirect("/auth");
+    // The check for currentUser is a bit redundant since requireLogin does it,
+    // but it's good for type safety and in case the user is deleted between requests.
+    if (!currentUser) {
+      this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
+      return this.redirect("/auth");
+    }
 
-    this.renderView("profile.view/show", {
+    this.render("profile.view/show", {
       user: currentUser,
     });
   }
 
   async update() {
-    const userId = this.req.user?.id;
-    if (!userId) return this.redirect("/auth");
+    const userId = this.currentUser!.id;
 
     const data = await this.params(UpdateProfileValidator).permit(
       "firstName",

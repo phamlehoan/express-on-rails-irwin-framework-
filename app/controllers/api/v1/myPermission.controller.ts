@@ -12,6 +12,6 @@ export class MyPermissionController extends ApiV1Controller {
         },
       },
     });
-    this.render(myPermissions.map((p) => p.code));
+    this.renderJson(myPermissions.map((p) => p.code));
   }
 }

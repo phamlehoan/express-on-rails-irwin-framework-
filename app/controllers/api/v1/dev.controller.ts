@@ -1,5 +1,9 @@
-import { BadRequestError, NotFoundError } from "@lib/errors";
-import { buildPaginatedResponse, parsePagination } from "@lib/pagination";
+import {
+  BadRequestError,
+  buildPaginatedResponse,
+  NotFoundError,
+  parsePagination,
+} from "@lib";
 import {
   CreateItemValidator,
   EchoValidator,
@@ -29,7 +33,7 @@ export class ApiV1DevController extends ApiV1Controller {
       page,
       perPage,
     });
-    this.render(result);
+    this.renderJson(result);
   }
 
   async show() {
@@ -39,7 +43,7 @@ export class ApiV1DevController extends ApiV1Controller {
       name: `Item ${id}`,
       createdAt: new Date().toISOString(),
     };
-    this.render(item);
+    this.renderJson(item);
   }
 
   async create() {
@@ -52,7 +56,7 @@ export class ApiV1DevController extends ApiV1Controller {
       ...payload,
       createdAt: new Date().toISOString(),
     };
-    this.render(item, 201);
+    this.renderJson(item, 201);
   }
 
   async update() {
@@ -66,11 +70,11 @@ export class ApiV1DevController extends ApiV1Controller {
       ...payload,
       updatedAt: new Date().toISOString(),
     };
-    this.render(item);
+    this.renderJson(item);
   }
 
   async destroy() {
-    this.render({ deleted: true });
+    this.renderJson({ deleted: true });
   }
 
   // --- Custom actions (ví dụ) ---
@@ -80,11 +84,11 @@ export class ApiV1DevController extends ApiV1Controller {
       "delay",
     );
     if ((delay ?? 0) > 0) await new Promise((r) => setTimeout(r, delay ?? 0));
-    this.render({ message, echoedAt: new Date().toISOString() });
+    this.renderJson({ message, echoedAt: new Date().toISOString() });
   }
 
   async health() {
-    this.render({
+    this.renderJson({
       status: "ok",
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
@@ -92,16 +96,16 @@ export class ApiV1DevController extends ApiV1Controller {
   }
 
   async me() {
-    this.render({
+    this.renderJson({
       user: this.req.user,
       requestId: (this.req as any).requestId,
     });
   }
 
   async upload() {
-    const { validateFileUpload } = await import("@lib/fileUploadValidation");
+    const { validateFileUpload } = await import("@lib");
     validateFileUpload(this.req.file);
-    this.render({
+    this.renderJson({
       filename: this.req.file!.originalname,
       size: this.req.file!.size,
       mimetype: this.req.file!.mimetype,

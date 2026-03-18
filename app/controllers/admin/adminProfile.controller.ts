@@ -1,7 +1,7 @@
 import { FlashType } from "@configs/enum";
 import models from "@models";
 import { UpdateProfileValidator } from "@validators/profile.validator";
-import { AdminController } from ".";
+import { AdminController } from "./admin.controller";
 
 const toArray = (v: unknown): string[] =>
   Array.isArray(v) ? v : v ? [String(v)] : [];
@@ -19,7 +19,7 @@ export class AdminProfileController extends AdminController {
 
     const roles = await models.role.findMany({ where: { deleted: false } });
 
-    this.renderView("admin/profile.view/show", {
+    this.render("admin/profile.view/show", {
       user: this.req.user,
       currentUser,
       roles,
