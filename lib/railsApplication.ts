@@ -1,16 +1,20 @@
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import express, {
+  Application,
   Express,
   NextFunction,
   Request,
   RequestHandler,
   Response,
 } from "express";
+import { createServer, Server as HttpServer } from "http";
 import createError from "http-errors";
 import methodOverride from "method-override";
 import serverless from "serverless-http";
+import { Server as SocketServer } from "socket.io";
 import { AppError } from "./errors";
+import { RailsChannel } from "./railsChannel";
 import { ApiResponse } from "./response";
 
 export type RouteInfo = {
@@ -29,7 +33,9 @@ export class RailsApplication {
   protected readonly app: Express = express();
   protected readonly routes: RouteInfo[] = [];
   protected port: string | number = process.env.PORT || "8000";
+  public static channelClasses: (new (...args: any[]) => RailsChannel)[] = [];
   public static middlewareFactory: MiddlewareFactory;
+  public static sessionMiddleware: RequestHandler | null = null;
 
   constructor() {
     this.setupStandardMiddlewares();
@@ -152,8 +158,9 @@ export class RailsApplication {
   }
 
   public showRoutes(search?: string) {
+    const { logger } = require("./logger");
     this.routes.forEach((route) => {
-      if (!search || JSON.stringify(route).includes(search)) console.log(route);
+      if (!search || JSON.stringify(route).includes(search)) logger.info(route);
     });
   }
 
@@ -178,8 +185,123 @@ export class RailsApplication {
     this.onErrorHandler();
   }
 
+  protected wrapMiddleware(middleware: RequestHandler) {
+    return (socket: any, next: any) => {
+      const req = socket.request;
+      const res = {
+        setHeader: (name: string, value: string | number | string[]) => res,
+        writeHead: (
+          statusCode: number,
+          headers?: Record<string, string | number | string[]>,
+        ) => res,
+        end: (
+          chunk?: any,
+          encoding?: BufferEncoding,
+          callback?: () => void,
+        ) => {
+          callback?.();
+          return res;
+        },
+        status: (code: number) => res,
+        json: (data: any) => res,
+        on: (event: string, listener: (...args: any[]) => void) => res,
+        emit: (event: string, ...args: any[]) => res,
+      } as any;
+
+      middleware(req, res, (err?: any) => {
+        if (err) return next(err);
+        // Gán user từ req.user vào socket.data.user sau khi middleware chạy
+        socket.data.user = req.user;
+        next();
+      });
+    };
+  }
+
+  protected setupSocketMiddlewares(io: SocketServer, app: Application) {
+    // Giải nén danh sách middleware từ app express
+    const middlewares = (app as any)._router.stack.filter((layer: any) => {
+      return layer.handle.length === 3; // req, res, next
+    });
+
+    // Bọc và đăng ký middleware cho socket.io
+    middlewares.forEach((item: any) => {
+      const middleware = item.handle;
+      io.use(this.wrapMiddleware(middleware));
+    });
+  }
+
+  protected setupServer(app: Application) {
+    const httpServer: HttpServer = createServer(app);
+    const io = new SocketServer(httpServer, {
+      cors: {
+        origin: true, // Allow any origin (same as Express CORS)
+        credentials: true,
+      },
+    });
+
+    return { httpServer, io };
+  }
+
+  protected setupSockets(io: SocketServer) {
+    // Auth middleware cho Socket.IO
+    // Wrap các middleware Express (cookie-parser + session + currentUser)
+    io.use(async (socket, next) => {
+      try {
+        const req = socket.request as any;
+
+        const res = {} as any;
+
+        // 1. Run cookie-parser middleware
+        const cookieParser = (await import("cookie-parser")).default;
+        const cookieParserMiddleware = cookieParser();
+        await new Promise<void>((resolve) => {
+          cookieParserMiddleware(req, res, () => resolve());
+        });
+
+        // 2. Run session middleware
+        if (RailsApplication.sessionMiddleware) {
+          await new Promise<void>((resolve) => {
+            RailsApplication.sessionMiddleware!(req, res, () => resolve());
+          });
+        }
+
+        next();
+      } catch (error) {
+        console.error(
+          "[Socket.IO] Auth error:",
+          error instanceof Error ? error.message : error,
+        );
+        // Still allow connection, auth checking moved to channel level
+        next();
+      }
+    });
+
+    io.on("connection", (socket) => {
+      const { logger } = require("./logger");
+      const req = socket.request as any;
+      logger.info(
+        { socketId: socket.id, userId: req.user?.id },
+        "Socket client connected",
+      );
+
+      // Instantiate and subscribe to all registered channels for this socket
+      RailsApplication.channelClasses.forEach((ChannelClass) => {
+        const channelInstance = new ChannelClass(io, socket);
+        channelInstance.subscribe();
+      });
+
+      socket.on("disconnect", () => {
+        logger.info({ socketId: socket.id }, "Socket client disconnected");
+      });
+    });
+  }
+
   protected startServer() {
-    this.app
+    const { httpServer, io } = this.setupServer(this.app);
+    this.app.set("io", io);
+    this.setupSockets(io);
+
+    httpServer
       .listen(this.port as number, () => {
         const url = `http://localhost:${this.port}`;
         const { logger } = require("./logger");

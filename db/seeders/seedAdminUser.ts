@@ -2,12 +2,12 @@
  * Tạo user admin@example.com với role ADMIN (nếu chưa có).
  * Sau seed có thể đăng nhập: email admin@example.com, password admin123
  */
+import { UserStatus } from "@configs/database";
 import models from "@models";
 import md5 from "md5";
-import { UserStatus } from "@configs/database";
 
 const ADMIN_EMAIL = "admin@example.com";
-const ADMIN_PASSWORD = "admin123";
+const ADMIN_PASSWORD = "Abcd@1234";
 
 export async function seedAdminUser() {
   const role = await models.role.findFirst({
@@ -50,6 +50,20 @@ export async function seedAdminUser() {
     console.log(`[seedAdminUser] Assigned ADMIN role to ${ADMIN_EMAIL}`);
   }
 
+  // Set password if not exists
+  const existingPassword = await models.password.findFirst({
+    where: { userId: user.id, deleted: false },
+  });
+  if (!existingPassword) {
+    await models.password.create({
+      data: {
+        userId: user.id,
+        password: md5(ADMIN_PASSWORD),
+      },
+    });
+    console.log(`[seedAdminUser] Set password for ${ADMIN_EMAIL}`);
+  }
+
   const hasPassword = await models.password.findFirst({
     where: { userId: user.id, deleted: false },
   });
@@ -57,7 +71,9 @@ export async function seedAdminUser() {
     await models.password.create({
       data: { userId: user.id, password: md5(ADMIN_PASSWORD) },
     });
-    console.log(`[seedAdminUser] Set password for ${ADMIN_EMAIL} (password: ${ADMIN_PASSWORD})`);
+    console.log(
+      `[seedAdminUser] Set password for ${ADMIN_EMAIL} (password: ${ADMIN_PASSWORD})`,
+    );
   }
 
   console.log("[seedAdminUser] Done");

@@ -1,5 +1,6 @@
 import { User } from "@prisma/client";
 import { Request, Response } from "express";
+import { Server as SocketServer } from "socket.io";
 import { ApiResponse } from "./response";
 import { createParamsProxy } from "./strongParams";
 
@@ -32,6 +33,14 @@ export class RailsController {
    */
   protected get currentUser(): (User & { permissions?: string[] }) | undefined {
     return this.req.user as (User & { permissions?: string[] }) | undefined;
+  }
+
+  /**
+   * Socket.io instance.
+   * Use this to emit events: this.io.emit('event', data)
+   */
+  protected get io(): SocketServer {
+    return this.req.app.get("io");
   }
 
   /**

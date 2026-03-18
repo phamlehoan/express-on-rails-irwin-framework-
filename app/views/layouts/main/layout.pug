@@ -6,6 +6,7 @@ html
     link(rel="stylesheet" href="/css/font-awesome/css/font-awesome.min.css")
     link(rel="stylesheet" href="/stylesheets/utilities.css")
     link(rel="stylesheet" href="/stylesheets/mainLayout/style.css")
+    link(rel="stylesheet" href="/stylesheets/mainLayout/widgets/chat.css")
   body
     include ../utilities/flash
     #app
@@ -16,8 +17,28 @@ html
 
       include partials/footer
 
+    //- Chat Widget HTML
+    .chat-widget-button#chat-widget-button
+      i.fa.fa-comments
+
+    #chat-popup.chat-popup
+      .card-header
+        span Chat Room
+        span.close-btn#close-chat-popup &times;
+      #messages.card-body.bg-light
+        // Messages will appear here
+      .card-footer
+        form#chat-form.form-inline(style="display: flex;")
+          input#message-input.form-control.mr-2(type="text" placeholder="Type a message..." autocomplete="off" style="flex-grow: 1;")
+          button.btn.btn-primary(type="submit") Send
+
     script(type="text/javascript" src="/js/popper.min.js")
     script(type="text/javascript" src="/js/jquery.min.js")
     script(type="text/javascript" src="/js/bootstrap.min.js")
     script(type="text/javascript" src="/javascripts/main.js")
     script(type="text/javascript" src="/javascripts/mainLayout/main.js")
+
+    //- Socket.io & Logic
+    script(src="/socket.io/socket.io.js")
+    //- Widget scripts
+    script(type="text/javascript" src="/javascripts/mainLayout/widgets/chat.js")

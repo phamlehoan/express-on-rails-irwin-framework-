@@ -2,7 +2,12 @@
  * Danh sách features - khi thêm tính năng mới, thêm vào đây.
  * Chạy: yarn db:seed
  */
-import { registerFeature, setFeatureParents, assignPermissionToRole, ensureRole } from "./registerFeature";
+import {
+  assignPermissionToRole,
+  ensureRole,
+  registerFeature,
+  setFeatureParents,
+} from "./registerFeature";
 
 export const FEATURES = [
   {
@@ -37,8 +42,14 @@ export const FEATURES = [
     parentCode: "TASK",
     sortOrder: 0,
   },
-  // Thêm feature mới ở đây:
-  // { code: "NEW_FEATURE", name: "New Feature", description: "...", parentCode: "PARENT_CODE" },
+  {
+    code: "CHAT",
+    name: "Chat",
+    description: "Real-time chat",
+    type: "FEATURE",
+    parentCode: null as string | null,
+    sortOrder: 2,
+  },
 ];
 
 export async function seedFeatures() {
@@ -48,10 +59,15 @@ export async function seedFeatures() {
   await setFeatureParents(FEATURES);
 
   // Role ADMIN phải tồn tại trước khi gán permission (tạo nếu chưa có)
-  await ensureRole("ADMIN", "Administrator", "Full access to admin and user management");
+  await ensureRole(
+    "ADMIN",
+    "Administrator",
+    "Full access to admin and user management",
+  );
 
   // ADMIN role có full quyền AM và UM
   await assignPermissionToRole("ADMIN", "AM");
   await assignPermissionToRole("ADMIN", "UM");
+  await assignPermissionToRole("ADMIN", "CHAT");
   console.log("[seedFeatures] Done");
 }

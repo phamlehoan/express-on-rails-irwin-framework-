@@ -3,23 +3,31 @@
     <nav aria-label="breadcrumb" class="breadcrumb-sticky">
       <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item">
-          <a href="/admin/users">{{ t('sidebar.account_management') }}</a>
+          <a :href="breadcrumb.url">{{ breadcrumb.text }}</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">{{ user.email }}</li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ user.email }}
+        </li>
       </ol>
     </nav>
 
     <div class="card mb-4 content-card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 text-uppercase text-primary fw-bold">{{ t('admin.personal_information') }}</h6>
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h6 class="mb-0 text-uppercase text-primary fw-bold">
+          {{ t("admin.personal_information") }}
+        </h6>
         <div class="d-flex gap-2">
           <button
             class="btn btn-sm"
             :class="isEditPersonal ? 'btn-outline-secondary' : 'btn-warning'"
             @click="toggleEdit('personal')"
           >
-            <i :class="['fa', 'me-1', isEditPersonal ? 'fa-times' : 'fa-edit']"></i>
-            {{ isEditPersonal ? t('cancel') : t('edit') }}
+            <i
+              :class="['fa', 'me-1', isEditPersonal ? 'fa-times' : 'fa-edit']"
+            ></i>
+            {{ isEditPersonal ? t("cancel") : t("edit") }}
           </button>
           <button
             v-if="isEditPersonal"
@@ -27,7 +35,7 @@
             @click="saveSection('personal')"
           >
             <i class="fa fa-save me-1" aria-hidden="true"></i>
-            {{ t('save') }}
+            {{ t("save") }}
           </button>
         </div>
       </div>
@@ -35,21 +43,25 @@
         <template v-if="!isEditPersonal">
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label class="text-muted small">{{ t('admin.first_name') }}</label>
+              <label class="text-muted small">{{
+                t("admin.first_name")
+              }}</label>
               <p class="mb-0 fw-semibold">{{ user.firstName }}</p>
             </div>
             <div class="col-md-4 mb-3">
-              <label class="text-muted small">{{ t('admin.last_name') }}</label>
+              <label class="text-muted small">{{ t("admin.last_name") }}</label>
               <p class="mb-0 fw-semibold">{{ user.lastName }}</p>
             </div>
             <div class="col-md-4 mb-3">
-              <label class="text-muted small">{{ t('admin.email') }}</label>
+              <label class="text-muted small">{{ t("admin.email") }}</label>
               <p class="mb-0 fw-semibold">{{ user.email }}</p>
             </div>
             <div class="col-md-4 mb-3">
-              <label class="text-muted small">{{ t('admin.status') }}</label>
+              <label class="text-muted small">{{ t("admin.status") }}</label>
               <p class="mb-0">
-                <span class="badge" :class="statusBadgeClass">{{ user.status }}</span>
+                <span class="badge" :class="statusBadgeClass">{{
+                  user.status
+                }}</span>
               </p>
             </div>
             <div class="col-md-4 mb-3" v-if="user.phoneNumber">
@@ -65,19 +77,24 @@
         <form v-else @submit.prevent="saveSection('personal')">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t('admin.first_name') }}</label>
+              <label class="form-label">{{ t("admin.first_name") }}</label>
               <input class="form-control" v-model="form.firstName" required />
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t('admin.last_name') }}</label>
+              <label class="form-label">{{ t("admin.last_name") }}</label>
               <input class="form-control" v-model="form.lastName" required />
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t('admin.email') }}</label>
-              <input class="form-control" v-model="form.email" type="email" required />
+              <label class="form-label">{{ t("admin.email") }}</label>
+              <input
+                class="form-control"
+                v-model="form.email"
+                type="email"
+                required
+              />
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t('admin.status') }}</label>
+              <label class="form-label">{{ t("admin.status") }}</label>
               <select class="form-select" v-model="form.status">
                 <option value="ACTIVE">ACTIVE</option>
                 <option value="INACTIVE">INACTIVE</option>
@@ -85,12 +102,16 @@
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t('profile.phone') }}</label>
+              <label class="form-label">{{ t("profile.phone") }}</label>
               <input class="form-control" v-model="form.phoneNumber" />
             </div>
             <div class="col-12 mb-3">
-              <label class="form-label">{{ t('profile.address') }}</label>
-              <textarea class="form-control" v-model="form.address" rows="2"></textarea>
+              <label class="form-label">{{ t("profile.address") }}</label>
+              <textarea
+                class="form-control"
+                v-model="form.address"
+                rows="2"
+              ></textarea>
             </div>
           </div>
         </form>
@@ -98,7 +119,9 @@
     </div>
 
     <div class="card mb-4 content-card">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
         <h6 class="mb-0 text-uppercase text-primary fw-bold">Roles</h6>
         <div class="d-flex gap-2">
           <button
@@ -106,8 +129,10 @@
             :class="isEditRoles ? 'btn-outline-secondary' : 'btn-warning'"
             @click="toggleEdit('roles')"
           >
-            <i :class="['fa', 'me-1', isEditRoles ? 'fa-times' : 'fa-edit']"></i>
-            {{ isEditRoles ? 'Cancel' : 'Edit' }}
+            <i
+              :class="['fa', 'me-1', isEditRoles ? 'fa-times' : 'fa-edit']"
+            ></i>
+            {{ isEditRoles ? "Cancel" : "Edit" }}
           </button>
           <button
             v-if="isEditRoles"
@@ -121,15 +146,24 @@
       </div>
       <div class="card-body">
         <template v-if="!isEditRoles">
-          <div class="d-flex flex-wrap gap-2" v-if="user.roles && user.roles.length">
-            <span class="badge bg-primary" v-for="ur in user.roles" :key="ur.roleId">
-              {{ ur.role ? ur.role.name : '' }}
+          <div
+            class="d-flex flex-wrap gap-2"
+            v-if="user.roles && user.roles.length"
+          >
+            <span
+              class="badge bg-primary"
+              v-for="ur in user.roles"
+              :key="ur.roleId"
+            >
+              {{ ur.role ? ur.role.name : "" }}
             </span>
           </div>
-          <p class="text-muted mb-0" v-else>{{ t('admin.no_roles_assigned') }}</p>
+          <p class="text-muted mb-0" v-else>
+            {{ t("admin.no_roles_assigned") }}
+          </p>
         </template>
         <template v-else>
-          <label class="form-label">{{ t('admin.select_roles') }}</label>
+          <label class="form-label">{{ t("admin.select_roles") }}</label>
           <div class="dropdown" data-bs-auto-close="outside">
             <button
               class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
@@ -139,9 +173,14 @@
             >
               {{ rolesSelectedLabel }}
             </button>
-            <ul class="dropdown-menu p-2" style="max-height: 200px; overflow-y: auto">
+            <ul
+              class="dropdown-menu p-2"
+              style="max-height: 200px; overflow-y: auto"
+            >
               <li v-for="r in roles" :key="r.id">
-                <label class="dropdown-item d-flex align-items-center cursor-pointer mb-0">
+                <label
+                  class="dropdown-item d-flex align-items-center cursor-pointer mb-0"
+                >
                   <input
                     class="form-check-input me-2"
                     type="checkbox"
@@ -158,16 +197,26 @@
     </div>
 
     <div class="card mb-4 content-card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 text-uppercase text-primary fw-bold">{{ t('admin.direct_permissions') }}</h6>
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h6 class="mb-0 text-uppercase text-primary fw-bold">
+          {{ t("admin.direct_permissions") }}
+        </h6>
         <div class="d-flex gap-2">
           <button
             class="btn btn-sm"
             :class="isEditPermissions ? 'btn-outline-secondary' : 'btn-warning'"
             @click="toggleEdit('permissions')"
           >
-            <i :class="['fa', 'me-1', isEditPermissions ? 'fa-times' : 'fa-edit']"></i>
-            {{ isEditPermissions ? t('cancel') : t('edit') }}
+            <i
+              :class="[
+                'fa',
+                'me-1',
+                isEditPermissions ? 'fa-times' : 'fa-edit',
+              ]"
+            ></i>
+            {{ isEditPermissions ? t("cancel") : t("edit") }}
           </button>
           <button
             v-if="isEditPermissions"
@@ -175,13 +224,16 @@
             @click="saveSection('permissions')"
           >
             <i class="fa fa-save me-1" aria-hidden="true"></i>
-            {{ t('save') }}
+            {{ t("save") }}
           </button>
         </div>
       </div>
       <div class="card-body">
         <template v-if="!isEditPermissions">
-          <div class="accordion" v-if="user.permissions && user.permissions.length">
+          <div
+            class="accordion"
+            v-if="user.permissions && user.permissions.length"
+          >
             <div
               class="accordion-item border rounded mb-2"
               v-for="f in featuresWithPerms"
@@ -197,10 +249,16 @@
                   {{ f.name }}
                 </button>
               </h2>
-              <div class="accordion-collapse collapse" :id="`user-collapse-${f.id}`">
+              <div
+                class="accordion-collapse collapse"
+                :id="`user-collapse-${f.id}`"
+              >
                 <div class="accordion-body pt-0">
                   <ul class="list-unstyled mb-0">
-                    <li v-for="up in userPermsInFeature(f)" :key="up.permissionId">
+                    <li
+                      v-for="up in userPermsInFeature(f)"
+                      :key="up.permissionId"
+                    >
                       {{ getPermCode(up) }}
                     </li>
                   </ul>
@@ -208,12 +266,18 @@
               </div>
             </div>
           </div>
-          <p class="text-muted mb-0" v-else>{{ t('admin.no_direct_permissions') }}</p>
+          <p class="text-muted mb-0" v-else>
+            {{ t("admin.no_direct_permissions") }}
+          </p>
         </template>
         <template v-else>
-          <p class="small text-muted mb-2">{{ t('admin.permissions_outside_role') }}</p>
+          <p class="small text-muted mb-2">
+            {{ t("admin.permissions_outside_role") }}
+          </p>
           <div class="form-check form-check-select-all mb-2 pb-2 border-bottom">
-            <label class="form-check-label" for="selectAllUserPerms">{{ t('select_all') }}</label>
+            <label class="form-check-label" for="selectAllUserPerms">{{
+              t("select_all")
+            }}</label>
             <input
               class="form-check-input"
               id="selectAllUserPerms"
@@ -223,7 +287,11 @@
             />
           </div>
           <div class="accordion">
-            <div class="accordion-item border rounded mb-2" v-for="f in features" :key="f.id">
+            <div
+              class="accordion-item border rounded mb-2"
+              v-for="f in features"
+              :key="f.id"
+            >
               <h2 class="accordion-header">
                 <button
                   class="accordion-button collapsed"
@@ -234,10 +302,19 @@
                   {{ f.name }}
                 </button>
               </h2>
-              <div class="accordion-collapse collapse" :id="`edit-collapse-${f.id}`">
+              <div
+                class="accordion-collapse collapse"
+                :id="`edit-collapse-${f.id}`"
+              >
                 <div class="accordion-body pt-0">
-                  <div class="form-check form-check-right" v-for="p in f.permissions" :key="p.id">
-                    <label class="form-check-label" :for="`perm-${p.id}`">{{ p.code }}</label>
+                  <div
+                    class="form-check form-check-right"
+                    v-for="p in f.permissions"
+                    :key="p.id"
+                  >
+                    <label class="form-check-label" :for="`perm-${p.id}`">{{
+                      p.code
+                    }}</label>
                     <input
                       class="form-check-input"
                       type="checkbox"
@@ -257,18 +334,27 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject } from 'vue';
+import { defineComponent, inject, PropType } from "vue";
 
 export default defineComponent({
-  name: 'UserDetail',
+  name: "UserDetail",
   setup() {
-    const t = inject<(key: string, opts?: Record<string, string | number>) => string>('t', (k) => k);
+    const t = inject<
+      (key: string, opts?: Record<string, string | number>) => string
+    >("t", (k) => k);
     return { t };
   },
   props: {
-    targetUser: { type: Object, required: true },
-    roles: { type: Array, default: () => [] },
-    features: { type: Array, default: () => [] },
+    targetUser: { type: Object as PropType<any>, required: true },
+    roles: { type: Array as PropType<any[]>, default: () => [] },
+    features: { type: Array as PropType<any[]>, default: () => [] },
+    parentBreadcrumb: {
+      type: Object as PropType<{ text: string; url: string }>,
+      default: () => ({
+        text: "sidebar.account_management",
+        url: "/admin/users",
+      }),
+    },
   },
   data() {
     const targetUser = this.targetUser || {};
@@ -282,14 +368,18 @@ export default defineComponent({
       isEditRoles: false,
       isEditPermissions: false,
       form: {
-        firstName: targetUser.firstName || '',
-        lastName: targetUser.lastName || '',
-        email: targetUser.email || '',
-        status: targetUser.status || 'PENDING',
-        phoneNumber: targetUser.phoneNumber || '',
-        address: targetUser.address || '',
-        roleIds: (targetUser.roles || []).map((ur: { roleId: string }) => ur.roleId),
-        permissionIds: (targetUser.permissions || []).map((up: { permissionId: string }) => up.permissionId),
+        firstName: targetUser.firstName || "",
+        lastName: targetUser.lastName || "",
+        email: targetUser.email || "",
+        status: targetUser.status || "PENDING",
+        phoneNumber: targetUser.phoneNumber || "",
+        address: targetUser.address || "",
+        roleIds: (targetUser.roles || []).map(
+          (ur: { roleId: string }) => ur.roleId,
+        ),
+        permissionIds: (targetUser.permissions || []).map(
+          (up: { permissionId: string }) => up.permissionId,
+        ),
       },
     };
   },
@@ -297,105 +387,124 @@ export default defineComponent({
     featuresWithPerms() {
       return this.features.filter((f: { id: string }) => {
         const perms = (this.user.permissions || []).filter(
-          (up: { permission?: { featureId: string } }) => up.permission && up.permission.featureId === f.id
+          (up: { permission?: { featureId: string } }) =>
+            up.permission && up.permission.featureId === f.id,
         );
         return perms.length > 0;
       });
     },
     statusBadgeClass() {
       const s = this.user.status;
-      if (s === 'ACTIVE') return 'bg-success';
-      if (s === 'INACTIVE') return 'bg-danger';
-      return 'bg-warning';
+      if (s === "ACTIVE") return "bg-success";
+      if (s === "INACTIVE") return "bg-danger";
+      return "bg-warning";
     },
     allPermsSelected() {
-      const all = this.features.flatMap((f: { permissions?: { id: string }[] }) => f.permissions || []).map((p: { id: string }) => p.id);
+      const all = this.features
+        .flatMap((f: { permissions?: { id: string }[] }) => f.permissions || [])
+        .map((p: { id: string }) => p.id);
       return all.length > 0 && this.form.permissionIds.length === all.length;
     },
     rolesSelectedLabel() {
       const n = (this.form.roleIds || []).length;
-      return n ? this.t('admin.roles_selected', { count: n }) : this.t('admin.select_roles');
+      return n
+        ? this.t("admin.roles_selected", { count: n })
+        : this.t("admin.select_roles");
+    },
+    breadcrumb() {
+      // Dịch key i18n từ prop
+      return {
+        ...this.parentBreadcrumb,
+        text: this.t(this.parentBreadcrumb.text),
+      };
     },
   },
   methods: {
     toggleEdit(section: string) {
-      if (section === 'personal') {
+      if (section === "personal") {
         this.isEditPersonal = !this.isEditPersonal;
-        if (!this.isEditPersonal) this.resetFormSection('personal');
-      } else if (section === 'roles') {
+        if (!this.isEditPersonal) this.resetFormSection("personal");
+      } else if (section === "roles") {
         this.isEditRoles = !this.isEditRoles;
-        if (!this.isEditRoles) this.resetFormSection('roles');
-      } else if (section === 'permissions') {
+        if (!this.isEditRoles) this.resetFormSection("roles");
+      } else if (section === "permissions") {
         this.isEditPermissions = !this.isEditPermissions;
-        if (!this.isEditPermissions) this.resetFormSection('permissions');
+        if (!this.isEditPermissions) this.resetFormSection("permissions");
       }
     },
     resetFormSection(section: string) {
-      if (section === 'personal') {
+      if (section === "personal") {
         this.form.firstName = this.user.firstName;
         this.form.lastName = this.user.lastName;
         this.form.email = this.user.email;
         this.form.status = this.user.status;
-        this.form.phoneNumber = this.user.phoneNumber || '';
-        this.form.address = this.user.address || '';
-      } else if (section === 'roles') {
-        this.form.roleIds = (this.user.roles || []).map((ur: { roleId: string }) => ur.roleId);
-      } else if (section === 'permissions') {
-        this.form.permissionIds = (this.user.permissions || []).map((up: { permissionId: string }) => up.permissionId);
+        this.form.phoneNumber = this.user.phoneNumber || "";
+        this.form.address = this.user.address || "";
+      } else if (section === "roles") {
+        this.form.roleIds = (this.user.roles || []).map(
+          (ur: { roleId: string }) => ur.roleId,
+        );
+      } else if (section === "permissions") {
+        this.form.permissionIds = (this.user.permissions || []).map(
+          (up: { permissionId: string }) => up.permissionId,
+        );
       }
     },
     userPermsInFeature(f: { id: string }) {
       return (this.user.permissions || []).filter(
-        (up: { permission?: { featureId: string } }) => up.permission && up.permission.featureId === f.id
+        (up: { permission?: { featureId: string } }) =>
+          up.permission && up.permission.featureId === f.id,
       );
     },
     getPermCode(up: { permission?: { code: string } }) {
-      return up.permission ? up.permission.code : '';
+      return up.permission ? up.permission.code : "";
     },
     toggleAllPerms(e: Event) {
       const checked = (e.target as HTMLInputElement).checked;
       if (checked) {
         this.form.permissionIds = this.features
-          .flatMap((f: { permissions?: { id: string }[] }) => f.permissions || [])
+          .flatMap(
+            (f: { permissions?: { id: string }[] }) => f.permissions || [],
+          )
           .map((p: { id: string }) => p.id);
       } else {
         this.form.permissionIds = [];
       }
     },
     saveSection(section: string) {
-      const form = document.createElement('form');
-      form.method = 'POST';
+      const form = document.createElement("form");
+      form.method = "POST";
       form.action = `/admin/users/${this.user.id}?_method=PUT`;
-      const sectionInput = document.createElement('input');
-      sectionInput.name = 'section';
+      const sectionInput = document.createElement("input");
+      sectionInput.name = "section";
       sectionInput.value = section;
       form.appendChild(sectionInput);
 
-      if (section === 'personal') {
+      if (section === "personal") {
         [
-          ['firstName', this.form.firstName],
-          ['lastName', this.form.lastName],
-          ['email', this.form.email],
-          ['status', this.form.status],
-          ['phoneNumber', this.form.phoneNumber],
-          ['address', this.form.address],
+          ["firstName", this.form.firstName],
+          ["lastName", this.form.lastName],
+          ["email", this.form.email],
+          ["status", this.form.status],
+          ["phoneNumber", this.form.phoneNumber],
+          ["address", this.form.address],
         ].forEach(([k, v]) => {
-          const i = document.createElement('input');
+          const i = document.createElement("input");
           (i as HTMLInputElement).name = k as string;
-          (i as HTMLInputElement).value = (v as string) || '';
+          (i as HTMLInputElement).value = (v as string) || "";
           form.appendChild(i);
         });
-      } else if (section === 'roles') {
+      } else if (section === "roles") {
         (this.form.roleIds || []).forEach((id: string) => {
-          const i = document.createElement('input');
-          i.name = 'roleIds';
+          const i = document.createElement("input");
+          i.name = "roleIds";
           i.value = id;
           form.appendChild(i);
         });
-      } else if (section === 'permissions') {
+      } else if (section === "permissions") {
         (this.form.permissionIds || []).forEach((id: string) => {
-          const i = document.createElement('input');
-          i.name = 'permissionIds';
+          const i = document.createElement("input");
+          i.name = "permissionIds";
           i.value = id;
           form.appendChild(i);
         });

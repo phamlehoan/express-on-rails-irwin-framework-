@@ -35,7 +35,7 @@
 
 #wrapper #content-wrapper #content .navbar {
   justify-content: space-between;
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
 }
 
 body.sidebar-toggled #wrapper #content-wrapper {
@@ -102,8 +102,12 @@ body.sidebar-toggled #wrapper #accordion-header {
   animation-name: growIn;
   -webkit-animation-duration: 200ms;
   animation-duration: 200ms;
-  -webkit-animation-timing-function: transform cubic-bezier(0.18, 1.25, 0.4, 1), opacity cubic-bezier(0, 1, 0.4, 1);
-  animation-timing-function: transform cubic-bezier(0.18, 1.25, 0.4, 1), opacity cubic-bezier(0, 1, 0.4, 1);
+  -webkit-animation-timing-function:
+    transform cubic-bezier(0.18, 1.25, 0.4, 1),
+    opacity cubic-bezier(0, 1, 0.4, 1);
+  animation-timing-function:
+    transform cubic-bezier(0.18, 1.25, 0.4, 1),
+    opacity cubic-bezier(0, 1, 0.4, 1);
 }
 
 @-webkit-keyframes fadeIn {
@@ -143,13 +147,13 @@ body.sidebar-toggled #wrapper #accordion-header {
   vertical-align: 0;
   border: 0;
   font-weight: 900;
-  content: '\f105';
-  font-family: 'FontAwesome';
+  content: "\f105";
+  font-family: "FontAwesome";
 }
 
 .sidebar .nav-item.dropdown.show .dropdown-toggle::after,
 .topbar .nav-item.dropdown.show .dropdown-toggle::after {
-  content: '\f107';
+  content: "\f107";
 }
 
 .sidebar .nav-item .nav-link,
@@ -162,8 +166,8 @@ body.sidebar-toggled #wrapper #accordion-header {
   position: absolute;
   transform: scale(0.7);
   transform-origin: top right;
-  right: .25rem;
-  margin-top: -.25rem;
+  right: 0.25rem;
+  margin-top: -0.25rem;
 }
 
 .sidebar .nav-item .nav-link .img-profile,
@@ -175,8 +179,8 @@ body.sidebar-toggled #wrapper #accordion-header {
 }
 
 .topbar .dropdown-menu .img-profile-dropdown {
-  height: 2.5rem;
-  width: 2.5rem;
+  height: 5rem;
+  width: 5rem;
   object-fit: cover;
 }
 
@@ -387,7 +391,7 @@ body.sidebar-toggled #wrapper #accordion-header {
 
 .sidebar .nav-item .collapse .collapse-inner,
 .sidebar .nav-item .collapsing .collapse-inner {
-  padding: .5rem 0;
+  padding: 0.5rem 0;
   min-width: 10rem;
   font-size: 0.85rem;
   margin: 0 0 1rem 0;
@@ -397,7 +401,7 @@ body.sidebar-toggled #wrapper #accordion-header {
 .sidebar .nav-item .collapsing .collapse-inner .collapse-header {
   margin: 0;
   white-space: nowrap;
-  padding: .5rem 1.5rem;
+  padding: 0.5rem 1.5rem;
   text-transform: uppercase;
   font-weight: 800;
   font-size: 0.65rem;
@@ -441,8 +445,8 @@ body.sidebar-toggled #wrapper #accordion-header {
 
 .sidebar #sidebarToggle::after {
   font-weight: 900;
-  content: '\f104';
-  font-family: 'FontAwesome';
+  content: "\f104";
+  font-family: "FontAwesome";
   margin-right: 0.1rem;
 }
 
@@ -460,8 +464,8 @@ body.sidebar-toggled #wrapper #accordion-header {
 }
 
 .sidebar.toggled #sidebarToggle::after {
-  content: '\f105';
-  font-family: 'FontAwesome';
+  content: "\f105";
+  font-family: "FontAwesome";
   margin-left: 0.25rem;
 }
 
@@ -582,12 +586,12 @@ body.sidebar-toggled #wrapper #accordion-header {
     vertical-align: 0;
     border: 0;
     font-weight: 900;
-    content: '\f107';
-    font-family: 'FontAwesome';
+    content: "\f107";
+    font-family: "FontAwesome";
   }
 
   .sidebar .nav-item .nav-link[data-bs-toggle="collapse"].collapsed::after {
-    content: '\f105';
+    content: "\f105";
   }
 
   .sidebar .sidebar-brand .sidebar-brand-icon i {
@@ -616,8 +620,12 @@ body.sidebar-toggled #wrapper #accordion-header {
     animation-name: growIn;
     -webkit-animation-duration: 200ms;
     animation-duration: 200ms;
-    -webkit-animation-timing-function: transform cubic-bezier(0.18, 1.25, 0.4, 1), opacity cubic-bezier(0, 1, 0.4, 1);
-    animation-timing-function: transform cubic-bezier(0.18, 1.25, 0.4, 1), opacity cubic-bezier(0, 1, 0.4, 1);
+    -webkit-animation-timing-function:
+      transform cubic-bezier(0.18, 1.25, 0.4, 1),
+      opacity cubic-bezier(0, 1, 0.4, 1);
+    animation-timing-function:
+      transform cubic-bezier(0.18, 1.25, 0.4, 1),
+      opacity cubic-bezier(0, 1, 0.4, 1);
   }
 
   .sidebar.toggled .nav-item .collapse .collapse-inner {

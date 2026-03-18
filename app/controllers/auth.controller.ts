@@ -117,21 +117,26 @@ export class AuthController extends ApplicationController {
       "password",
     );
 
-    const user = await models.user.findUnique({
+    const user = await models.user.findFirst({
       where: {
         email,
-        passwords: {
-          some: {
-            deleted: false,
-            password: md5(password),
-          },
-        },
         status: UserStatus.ACTIVE,
         deleted: false,
       },
+      include: {
+        passwords: {
+          where: { deleted: false },
+          orderBy: { createdAt: Prisma.SortOrder.desc },
+          take: 1,
+        },
+      },
     });
 
-    if (user) {
+    if (
+      user &&
+      user.passwords.length > 0 &&
+      user.passwords[0].password === md5(password)
+    ) {
       this.req.session!.userId = user.id;
       this.req.session!.save((err) => {
         if (err) {
@@ -180,6 +185,8 @@ export class AuthController extends ApplicationController {
       return this.render("auth.view/new");
     }
 
+    // TODO: Thêm logic gửi email chứa link tạo password nếu chưa có password nào,
+    // thay vì hiển thị token trực tiếp trên URL
     const token = user.passwords.length
       ? user.passwords[0]!.password
       : undefined;

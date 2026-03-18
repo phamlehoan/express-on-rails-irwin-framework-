@@ -20,6 +20,7 @@
 
   "sidebar": {
     "web_app": "Ứng dụng Web",
+    "chat": "Trò chuyện",
     "admin_management": "Quản trị hệ thống",
     "account_management": "Quản lý tài khoản",
     "roles_permissions": "Vai trò & Quyền",

@@ -5,7 +5,7 @@ import { action, RailsRoute, RestActions } from "@lib";
 export class DevRoute extends RailsRoute {
   public draw() {
     this.resource(DevController, {
-      except: [RestActions.Create],
+      only: [RestActions.Index],
     });
     this.post([upload.single("image"), action(DevController, "create")]);
   }

@@ -33,7 +33,7 @@ nav#mainNav.navbar.navbar-expand-lg.navbar-dark.navbar-shrink.fixed-top
                 .d-lg-none.d-block.ms-2= user.firstName + ' ' + user.lastName
             ul#userDropdownAria.dropdown-menu.shadow.animated--grow-in(aria-labelledby='userDropdown')
               .text-center
-                img(style=' border-radius: 50%' src=`${user.avatarUrl ? user.avatarUrl : '/images/img/user.png'}`)
+                img.img-profile.rounded-circle(src=`${user.avatarUrl ? user.avatarUrl : '/images/img/user.png'}`)
                 .fw-bold.mt-2
                   = user.firstName + ' ' + user.lastName
               .dropdown-divider

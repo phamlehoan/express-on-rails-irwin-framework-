@@ -1,3 +1,4 @@
+import * as channels from "@channels";
 import { MiddlewareFactory, RailsApplication } from "@lib";
 import { i18nMiddleware } from "@middlewares/i18n.middleware";
 import { rateLimitMiddleware } from "@middlewares/rateLimit.middleware";
@@ -20,6 +21,9 @@ RailsApplication.middlewareFactory = {
   requestId: () => requestIdMiddleware,
   requestLogging: () => requestLoggingMiddleware,
 } as MiddlewareFactory;
+
+// Register all channel classes for Socket.io
+RailsApplication.channelClasses = Object.values(channels);
 
 export class Application extends RailsApplication {
   private i18nReady: Promise<void> = Promise.resolve();
@@ -50,18 +54,19 @@ export class Application extends RailsApplication {
         credentials: true,
       }),
     );
-    this.app.use(
-      session({
-        secret: env.sessionSecret,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-          secure: env.nodeEnv === "production",
-          httpOnly: true,
-          maxAge: 1000 * 60 * 60 * 3,
-        },
-      }),
-    );
+    const sessionMiddleware = session({
+      secret: env.sessionSecret,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: env.nodeEnv === "production",
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 3,
+      },
+    });
+    // Store reference for Socket.IO to reuse
+    RailsApplication.sessionMiddleware = sessionMiddleware;
+    this.app.use(sessionMiddleware);
     this.app.use(flash());
     this.app.use(i18nMiddleware);
   }

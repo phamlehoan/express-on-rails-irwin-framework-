@@ -11,6 +11,7 @@ export * from "./fileUploadValidation";
 export * from "./logger";
 export * from "./pagination";
 export * from "./railsApplication";
+export * from "./railsChannel";
 export * from "./railsController";
 export * from "./railsRoute";
 export * from "./response";
