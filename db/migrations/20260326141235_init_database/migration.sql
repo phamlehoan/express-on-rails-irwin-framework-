@@ -24,6 +24,7 @@ CREATE TABLE "passwords" (
     "deleted" BOOLEAN NOT NULL DEFAULT false,
     "password" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
+    "type" TEXT NOT NULL DEFAULT 'PASSWORD',
     CONSTRAINT "passwords_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 

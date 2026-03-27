@@ -13,14 +13,6 @@ import {
 
 export class ApiV1DevRoute extends RailsRoute {
   public draw() {
-    // Custom routes trước (tránh /:id match "health", "echo"...)
-    this.get("/health", action(ApiV1DevController, "health"), {
-      document: {
-        summary: "Health check",
-        tags: ["Dev"],
-      },
-    });
-
     this.get("/echo", action(ApiV1DevController, "echo"), {
       document: {
         summary: "Echo (params.permit)",

@@ -1,18 +1,15 @@
-import { HomePageValidator } from "@validators/common.validator";
 import { ApplicationController } from ".";
 
 export class HomeController extends ApplicationController {
   async index() {
-    const data = await this.params(HomePageValidator).permit(
-      "currentPage",
-      "pageSize",
-    );
-    const { currentPage = 1, pageSize = 10 } = data;
+    console.log("HomeController index called");
+    // const data = await this.params(HomePageValidator).permit(
+    //   "currentPage",
+    //   "pageSize",
+    // );
+    // const { currentPage = 1, pageSize = 10 } = data;
 
-    this.render("home.view/index", {
-      user: this.currentUser,
-      currentPage,
-      pageSize,
-    });
+    console.log("Sending response");
+    this.res.send("Hello World");
   }
 }

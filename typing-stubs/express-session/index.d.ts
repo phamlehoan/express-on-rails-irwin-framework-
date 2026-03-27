@@ -5,4 +5,8 @@ declare module "express-session" {
     user?: { [key: string]: any };
     userId?: string;
   }
+
+  interface SessionData {
+    userId?: string;
+  }
 }

@@ -3,7 +3,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["filteredRelationCount"]
+  previewFeatures = []
 }
 
 generator dbml {
@@ -57,6 +57,7 @@ model Password {
 
   password String
   userId   String @map("user_id")
+  type     String @default("PASSWORD") @map("type") // PASSWORD, OTP, REFRESH_TOKEN
 
   // Relation
   user User @relation(fields: [userId], references: [id])

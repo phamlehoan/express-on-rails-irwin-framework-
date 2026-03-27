@@ -1,4 +1,3 @@
-import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import express, {
   Application,
@@ -11,7 +10,6 @@ import express, {
 import { createServer, Server as HttpServer } from "http";
 import createError from "http-errors";
 import methodOverride from "method-override";
-import serverless from "serverless-http";
 import { Server as SocketServer } from "socket.io";
 import { AppError } from "./errors";
 import { RailsChannel } from "./railsChannel";
@@ -34,11 +32,12 @@ export class RailsApplication {
   protected readonly routes: RouteInfo[] = [];
   protected port: string | number = process.env.PORT || "8000";
   public static channelClasses: (new (...args: any[]) => RailsChannel)[] = [];
+  protected isInitialized = false;
   public static middlewareFactory: MiddlewareFactory;
   public static sessionMiddleware: RequestHandler | null = null;
 
   constructor() {
-    this.setupStandardMiddlewares();
+    // Không khởi tạo middleware ở đây để đợi các static properties được cấu hình đầy đủ
   }
 
   protected setupStandardMiddlewares() {
@@ -54,7 +53,6 @@ export class RailsApplication {
     this.app.use(methodOverride("_method"));
     this.app.use(cookieParser());
     this.app.use(RailsApplication.middlewareFactory.rateLimit());
-    this.app.use(bodyParser.urlencoded({ extended: true }));
   }
 
   protected mountRoutes() {
@@ -164,13 +162,20 @@ export class RailsApplication {
     });
   }
 
-  public handler() {
-    return serverless(this.app);
+  /**
+   * Đảm bảo các thành phần quan trọng của App được nạp đúng thứ tự và duy nhất 1 lần.
+   */
+  protected bootstrap() {
+    if (this.isInitialized) return;
+    this.setupStandardMiddlewares();
+    this.mountRoutes();
+    this.setupErrorHandlers();
+    this.isInitialized = true;
   }
 
   public async run() {
     this.setupSwagger();
-    this.setupErrorHandlers();
+    this.bootstrap();
     this.startServer();
   }
 

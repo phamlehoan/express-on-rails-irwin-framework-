@@ -1,4 +1,4 @@
-import { UserStatus } from "@configs/database";
+import { PasswordType, UserStatus } from "@configs/database";
 import { FlashType } from "@configs/enum";
 import env from "@configs/env";
 import models from "@models";
@@ -125,7 +125,7 @@ export class AuthController extends ApplicationController {
       },
       include: {
         passwords: {
-          where: { deleted: false },
+          where: { deleted: false, type: PasswordType.PASSWORD },
           orderBy: { createdAt: Prisma.SortOrder.desc },
           take: 1,
         },

@@ -1,0 +1,20 @@
+if messages && messages.errors
+  .alert.alert-danger.alert-dismissible.fade.show
+    button.btn-close(type="button" data-bs-dismiss="alert")
+    ul.mb-0
+      each error in messages.errors
+        li= error.msg
+
+if messages && messages.success
+  .alert.alert-success.alert-dismissible.fade.show
+    button.btn-close(type="button" data-bs-dismiss="alert")
+    ul.mb-0
+      each success in messages.success
+        li= success.msg
+
+if messages && messages.info
+  .alert.alert-info.alert-dismissible.fade.show
+    button.btn-close(type="button" data-bs-dismiss="alert")
+    ul.mb-0
+      each info in messages.info
+        li= info.msg

@@ -87,14 +87,6 @@ export class ApiV1DevController extends ApiV1Controller {
     this.renderJson({ message, echoedAt: new Date().toISOString() });
   }
 
-  async health() {
-    this.renderJson({
-      status: "ok",
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-    });
-  }
-
   async me() {
     this.renderJson({
       user: this.req.user,

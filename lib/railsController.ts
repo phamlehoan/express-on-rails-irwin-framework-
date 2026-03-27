@@ -32,7 +32,7 @@ export class RailsController {
    * Lấy user hiện tại từ request (đã được middleware gán).
    */
   protected get currentUser(): (User & { permissions?: string[] }) | undefined {
-    return this.req.user as (User & { permissions?: string[] }) | undefined;
+    return this.req.user || undefined;
   }
 
   /**

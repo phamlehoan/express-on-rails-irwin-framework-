@@ -19,7 +19,9 @@ export class CurrentUserMiddleware extends ApplicationMiddleware {
 
         const token = authHeader.split(" ")[1];
         const decoded = verifyToken(token);
-        userId = decoded.userId;
+        if (typeof decoded !== "string") {
+          userId = decoded.userId as string | undefined;
+        }
       } else {
         userId = req.session?.userId;
       }
@@ -28,9 +30,9 @@ export class CurrentUserMiddleware extends ApplicationMiddleware {
 
       // Cho request web: set hasAdminAccess để layout hiển thị nút Admin (có bất kỳ permission AM hoặc UM)
       if (!isApiRequest) {
-        const perms = (req.user as any)?.permissions ?? [];
+        const perms = req.user?.permissions ?? [];
         (res.locals as any).hasAdminAccess = perms.some((p: string) =>
-          ADMIN_FEATURE_CODES.some((code) => p.startsWith(`${code}::`))
+          ADMIN_FEATURE_CODES.some((code) => p.startsWith(`${code}::`)),
         );
       }
 

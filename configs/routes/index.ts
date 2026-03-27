@@ -1,6 +1,6 @@
 import env from "@configs/env";
 import { HomeController } from "@controllers";
-import { action, ApiResponse, RailsRoute, RestActions } from "@lib";
+import { action, ApiResponse, RailsRoute } from "@lib";
 import {
   CurrentUserMiddleware,
   Permission,
@@ -38,17 +38,7 @@ RailsRoute.actionPermissionMap = {
 
 export class Route extends RailsRoute {
   public draw() {
-    // Health - liveness (process còn chạy)
-    this.route.get("/health", (_req, res) => {
-      ApiResponse.sendOk(res, {
-        status: "ok",
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-      });
-    });
-
-    // Readiness - sẵn sàng nhận traffic (DB, cache ok)
-    this.route.get("/ready", async (_req, res) => {
+    this.route.get("/health", async (_req, res) => {
       const { checkReadiness } = await import("@configs/health");
       const status = await checkReadiness();
       const code = status.status === "ok" ? 200 : 503;
@@ -66,8 +56,10 @@ export class Route extends RailsRoute {
     this.path("/me", ProfileRoute.draw());
     this.path("/users", UserRoute.draw());
 
-    this.resource(HomeController, {
-      only: [RestActions.Index],
-    });
+    this.route.get("/", action(HomeController, "index"));
+
+    // this.resource(HomeController, {
+    //   only: [RestActions.Index],
+    // });
   }
 }

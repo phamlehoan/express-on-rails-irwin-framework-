@@ -35,7 +35,6 @@ export class Application extends RailsApplication {
     this.setupAppMiddlewares();
     this.setupServices();
     this.setupStaticFiles();
-    this.mountRoutes();
   }
 
   protected setupConfig() {

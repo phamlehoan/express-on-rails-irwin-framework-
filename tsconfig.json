@@ -25,95 +25,89 @@
     /* Modules */
     "module": "CommonJS" /* Specify what module code is generated. */,
     "rootDir": "./" /* Specify the root folder within your source files. */,
-    "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
-    "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */,
-    "ignoreDeprecations": "6.0",
     "paths": {
       "@configs": [
-        "configs"
+        "./configs"
       ],
       "@configs/*": [
-        "configs/*"
+        "./configs/*"
       ],
       "@channels": [
-        "app/channels"
+        "./app/channels"
       ],
       "@channels/*": [
-        "app/channels/*"
+        "./app/channels/*"
       ],
       "@application": [
-        "configs/application"
+        "./configs/application"
       ],
       "@env": [
-        "configs/env"
+        "./configs/env"
       ],
       "@enum": [
-        "configs/enum"
+        "./configs/enum"
       ],
       "@models": [
-        "app/models"
+        "./app/models"
       ],
       "@models/*": [
-        "app/models/*"
+        "./app/models/*"
       ],
       "@middlewares": [
-        "app/middlewares"
+        "./app/middlewares"
       ],
       "@middlewares/*": [
-        "app/middlewares/*"
+        "./app/middlewares/*"
       ],
       "@views": [
-        "app/views"
+        "./app/views"
       ],
       "@controllers": [
-        "app/controllers"
+        "./app/controllers"
       ],
       "@controllers/*": [
-        "app/controllers/*"
+        "./app/controllers/*"
       ],
       "@jobs": [
-        "app/jobs"
+        "./app/jobs"
       ],
       "@jobs/*": [
-        "app/jobs/*"
+        "./app/jobs/*"
       ],
       "@mailers": [
-        "app/mailers"
+        "./app/mailers"
       ],
       "@mailers/*": [
-        "app/mailers/*"
+        "./app/mailers/*"
       ],
       "@validators": [
-        "app/validators"
+        "./app/validators"
       ],
       "@validators/*": [
-        "app/validators/*"
+        "./app/validators/*"
       ],
       "@lib": [
-        "lib"
+        "./lib"
       ],
       "@lib/*": [
-        "lib/*"
+        "./lib/*"
       ],
       "@services": [
-        "app/services"
+        "./app/services"
       ],
       "@services/*": [
-        "app/services/*"
+        "./app/services/*"
       ],
       "@routes": [
-        "configs/routes"
+        "./configs/routes"
       ],
       "@routes/*": [
-        "configs/routes/*"
+        "./configs/routes/*"
       ]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
-    "typeRoots": [
-      "./typing-stubs",
-      "./node_modules/@types"
-    ] /* Specify multiple folders that act like './node_modules/@types'. */,
-    // "types": ["node", "express", "sharp"],                                      /* Specify type package names to be included without being referenced in a source file. */
+    "typeRoots": ["./node_modules/@types", "./typing-stubs"] /* Specify multiple folders that act like './node_modules/@types'. */,
+    "types": ["node"],
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
     // "allowImportingTsExtensions": true,               /* Allow imports to include TypeScript file extensions. Requires '--moduleResolution bundler' and either '--noEmit' or '--emitDeclarationOnly' to be set. */
@@ -182,6 +176,7 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
+  "include": ["**/*.ts", "typing-stubs/**/*.d.ts"],
   "exclude": [
     "node_modules",
     "dist",
@@ -189,6 +184,7 @@
     "vite.config.ts"
   ],
   "ts-node": {
+    "files": true,
     "require": [
       "tsconfig-paths/register"
     ]

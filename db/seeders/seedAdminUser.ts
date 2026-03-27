@@ -2,7 +2,7 @@
  * Tạo user admin@example.com với role ADMIN (nếu chưa có).
  * Sau seed có thể đăng nhập: email admin@example.com, password admin123
  */
-import { UserStatus } from "@configs/database";
+import { PasswordType, UserStatus } from "@configs/database";
 import models from "@models";
 import md5 from "md5";
 
@@ -59,6 +59,7 @@ export async function seedAdminUser() {
       data: {
         userId: user.id,
         password: md5(ADMIN_PASSWORD),
+        type: PasswordType.PASSWORD,
       },
     });
     console.log(`[seedAdminUser] Set password for ${ADMIN_EMAIL}`);
