@@ -1,4 +1,4 @@
-import { PasswordType, UserStatus } from "@configs/database";
+import { PasswordType, UserStatus } from "@configs/db/enums";
 import { FlashType } from "@configs/enum";
 import env from "@configs/env";
 import models from "@models";

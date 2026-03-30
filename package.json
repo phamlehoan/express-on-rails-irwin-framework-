@@ -15,7 +15,7 @@
     "db:seed": "ts-node db/seed.ts",
     "build-client": "vite build",
     "git": "sh .vscode/git.sh",
-    "routes": "ts-node commands/routes.ts",
+    "routes": "ts-node lib/commands/routes.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -102,8 +102,8 @@
     "vite": "7.3.1"
   },
   "prisma": {
-    "schema": "db/schema.prisma",
-    "seed": "ts-node db/seed.ts"
+    "schema": "configs/db/schema.prisma",
+    "seed": "ts-node configs/db/seed.ts"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"

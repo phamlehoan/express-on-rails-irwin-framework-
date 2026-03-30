@@ -1,6 +1,6 @@
 import env from "@configs/env";
 import { HomeController } from "@controllers";
-import { action, RailsRoute } from "@lib";
+import { action, RailsRoute, RestActions } from "@lib";
 import {
   CurrentUserMiddleware,
   Permission,
@@ -49,10 +49,8 @@ export class Route extends RailsRoute {
     this.path("/me", ProfileRoute.draw());
     this.path("/users", UserRoute.draw());
 
-    this.route.get("/", action(HomeController, "index"));
-
-    // this.resource(HomeController, {
-    //   only: [RestActions.Index],
-    // });
+    this.resource(HomeController, {
+      only: [RestActions.Index],
+    });
   }
 }
