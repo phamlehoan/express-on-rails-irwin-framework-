@@ -28,7 +28,7 @@ export interface MiddlewareFactory {
 }
 
 export class RailsApplication {
-  protected readonly app: Express = express();
+  public readonly app: Express = express();
   protected readonly routes: RouteInfo[] = [];
   protected port: string | number = process.env.PORT || "8000";
   public static channelClasses: (new (...args: any[]) => RailsChannel)[] = [];
@@ -165,16 +165,16 @@ export class RailsApplication {
   /**
    * Đảm bảo các thành phần quan trọng của App được nạp đúng thứ tự và duy nhất 1 lần.
    */
-  protected bootstrap() {
+  public bootstrap() {
     if (this.isInitialized) return;
     this.setupStandardMiddlewares();
     this.mountRoutes();
+    this.setupSwagger();
     this.setupErrorHandlers();
     this.isInitialized = true;
   }
 
   public async run() {
-    this.setupSwagger();
     this.bootstrap();
     this.startServer();
   }

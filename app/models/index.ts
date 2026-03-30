@@ -1,20 +1,31 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import env from "@configs/env";
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient({
-  log: [
-    { emit: "event", level: "query" },
-    { emit: "stdout", level: "error" },
-    { emit: "stdout", level: "info" },
-    { emit: "stdout", level: "warn" },
-  ],
-  errorFormat: "colorless",
-});
+/**
+ * Singleton cho Prisma Client để tối ưu kết nối trong Serverless.
+ */
+const prismaClientSingleton = () => {
+  return new PrismaClient({
+    datasources: {
+      db: {
+        // Đảm bảo connection string có tham số connection_limit
+        url: env.databaseUrl.includes("connection_limit")
+          ? env.databaseUrl
+          : `${env.databaseUrl}${env.databaseUrl.includes("?") ? "&" : "?"}connection_limit=${env.dbMaxConnections}`,
+      },
+    },
+    log: env.nodeEnv === "development" ? ["query", "error", "warn"] : ["error"],
+  });
+};
 
-prisma.$on("query", (e: Prisma.QueryEvent) => {
-  console.info("Query: " + e.query);
-  console.info("Params: " + e.params);
-  console.info("Duration: " + e.duration + "ms");
-  console.info("\n");
-});
+type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
 
-export default prisma;
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClientSingleton | undefined;
+};
+
+const models = globalForPrisma.prisma ?? prismaClientSingleton();
+
+export default models;
+
+if (env.nodeEnv !== "production") globalForPrisma.prisma = models;

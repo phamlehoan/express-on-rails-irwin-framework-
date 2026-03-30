@@ -11,6 +11,7 @@ export class ApiV1Route extends RailsRoute {
     if (env.nodeEnv === "development") {
       this.path("/dev", ApiV1DevRoute.draw());
     }
+
     this.path("/auth", AuthRoute.draw());
 
     this.path(action(ValidateUserLoginMiddleware));

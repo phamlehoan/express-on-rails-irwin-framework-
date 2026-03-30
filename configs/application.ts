@@ -53,6 +53,9 @@ export class Application extends RailsApplication {
         credentials: true,
       }),
     );
+
+    // Serverless optimization: Only use session for non-API routes if needed
+    // or use a persistent store (Redis/Database) instead of MemoryStore.
     const sessionMiddleware = session({
       secret: env.sessionSecret,
       resave: false,
@@ -63,15 +66,39 @@ export class Application extends RailsApplication {
         maxAge: 1000 * 60 * 60 * 3,
       },
     });
+
     // Store reference for Socket.IO to reuse
     RailsApplication.sessionMiddleware = sessionMiddleware;
-    this.app.use(sessionMiddleware);
-    this.app.use(flash());
+
+    // If we want purely stateless API, we could conditionalize this:
+    this.app.use((req, res, next) => {
+      const isStateless =
+        req.path.startsWith("/api") ||
+        req.path.startsWith("/docs") ||
+        req.path.startsWith("/swagger.json");
+
+      if (isStateless) return next();
+
+      sessionMiddleware(req, res, (err) => {
+        if (err) return next(err);
+        flash()(req, res, next);
+      });
+    });
+
     this.app.use(i18nMiddleware);
   }
 
   protected setupServices() {
-    this.i18nReady = initI18n().then(() => startCronJobs());
+    this.i18nReady = initI18n().then(() => {
+      // Only start cron jobs in serverfull mode
+      if (
+        !process.env.LAMBDA_TASK_ROOT &&
+        !process.env.VERCEL &&
+        !process.env.IS_OFFLINE
+      ) {
+        startCronJobs();
+      }
+    });
   }
 
   protected setupStaticFiles() {
@@ -115,8 +142,13 @@ export class Application extends RailsApplication {
     }
   }
 
-  public async run() {
+  public async initialize() {
     await this.i18nReady;
+    this.bootstrap();
+  }
+
+  public async run() {
+    await this.initialize();
     super.run();
   }
 }

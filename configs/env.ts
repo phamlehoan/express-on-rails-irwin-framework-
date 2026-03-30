@@ -6,6 +6,7 @@ export default {
   nodeEnv: process.env.NODE_ENV || "development",
   port: process.env.PORT || "3000",
   databaseUrl: process.env.DATABASE_URL || "file:./schema/app.db",
+  dbMaxConnections: parseInt(process.env.DB_MAX_CONNECTIONS || "1"),
   sessionSecret: process.env.SESSION_SECRET || "your-session-secret",
   jwtSecret: process.env.JWT_SECRET || "your-jwt-secret",
   googleClientId: process.env.GOOGLE_CLIENT_ID || "",

@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "lambda.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "lambda.ts" },
+    { "src": "/(.*)", "dest": "lambda.ts" }
+  ]
+}

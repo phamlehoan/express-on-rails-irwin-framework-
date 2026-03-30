@@ -1,6 +1,6 @@
 import env from "@configs/env";
 import { HomeController } from "@controllers";
-import { action, ApiResponse, RailsRoute } from "@lib";
+import { action, RailsRoute } from "@lib";
 import {
   CurrentUserMiddleware,
   Permission,
@@ -38,13 +38,6 @@ RailsRoute.actionPermissionMap = {
 
 export class Route extends RailsRoute {
   public draw() {
-    this.route.get("/health", async (_req, res) => {
-      const { checkReadiness } = await import("@configs/health");
-      const status = await checkReadiness();
-      const code = status.status === "ok" ? 200 : 503;
-      res.status(code).json(ApiResponse.ok(status));
-    });
-
     this.path(action(CurrentUserMiddleware));
 
     if (env.nodeEnv === "development") this.path("/dev", DevRoute.draw());
