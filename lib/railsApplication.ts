@@ -113,30 +113,46 @@ export class RailsApplication {
 
   protected processRoutes(route: any, prefix: string = ""): any {
     if (route.name === "router") {
-      prefix += route.regexp
-        .toString()
-        .replace(/\/\^|\/\?|\/\$/g, "")
-        .replace("(?=\/|$)", "")
-        .replace(/\(.\)/g, "")
-        .replace(/\/i\n/g, "")
-        .replace(/\/i$/, "");
-      route.handle.stack?.map((r: any) => {
-        const path = r.route?.path;
+      const segment = route.regexp.source
+        .replace(/\\\//g, "/") // Giải mã các dấu gạch chéo bị escape \/ -> /
+        .replace(/\/\?\(\?=\/\|\$\)/g, "") // Loại bỏ cụm suffix mặc định của Express /?(?=/|$)
+        .replace(/\(\?=\/\|\$\)/g, "") // Loại bỏ suffix (?=/|$) nếu không có /?
+        .replace(/^\^/, "") // Loại bỏ ký tự bắt đầu dòng ^
+        .replace(/\/\?$/, "") // Loại bỏ dấu gạch chéo tùy chọn ở cuối
+        .replace(/\$$/, ""); // Loại bỏ ký tự kết thúc dòng $
 
-        if (r.route)
-          r.route?.stack?.map((r: any) => {
+      const newPrefix = (
+        prefix + (segment.startsWith("/") ? segment : "/" + segment)
+      ).replace(/\/+/g, "/");
+
+      route.handle.stack?.forEach((layer: any) => {
+        if (layer.route) {
+          const path = layer.route.path;
+          Object.keys(layer.route.methods).forEach((method) => {
             this.routes.push({
-              method: r.method.toUpperCase(),
-              prefix: prefix,
+              method: method.toUpperCase(),
+              prefix: newPrefix,
               path: path,
             });
           });
-        else this.processRoutes(r, prefix);
+        } else {
+          this.processRoutes(layer, newPrefix);
+        }
+      });
+    } else if (route.route) {
+      const path = route.route.path;
+      Object.keys(route.route.methods).forEach((method) => {
+        this.routes.push({
+          method: method.toUpperCase(),
+          prefix: prefix || "/",
+          path: path,
+        });
       });
     }
   }
 
-  public getRoutes() {
+  public getRoutes(): RouteInfo[] {
+    this.routes.length = 0; // Xóa danh sách cũ để tránh bị lặp khi gọi nhiều lần
     this.app._router.stack.map((r: any) => {
       this.processRoutes(r);
     });
@@ -153,13 +169,8 @@ export class RailsApplication {
 
       return 0;
     });
-  }
 
-  public showRoutes(search?: string) {
-    const { logger } = require("./logger");
-    this.routes.forEach((route) => {
-      if (!search || JSON.stringify(route).includes(search)) logger.info(route);
-    });
+    return this.routes;
   }
 
   /**

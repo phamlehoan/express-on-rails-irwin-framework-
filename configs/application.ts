@@ -9,9 +9,9 @@ import express from "express";
 import flash from "express-flash";
 import session from "express-session";
 import { join, resolve } from "path";
-import { startCronJobs } from "./cron";
 import env from "./env";
 import { initI18n } from "./i18n";
+import { startCronJobs } from "./job";
 import { Route } from "./routes";
 import { setupSwagger } from "./swagger";
 
@@ -26,15 +26,11 @@ RailsApplication.middlewareFactory = {
 RailsApplication.channelClasses = Object.values(channels);
 
 export class Application extends RailsApplication {
-  private i18nReady: Promise<void> = Promise.resolve();
+  private i18nReady: Promise<void> | null = null;
 
   constructor() {
     super();
     this.setupConfig();
-    this.setupViewEngine();
-    this.setupAppMiddlewares();
-    this.setupServices();
-    this.setupStaticFiles();
   }
 
   protected setupConfig() {
@@ -88,17 +84,21 @@ export class Application extends RailsApplication {
     this.app.use(i18nMiddleware);
   }
 
-  protected setupServices() {
+  protected async setupServices() {
+    if (this.i18nReady) return await this.i18nReady;
+
     this.i18nReady = initI18n().then(() => {
       // Only start cron jobs in serverfull mode
       if (
         !process.env.LAMBDA_TASK_ROOT &&
         !process.env.VERCEL &&
-        !process.env.IS_OFFLINE
+        !process.env.IS_OFFLINE &&
+        !process.env.IRWIN_CONSOLE
       ) {
         startCronJobs();
       }
     });
+    await this.i18nReady;
   }
 
   protected setupStaticFiles() {
@@ -143,7 +143,10 @@ export class Application extends RailsApplication {
   }
 
   public async initialize() {
-    await this.i18nReady;
+    this.setupViewEngine();
+    this.setupAppMiddlewares();
+    this.setupStaticFiles();
+    await this.setupServices();
     this.bootstrap();
   }
 

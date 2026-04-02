@@ -6,6 +6,7 @@ configs/db/dbml
 uploads
 app/assets/javascripts/generated
 .env
+.rails_console_history
 render.yaml
 
 yarn-error.log

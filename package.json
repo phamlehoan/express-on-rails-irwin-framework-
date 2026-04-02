@@ -16,6 +16,7 @@
     "build-client": "vite build",
     "git": "sh .vscode/git.sh",
     "routes": "ts-node lib/commands/routes.ts",
+    "console": "ts-node -r tsconfig-paths/register lib/commands/console.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },

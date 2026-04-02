@@ -13,6 +13,7 @@ export * from "./pagination";
 export * from "./railsApplication";
 export * from "./railsChannel";
 export * from "./railsController";
+export * from "./railsMailer";
 export * from "./railsRoute";
 export * from "./response";
 export * from "./strongParams";

@@ -1,11 +1,11 @@
 import env from "@configs/env";
-import { ALLOWED_IMAGE_TYPES, MAX_FILE_SIZE } from "@configs/fileUpload";
 import { createClient } from "@supabase/supabase-js";
 import { v2 as cloudinary } from "cloudinary";
 import { Request } from "express";
 import multer, { FileFilterCallback } from "multer";
 import path from "path";
 import sharp from "sharp";
+import { ALLOWED_IMAGE_TYPES, MAX_FILE_SIZE } from "./constants";
 
 const getSupabase = () => {
   if (!env.supabaseUrl || !env.supabaseKey) {
@@ -27,8 +27,8 @@ export const upload = multer({
     if (!(ALLOWED_IMAGE_TYPES as readonly string[]).includes(file.mimetype)) {
       return cb(
         new Error(
-          `Invalid file type. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}`
-        )
+          `Invalid file type. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}`,
+        ),
       );
     }
     if (!file.originalname.match(/\.(jpg|jpeg|png)$/i)) {
@@ -40,7 +40,7 @@ export const upload = multer({
 
 export const uploadToSupabase = async (
   file: Express.Multer.File,
-  bucket: string = "task-attachments"
+  bucket: string = "task-attachments",
 ): Promise<string | null> => {
   try {
     const supabase = getSupabase();
@@ -57,7 +57,7 @@ export const uploadToSupabase = async (
 
     const fileName = `${Date.now()}_${path.basename(
       file.originalname,
-      path.extname(file.originalname)
+      path.extname(file.originalname),
     )}.jpg`;
 
     const { data, error } = await supabase.storage
@@ -82,7 +82,7 @@ export const uploadToSupabase = async (
 
 export const uploadToCloudinary = async (
   file: Express.Multer.File,
-  folder: string = "task-activities"
+  folder: string = "task-activities",
 ): Promise<string> => {
   try {
     const resizedImage = await sharp(file.buffer)
@@ -103,7 +103,7 @@ export const uploadToCloudinary = async (
               return reject(new Error("Cloudinary upload failed"));
             }
             resolve(result.secure_url);
-          }
+          },
         )
         .end(resizedImage);
     });

@@ -1,39 +1,40 @@
 import env from "@configs/env";
-import { getAccessToken } from "@configs/mail";
+import { getMailClient } from "@configs/mail";
+import { RailsMailer } from "@lib";
+import { google } from "googleapis";
 import { createTransport, Transporter } from "nodemailer";
 
 /**
- * Base mailer - tương tự ActionMailer trong Rails.
+ * ApplicationMailer - Kết nối RailsMailer với dịch vụ Google OAuth2.
  */
-export interface MailOptions {
-  to: string | string[];
-  subject: string;
-  text?: string;
-  html?: string;
-  from?: string;
-}
+export class ApplicationMailer extends RailsMailer {
+  protected static async getTransporter(): Promise<{
+    transporter: Transporter;
+    from: string;
+  }> {
+    const { oAuth2Client, accessToken } = await getMailClient();
 
-async function getTransporter(): Promise<Transporter> {
-  const { access_token } = await getAccessToken();
-  return createTransport({
-    service: "gmail",
-    auth: {
-      type: "OAuth2",
-      user: env.emailFrom,
-      clientId: env.googleClientId,
-      clientSecret: env.googleClientSecret,
-      refreshToken: env.googleRefreshToken,
-      accessToken: access_token as string,
-    },
-  });
-}
+    // Gọi API sang Google để lấy email chính xác của account đang sử dụng
+    const oauth2 = google.oauth2({ version: "v2", auth: oAuth2Client });
+    const userInfo = await oauth2.userinfo.get();
+    const email = userInfo.data.email;
 
-export class ApplicationMailer {
-  static async deliver(options: MailOptions): Promise<void> {
-    const transport = await getTransporter();
-    await transport.sendMail({
-      ...options,
-      from: options.from || env.emailFrom,
+    if (!email) {
+      throw new Error("Could not retrieve sender email from Google API");
+    }
+
+    const transporter = createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: email,
+        clientId: env.googleClientId,
+        clientSecret: env.googleClientSecret,
+        refreshToken: env.googleRefreshToken,
+        accessToken: accessToken,
+      },
     });
+
+    return { transporter, from: email };
   }
 }

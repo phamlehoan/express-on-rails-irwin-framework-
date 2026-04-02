@@ -2,9 +2,9 @@
  * Cron jobs - tương tự Rails lib/tasks/scheduler.rake hoặc whenever gem.
  * Đăng ký các job chạy theo lịch.
  */
-import cron from "node-cron";
-import env from "./env";
 import { ExampleJob } from "@jobs/example.job";
+import cron from "node-cron";
+import env from "../env";
 
 let isStarted = false;
 
