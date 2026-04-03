@@ -1,5 +1,5 @@
-import { upload } from "@configs/fileAttachment";
 import { DevController } from "@controllers";
+import { fileUploader } from "@lib";
 import { action, RailsRoute, RestActions } from "@rails";
 
 export class DevRoute extends RailsRoute {
@@ -7,6 +7,6 @@ export class DevRoute extends RailsRoute {
     this.resource(DevController, {
       only: [RestActions.Index],
     });
-    this.post([upload.single("image"), action(DevController, "create")]);
+    this.post([fileUploader.single("image"), action(DevController, "create")]);
   }
 }

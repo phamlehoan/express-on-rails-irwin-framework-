@@ -1,4 +1,4 @@
-import { verifyToken } from "@configs/jwt";
+import { verifyToken } from "@lib";
 import { NextFunction, Request, Response } from "express";
 import { ApplicationMiddleware } from "./application.middleware";
 
@@ -19,9 +19,7 @@ export class CurrentUserMiddleware extends ApplicationMiddleware {
 
         const token = authHeader.split(" ")[1];
         const decoded = verifyToken(token);
-        if (typeof decoded !== "string") {
-          userId = decoded.userId as string | undefined;
-        }
+        userId = decoded.id;
       } else {
         userId = req.session?.userId;
       }

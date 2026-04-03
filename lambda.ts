@@ -1,3 +1,4 @@
+import * as jobs from "@jobs";
 import { execSync } from "child_process";
 import serverless from "serverless-http";
 import application from "./configs/application";
@@ -6,8 +7,19 @@ let cachedHandler: any;
 
 export const handler = async (event: any, context: any) => {
   if (!cachedHandler) {
-    // Đảm bảo các service async (i18n, db connect...) đã sẵn sàng
     await application.initialize();
+
+    // Hỗ trợ trigger từ EventBridge (CloudWatch Events)
+    if (
+      event.source === "aws.events" ||
+      event["detail-type"] === "Scheduled Event"
+    ) {
+      const jobClassName = event.job || event.detail?.job;
+      const Klass = (jobs as any)[jobClassName];
+      if (Klass) {
+        return await new Klass().perform(...(event.args || []));
+      }
+    }
 
     // Cấu hình serverless-http để Express có thể hiểu được event từ Gateway
     cachedHandler = serverless(application.app, {

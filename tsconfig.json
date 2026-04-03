@@ -32,6 +32,12 @@
       "@configs/*": [
         "./configs/*"
       ],
+      "@lib": [
+        "./lib"
+      ],
+      "@lib/*": [
+        "./lib/*"
+      ],
       "@channels": [
         "./app/channels"
       ],

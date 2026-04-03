@@ -1,8 +1,8 @@
 /**
  * Dev routes - REST + custom actions (Rails-style).
  */
-import { upload } from "@configs/fileAttachment";
 import { ApiV1DevController } from "@controllers/api";
+import { fileUploader } from "@lib";
 import { action, RailsRoute } from "@rails";
 import {
   CreateItemValidator,
@@ -32,7 +32,7 @@ export class ApiV1DevRoute extends RailsRoute {
 
     this.post(
       "/upload",
-      [upload.single("file"), action(ApiV1DevController, "upload")],
+      [fileUploader.single("file"), action(ApiV1DevController, "upload")],
       {
         document: {
           summary: "File upload",

@@ -28,4 +28,5 @@ export default {
   mailPass: process.env.MAIL_PASS || "",
   redisHost: process.env.REDIS_HOST || "127.0.0.1",
   redisPort: parseInt(process.env.REDIS_PORT || "6379"),
+  storageService: process.env.STORAGE_SERVICE || "local",
 };

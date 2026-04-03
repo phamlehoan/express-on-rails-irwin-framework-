@@ -1,4 +1,5 @@
 import env from "@configs/env";
+import { formatPrismaUrl } from "@lib/utils/prisma";
 import { PrismaClient } from "@prisma/client";
 
 /**
@@ -8,10 +9,7 @@ const prismaClientSingleton = () => {
   return new PrismaClient({
     datasources: {
       db: {
-        // Đảm bảo connection string có tham số connection_limit
-        url: env.databaseUrl.includes("connection_limit")
-          ? env.databaseUrl
-          : `${env.databaseUrl}${env.databaseUrl.includes("?") ? "&" : "?"}connection_limit=${env.dbMaxConnections}`,
+        url: formatPrismaUrl(env.databaseUrl, env.dbMaxConnections),
       },
     },
     log: env.nodeEnv === "development" ? ["query", "error", "warn"] : ["error"],
