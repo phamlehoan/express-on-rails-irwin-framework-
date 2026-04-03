@@ -1,5 +1,5 @@
 import env from "@configs/env";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 
 interface RateLimitStore {
   [key: string]: { count: number; resetAt: number };
@@ -33,6 +33,10 @@ export function rateLimitMiddleware(options?: {
     }
 
     if (store[key].count > max) {
+      res.setHeader(
+        "Retry-After",
+        Math.ceil((store[key].resetAt - now) / 1000),
+      );
       return res.status(429).json({
         success: false,
         error: "Too many requests, please try again later.",
@@ -40,7 +44,10 @@ export function rateLimitMiddleware(options?: {
     }
 
     res.setHeader("X-RateLimit-Limit", String(max));
-    res.setHeader("X-RateLimit-Remaining", String(Math.max(0, max - store[key].count)));
+    res.setHeader(
+      "X-RateLimit-Remaining",
+      String(Math.max(0, max - store[key].count)),
+    );
     next();
   };
 }

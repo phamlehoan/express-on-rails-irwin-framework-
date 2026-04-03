@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import { Server as SocketServer } from "socket.io";
 import { ApiResponse } from "./response";
@@ -29,13 +28,6 @@ export class RailsController {
   public res!: Response;
 
   /**
-   * Lấy user hiện tại từ request (đã được middleware gán).
-   */
-  protected get currentUser(): (User & { permissions?: string[] }) | undefined {
-    return this.req.user || undefined;
-  }
-
-  /**
    * Socket.io instance.
    * Use this to emit events: this.io.emit('event', data)
    */
@@ -63,9 +55,13 @@ export class RailsController {
    * Merge params, query, body lại làm một.
    * @example await this.params(UserValidator).permit('email', 'password')
    */
-  protected get params() {
-    const data = { ...this.req.params, ...this.req.query, ...this.req.body };
-    return createParamsProxy(data);
+  protected get params(): ReturnType<typeof createParamsProxy> {
+    // Memoize params proxy trên request để tránh tạo lại nhiều lần trong cùng một action
+    if (!(this.req as any)._irwinParamsProxy) {
+      const data = { ...this.req.params, ...this.req.query, ...this.req.body };
+      (this.req as any)._irwinParamsProxy = createParamsProxy(data);
+    }
+    return (this.req as any)._irwinParamsProxy;
   }
 
   /**
@@ -73,7 +69,7 @@ export class RailsController {
    */
   protected render(view: string, locals: Record<string, any> = {}) {
     this.res.render(view, {
-      currentUser: this.currentUser,
+      currentUser: this.req.user || null,
       ...this.res.locals,
       ...locals,
     });

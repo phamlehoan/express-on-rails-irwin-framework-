@@ -1,5 +1,8 @@
+import { getMetadataStorage } from "class-validator";
 import { RequestHandler, Router } from "express";
+import "reflect-metadata";
 import { action } from "./controllerHelpers";
+import { ValidatorClass } from "./strongParams";
 import {
   buildSwaggerOp,
   DocOptions,
@@ -32,8 +35,11 @@ export interface ActionPermissionMap {
 export interface CustomRouteOptions {
   setPermissionFor?: string;
   setPermissionForAny?: string[];
-  /** Document options (summary, tags, body, responses...). Path tự động lấy từ route. */
-  document?: Omit<DocOptions, "path"> & { path?: string };
+  /** Document options. Body có thể truyền vào một Validator Class để tự động sinh Schema. */
+  document?: Omit<DocOptions, "path" | "body"> & {
+    path?: string;
+    body?: ValidatorClass | any;
+  };
 }
 
 export interface RouteOptions {
@@ -47,6 +53,7 @@ export interface RouteOptions {
     path?: string;
     tags?: string[];
     summary?: string;
+    body?: ValidatorClass | any;
     responses?: Record<number | string, string>;
   };
 }
@@ -77,6 +84,65 @@ export abstract class RailsRoute {
     const instance = new (this as any)();
     instance.draw();
     return instance.route;
+  }
+
+  /**
+   * Trích xuất Swagger JSON Schema từ class-validator metadata.
+   */
+  private extractSchemaFromValidator(Model: ValidatorClass) {
+    const metadata = getMetadataStorage();
+    const targetMetadata = metadata.getTargetValidationMetadatas(
+      Model,
+      Model.name,
+      true,
+      false,
+    );
+
+    const properties: Record<string, any> = {};
+    const required: string[] = [];
+
+    targetMetadata.forEach((m) => {
+      const prop = m.propertyName;
+      if (properties[prop]) return;
+
+      // Lấy type từ Reflect Metadata (nhờ class-transformer/validator)
+      const designType = Reflect.getMetadata(
+        "design:type",
+        Model.prototype,
+        prop,
+      );
+      let swaggerType = "string";
+
+      if (designType === Number) swaggerType = "number";
+      else if (designType === Boolean) swaggerType = "boolean";
+      else if (designType === Array) swaggerType = "array";
+      else if (designType === Object) swaggerType = "object";
+
+      properties[prop] = {
+        type: swaggerType,
+        // Anh có thể map thêm các decorator như IsEmail, Min, Max vào đây
+        description: m.constraints?.join(", ") || "",
+      };
+
+      // Nếu không có decorator IsOptional thì coi như required
+      const isOptional = targetMetadata.some(
+        (meta) => meta.propertyName === prop && meta.type === "isOptional",
+      );
+      if (!isOptional) required.push(prop);
+    });
+
+    return {
+      type: "object",
+      properties,
+      required: required.length > 0 ? required : undefined,
+    };
+  }
+
+  private resolveBody(body: any) {
+    if (typeof body === "function" && body.prototype) {
+      return this.extractSchemaFromValidator(body as ValidatorClass);
+    }
+    return body;
   }
 
   /**
@@ -206,11 +272,14 @@ export abstract class RailsRoute {
               422: "Validation failed",
             };
 
-      const resolved = resolveApiDocSchema(options?.document ?? {});
+      const docInput = { ...options?.document };
+      if (docInput.body) docInput.body = this.resolveBody(docInput.body);
+
+      const resolved = resolveApiDocSchema(docInput ?? {});
       const docOpts = {
         path: swaggerPath,
         ...baseDoc,
-        ...options?.document,
+        ...docInput,
         // Priority: 1. options.document.summary, 2. generated default
         summary: baseDoc.summary || defaultSummary,
         params: resolved.params,
@@ -480,10 +549,13 @@ export abstract class RailsRoute {
 
       const { path: _p, responses, ...opts } = options.document; // loại bỏ path thừa nếu có
 
-      const resolved = resolveApiDocSchema(opts as any);
+      const docInput = { ...opts };
+      if (docInput.body) docInput.body = this.resolveBody(docInput.body);
+
+      const resolved = resolveApiDocSchema(docInput as any);
       const operation = buildSwaggerOp({
         path: swaggerPath,
-        ...opts,
+        ...docInput,
         ...resolved,
         responses: responses || defaultResponses,
       });

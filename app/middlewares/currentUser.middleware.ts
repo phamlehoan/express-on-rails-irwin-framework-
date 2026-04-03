@@ -18,8 +18,13 @@ export class CurrentUserMiddleware extends ApplicationMiddleware {
         }
 
         const token = authHeader.split(" ")[1];
-        const decoded = verifyToken(token);
-        userId = decoded.id;
+        try {
+          const decoded = verifyToken(token);
+          userId = decoded?.id;
+        } catch (jwtError) {
+          // Token invalid hoặc expired
+          userId = undefined;
+        }
       } else {
         userId = req.session?.userId;
       }

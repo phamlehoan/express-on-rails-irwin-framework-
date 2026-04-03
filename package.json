@@ -54,7 +54,7 @@
     "express-flash": "0.0.2",
     "express-session": "1.17.1",
     "font-awesome": "4.7.0",
-    "google-auth-railsrary": "9.15.1",
+    "google-auth-library": "9.15.1",
     "googleapis": "140.0.1",
     "i18next": "25.8.14",
     "i18next-fs-backend": "2.6.1",

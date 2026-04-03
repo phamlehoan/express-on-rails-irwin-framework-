@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { AfterAction, RailsController } from "@rails";
 import { Authenticatable } from "./concerns/authenticatable";
 import { Rescuable } from "./concerns/rescuable";
@@ -22,6 +23,13 @@ export class ApplicationController extends RailsController {
    */
   protected flash(type: string, msg: Record<string, string> | string) {
     this.req.flash(type, typeof msg === "string" ? { msg } : msg);
+  }
+
+  /**
+   * Lấy user hiện tại từ request (đã được middleware gán).
+   */
+  protected get currentUser(): (User & { permissions?: string[] }) | undefined {
+    return this.req.user || undefined;
   }
 
   /**

@@ -64,8 +64,8 @@ export class RailsApplication {
     this.app.use(RailsApplication.middlewareFactory.requestLogging());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(methodOverride("_method"));
-    this.app.use(cookieParser());
+    this.app.use(methodOverride("_method") as any);
+    this.app.use(cookieParser() as any);
     this.app.use(RailsApplication.middlewareFactory.rateLimit());
 
     // Inject View Helpers vào res.locals để sử dụng trong Pug
