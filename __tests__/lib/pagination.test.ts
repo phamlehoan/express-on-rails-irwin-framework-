@@ -1,7 +1,4 @@
-import {
-  parsePagination,
-  buildPaginatedResponse,
-} from "@lib/pagination";
+import { buildPaginatedResponse, parsePagination } from "@rails/pagination";
 
 describe("Pagination", () => {
   it("parsePagination returns default values", () => {

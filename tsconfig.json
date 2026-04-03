@@ -86,11 +86,11 @@
       "@validators/*": [
         "./app/validators/*"
       ],
-      "@lib": [
-        "./lib"
+      "@rails": [
+        "./rails"
       ],
-      "@lib/*": [
-        "./lib/*"
+      "@rails/*": [
+        "./rails/*"
       ],
       "@services": [
         "./app/services"

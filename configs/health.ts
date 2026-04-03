@@ -2,7 +2,7 @@
  * Health & Readiness - tương tự Rails /up, /ready.
  */
 import models from "@models";
-import { Cache } from "@lib/cache";
+import { Cache } from "@rails/cache";
 
 export interface HealthStatus {
   status: "ok" | "degraded" | "error";

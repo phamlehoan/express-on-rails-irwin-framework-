@@ -1,6 +1,6 @@
 import { Feature } from "@configs/enum";
 import { AdminUserController } from "@controllers";
-import { RailsRoute } from "@lib";
+import { RailsRoute } from "@rails";
 
 export class AdminUserRoute extends RailsRoute {
   public draw() {

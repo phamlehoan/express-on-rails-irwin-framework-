@@ -1,5 +1,5 @@
-import { NotFoundError, buildPaginatedResponse, parsePagination } from "@lib";
 import models from "@models";
+import { NotFoundError, buildPaginatedResponse, parsePagination } from "@rails";
 import {
   CreateUserValidator,
   PaginationValidator,

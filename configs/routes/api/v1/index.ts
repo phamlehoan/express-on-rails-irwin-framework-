@@ -1,7 +1,7 @@
 import env from "@configs/env";
 import { MyPermissionController } from "@controllers/api";
-import { action, RailsRoute } from "@lib";
 import { ValidateUserLoginMiddleware } from "@middlewares";
+import { action, RailsRoute } from "@rails";
 import { ApiV1AdminRoute } from "./admin";
 import { AuthRoute } from "./auth";
 import { ApiV1DevRoute } from "./dev";

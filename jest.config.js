@@ -9,7 +9,7 @@ module.exports = {
     "^@jobs/(.*)$": "<rootDir>/app/jobs/$1",
     "^@mailers/(.*)$": "<rootDir>/app/mailers/$1",
     "^@validators/(.*)$": "<rootDir>/app/validators/$1",
-    "^@lib/(.*)$": "<rootDir>/lib/$1",
+    "^@rails/(.*)$": "<rootDir>/rails/$1",
     "^@models$": "<rootDir>/app/models",
     "^@middlewares/(.*)$": "<rootDir>/app/middlewares/$1",
     "^@controllers/(.*)$": "<rootDir>/app/controllers/$1",

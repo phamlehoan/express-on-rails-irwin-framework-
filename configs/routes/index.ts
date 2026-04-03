@@ -1,12 +1,12 @@
 import env from "@configs/env";
 import { HomeController } from "@controllers";
-import { action, RailsRoute, RestActions } from "@lib";
 import {
   CurrentUserMiddleware,
   Permission,
   ValidateAnyPermissionMiddleware,
   ValidateUserPermissionMiddleware,
 } from "@middlewares";
+import { action, RailsRoute, RestActions } from "@rails";
 import { AdminRoute } from "./admin";
 import { ApiRoute } from "./api";
 import { AuthRoute } from "./auth.route";

@@ -3,13 +3,13 @@ import { FlashType } from "@configs/enum";
 import env from "@configs/env";
 import models from "@models";
 import { Prisma } from "@prisma/client";
+import { Security } from "@rails";
 import {
   CreatePasswordValidator,
   LoginValidator,
   UpdatePasswordValidator,
 } from "@validators/auth.validator";
 import axios from "axios";
-import md5 from "md5";
 import { ApplicationController } from ".";
 
 export type GoogleUser = {
@@ -107,7 +107,7 @@ export class AuthController extends ApplicationController {
   }
 
   async index() {
-    this.clearSession();
+    this.logoutUser(); // TypeScript đã hiểu logoutUser() thuộc về ApplicationController
     this.render("auth.view/index");
   }
 
@@ -135,7 +135,7 @@ export class AuthController extends ApplicationController {
     if (
       user &&
       user.passwords.length > 0 &&
-      user.passwords[0].password === md5(password)
+      (await Security.verifyPassword(password, user.passwords[0].password))
     ) {
       this.req.session!.userId = user.id;
       this.req.session!.save((err) => {
@@ -155,7 +155,7 @@ export class AuthController extends ApplicationController {
   async new() {
     const email = this.req.params.id;
     if (this.req.user && email !== this.req.user.email) {
-      this.clearSession();
+      this.logoutUser();
     }
     this.render("auth.view/new");
   }
@@ -205,7 +205,7 @@ export class AuthController extends ApplicationController {
     const token = this.req.query.token as string;
 
     if (this.req.user && email !== this.req.user.email) {
-      this.clearSession();
+      this.logoutUser();
     }
 
     if (!token && !this.req.user) {
@@ -258,10 +258,9 @@ export class AuthController extends ApplicationController {
       UpdatePasswordValidator,
     ).permit("password", "passwordConfirmation", "oldPassword");
     const email = this.req.params.id;
-    const oldPasswordValue =
-      this.req.user && oldPassword ? md5(oldPassword) : oldPassword;
+    // Logic xử lý token/oldPassword cần verify qua Bcrypt thay vì so sánh MD5 trực tiếp
 
-    if (!oldPasswordValue && !this.req.user) {
+    if (!oldPassword && !this.req.user) {
       this.flash(FlashType.Errors, {
         msg: this.t("flash.first_time_password"),
       });
@@ -271,14 +270,6 @@ export class AuthController extends ApplicationController {
     const user = await models.user.findUnique({
       where: {
         email,
-        ...(oldPasswordValue && {
-          passwords: {
-            some: {
-              password: oldPasswordValue,
-              deleted: false,
-            },
-          },
-        }),
         status: UserStatus.ACTIVE,
         deleted: false,
       },
@@ -293,9 +284,25 @@ export class AuthController extends ApplicationController {
       return this.redirect(`/auth/${email}/edit`);
     }
 
-    if (!oldPasswordValue && user.passwords.length) {
+    if (!oldPassword && user.passwords.length) {
       this.flash(FlashType.Errors, { msg: this.t("flash.input_old_password") });
       return this.redirect(`/auth/${email}/edit`);
+    }
+
+    if (oldPassword) {
+      const currentPwd = await models.password.findFirst({
+        where: { userId: user.id, deleted: false },
+      });
+      const isMatch = currentPwd
+        ? await Security.verifyPassword(
+            oldPassword as string,
+            currentPwd.password,
+          )
+        : false;
+      if (!isMatch) {
+        this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
+        return this.redirect(`/auth/${email}/edit`);
+      }
     }
 
     if (
@@ -316,7 +323,7 @@ export class AuthController extends ApplicationController {
             data: { deleted: true },
           },
           create: {
-            password: md5(password),
+            password: await Security.hashPassword(password),
           },
         },
       },
@@ -329,15 +336,8 @@ export class AuthController extends ApplicationController {
   }
 
   destroy() {
-    this.clearSession();
+    this.logoutUser();
     this.flash(FlashType.Info, { msg: this.t("flash.logged_out") });
     this.redirect("/auth");
-  }
-
-  private clearSession() {
-    if (this.req.user) {
-      this.req.session!.userId = undefined;
-      (this.req as any).user = undefined;
-    }
   }
 }

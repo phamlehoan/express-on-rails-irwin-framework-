@@ -1,6 +1,6 @@
 import { FlashType } from "@configs/enum";
-import { BeforeAction } from "@lib";
 import models from "@models";
+import { BeforeAction } from "@rails";
 import { UpdateProfileValidator } from "@validators/profile.validator";
 import { ApplicationController } from ".";
 

@@ -1,5 +1,5 @@
 import env from "@configs/env";
-import { getSwaggerDocs, setSwaggerDocument, setupSwaggerUI } from "@lib";
+import { getSwaggerDocs, setSwaggerDocument, setupSwaggerUI } from "@rails";
 import { Express } from "express";
 
 setSwaggerDocument({

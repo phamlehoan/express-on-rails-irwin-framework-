@@ -12,7 +12,7 @@ import { UnprocessableEntityError } from "./errors";
 /** Constructor type để InstanceType<M> suy ra đúng kiểu instance, không bị rút gọn thành object */
 export type ValidatorClass = new (...args: any[]) => any;
 
-/** Helper format lỗi từ class-validator (chuyển vào lib để tránh phụ thuộc ngược) */
+/** Helper format lỗi từ class-validator (chuyển vào rails để tránh phụ thuộc ngược) */
 function formatValidationErrors(
   errors: ValidationError[],
 ): Record<string, string[]> {

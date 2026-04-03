@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { logger } from "@lib/logger";
+import { logger } from "@rails/logger";
+import { NextFunction, Request, Response } from "express";
 
 /**
  * Request logging - tương tự Rails request logging.
@@ -7,7 +7,7 @@ import { logger } from "@lib/logger";
 export function requestLoggingMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const start = Date.now();
   res.on("finish", () => {

@@ -1,11 +1,10 @@
 import {
-  AppError,
   BadRequestError,
+  ForbiddenError,
   NotFoundError,
   UnauthorizedError,
-  ForbiddenError,
   UnprocessableEntityError,
-} from "@lib/errors";
+} from "@rails/errors";
 
 describe("Errors", () => {
   it("BadRequestError has status 400", () => {

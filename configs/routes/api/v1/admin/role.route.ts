@@ -1,6 +1,6 @@
 import { Feature } from "@configs/enum";
 import { ApiV1AdminRoleController } from "@controllers/api";
-import { RailsRoute, RestActions } from "@lib";
+import { RailsRoute, RestActions } from "@rails";
 
 export class ApiV1AdminRoleRoute extends RailsRoute {
   public draw() {

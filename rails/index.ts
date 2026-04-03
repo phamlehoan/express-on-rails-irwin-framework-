@@ -1,5 +1,5 @@
 /**
- * Lib - tương tự Rails lib/ (thư mục ở root).
+ * Lib - tương tự Rails rails/ (thư mục ở root).
  * Chứa shared utilities, extensions, reusable code.
  * Đây là "public API" của thư viện, chỉ export những gì app cần dùng.
  */
@@ -16,5 +16,7 @@ export * from "./railsController";
 export * from "./railsMailer";
 export * from "./railsRoute";
 export * from "./response";
+export * from "./security";
 export * from "./strongParams";
 export * from "./swagger";
+export * from "./viewHelpers";

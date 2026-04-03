@@ -1,7 +1,7 @@
 import env from "@configs/env";
 import { generateToken } from "@configs/jwt";
-import { UnauthorizedError } from "@lib/errors";
 import models from "@models";
+import { UnauthorizedError } from "@rails/errors";
 import { OAuth2Client } from "google-auth-library";
 import { BaseService } from "../base.service";
 

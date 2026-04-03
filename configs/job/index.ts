@@ -1,5 +1,5 @@
 /**
- * Cron jobs - tương tự Rails lib/tasks/scheduler.rake hoặc whenever gem.
+ * Cron jobs - tương tự Rails rails/tasks/scheduler.rake hoặc whenever gem.
  * Đăng ký các job chạy theo lịch.
  */
 import { ExampleJob } from "@jobs/example.job";
@@ -21,6 +21,6 @@ export function startCronJobs() {
   // cron.schedule("0 0 * * *", () => new DailyReportJob().perform());
 
   isStarted = true;
-  const { logger } = require("@lib/logger");
+  const { logger } = require("@rails/logger");
   logger.info("Cron jobs started");
 }

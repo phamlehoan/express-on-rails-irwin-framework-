@@ -3,7 +3,7 @@ import {
   buildPaginatedResponse,
   NotFoundError,
   parsePagination,
-} from "@lib";
+} from "@rails";
 import {
   CreateItemValidator,
   EchoValidator,
@@ -95,7 +95,7 @@ export class ApiV1DevController extends ApiV1Controller {
   }
 
   async upload() {
-    const { validateFileUpload } = await import("@lib");
+    const { validateFileUpload } = await import("@rails");
     validateFileUpload(this.req.file);
     this.renderJson({
       filename: this.req.file!.originalname,

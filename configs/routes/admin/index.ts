@@ -1,6 +1,6 @@
 import { Feature } from "@configs/enum";
 import { AdminController } from "@controllers";
-import { RailsRoute, RestActions } from "@lib";
+import { RailsRoute, RestActions } from "@rails";
 import { AdminFeatureRoute } from "./adminFeature.route";
 import { AdminProfileRoute } from "./adminProfile.route";
 import { AdminRoleRoute } from "./adminRole.route";

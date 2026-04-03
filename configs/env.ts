@@ -21,4 +21,11 @@ export default {
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || "",
   googleRefreshToken: process.env.GOOGLE_REFRESH_TOKEN || "",
   emailFrom: process.env.EMAIL_FROM || "",
+  mailService: process.env.MAIL_SERVICE || "gmail", // gmail, smtp, sendgrid...
+  mailHost: process.env.MAIL_HOST || "smtp.gmail.com",
+  mailPort: parseInt(process.env.MAIL_PORT || "587"),
+  mailUser: process.env.MAIL_USER || "",
+  mailPass: process.env.MAIL_PASS || "",
+  redisHost: process.env.REDIS_HOST || "127.0.0.1",
+  redisPort: parseInt(process.env.REDIS_PORT || "6379"),
 };

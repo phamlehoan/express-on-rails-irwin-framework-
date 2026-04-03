@@ -1,7 +1,7 @@
 import { FlashType } from "@configs/enum";
-import { NotFoundError } from "@lib";
 import { buildFeatureTree } from "@middlewares/adminFeatures.middleware";
 import models from "@models";
+import { NotFoundError } from "@rails";
 import {
   FeatureCreateValidator,
   FeatureUpdateValidator,

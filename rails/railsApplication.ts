@@ -7,13 +7,21 @@ import express, {
   RequestHandler,
   Response,
 } from "express";
+import fs from "fs";
 import { createServer, Server as HttpServer } from "http";
 import createError from "http-errors";
 import methodOverride from "method-override";
+import path from "path";
 import { Server as SocketServer } from "socket.io";
+import { CacheStore } from "./cache";
 import { AppError } from "./errors";
+import { LoggerAdapter } from "./logger";
 import { RailsChannel } from "./railsChannel";
+import { JobAdapter, RailsJob } from "./railsJob";
+import { MailerAdapter } from "./railsMailer";
 import { ApiResponse } from "./response";
+import { PasswordHasher } from "./security";
+import { viewHelpers } from "./viewHelpers";
 
 export type RouteInfo = {
   method: string;
@@ -32,6 +40,12 @@ export class RailsApplication {
   protected readonly routes: RouteInfo[] = [];
   protected port: string | number = process.env.PORT || "8000";
   public static channelClasses: (new (...args: any[]) => RailsChannel)[] = [];
+  public static jobClasses: (new () => RailsJob)[] = [];
+  public static mailerAdapter: MailerAdapter | null = null;
+  public static jobAdapter: JobAdapter | null = null;
+  public static cacheStore: CacheStore | null = null;
+  public static loggerAdapter: LoggerAdapter | null = null;
+  public static hasher: PasswordHasher | null = null;
   protected isInitialized = false;
   public static middlewareFactory: MiddlewareFactory;
   public static sessionMiddleware: RequestHandler | null = null;
@@ -53,6 +67,12 @@ export class RailsApplication {
     this.app.use(methodOverride("_method"));
     this.app.use(cookieParser());
     this.app.use(RailsApplication.middlewareFactory.rateLimit());
+
+    // Inject View Helpers vào res.locals để sử dụng trong Pug
+    this.app.use((req, res, next) => {
+      res.locals.h = viewHelpers;
+      next();
+    });
   }
 
   protected mountRoutes() {
@@ -174,6 +194,34 @@ export class RailsApplication {
   }
 
   /**
+   * Tự động nạp các Mixins từ thư mục vào Prototype của một Class.
+   * Giúp hiện thực hóa tính năng Concerns của Rails.
+   */
+  protected loadConcerns(targetPrototype: any, directory: string) {
+    const fullPath = path.resolve(process.cwd(), directory);
+    if (!fs.existsSync(fullPath)) return;
+
+    const files = fs.readdirSync(fullPath);
+    for (const file of files) {
+      if (file.endsWith(".ts") || file.endsWith(".js")) {
+        const mod = require(path.join(fullPath, file));
+        const methods = mod.default || Object.values(mod)[0];
+        if (methods && typeof methods === "object") {
+          Object.assign(targetPrototype, methods);
+        }
+      }
+    }
+  }
+
+  /**
+   * Hook để khởi chạy background processor (Worker).
+   * Phải được ghi đè ở subclass nếu ứng dụng sử dụng background jobs.
+   */
+  protected startBackgroundProcessor() {
+    // Default: do nothing. Let the app implement its own worker logic.
+  }
+
+  /**
    * Đảm bảo các thành phần quan trọng của App được nạp đúng thứ tự và duy nhất 1 lần.
    */
   public bootstrap() {
@@ -182,6 +230,12 @@ export class RailsApplication {
     this.mountRoutes();
     this.setupSwagger();
     this.setupErrorHandlers();
+
+    // Chỉ khởi chạy worker nếu không phải serverless và không phải console
+    if (!process.env.LAMBDA_TASK_ROOT && !process.env.IRWIN_CONSOLE) {
+      this.startBackgroundProcessor();
+    }
+
     this.isInitialized = true;
   }
 

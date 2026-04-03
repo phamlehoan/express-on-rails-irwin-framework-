@@ -1,6 +1,6 @@
 import { upload } from "@configs/fileAttachment";
 import { DevController } from "@controllers";
-import { action, RailsRoute, RestActions } from "@lib";
+import { action, RailsRoute, RestActions } from "@rails";
 
 export class DevRoute extends RailsRoute {
   public draw() {

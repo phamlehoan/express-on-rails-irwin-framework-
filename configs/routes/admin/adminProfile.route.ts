@@ -1,7 +1,7 @@
 import { Feature } from "@configs/enum";
 import { AdminProfileController } from "@controllers";
-import { action, RailsRoute } from "@lib";
 import { Permission } from "@middlewares";
+import { action, RailsRoute } from "@rails";
 
 export class AdminProfileRoute extends RailsRoute {
   public draw() {

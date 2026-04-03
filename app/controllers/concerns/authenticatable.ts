@@ -1,18 +1,35 @@
-import { User } from "@prisma/client";
-import { Request } from "express";
+import { FlashType } from "@configs/enum";
+import type { ApplicationController } from "../application.controller";
 
 /**
  * Authenticatable concern - tương tự Rails before_action :authenticate_user!
- * Controller include concern này có thể dùng currentUser.
  */
-export interface AuthenticatableRequest extends Request {
-  user?: (User & { permissions?: string[] }) | null;
-}
+export const Authenticatable = {
+  /**
+   * Xóa session và thông tin user hiện tại (thay thế clearSession thủ công)
+   */
+  logoutUser(this: ApplicationController) {
+    if (this.req.user) {
+      this.req.session!.userId = undefined;
+      (this.req as any).user = undefined;
+    }
+  },
 
-export function requireAuth(req: AuthenticatableRequest): void {
-  if (!req.user) {
-    throw new (require("@lib/errors").UnauthorizedError)(
-      "You have to login first.",
-    );
-  }
-}
+  /**
+   * Logic kiểm tra login dùng chung, có thể gọi từ BeforeAction
+   */
+  authenticateUser(this: ApplicationController): boolean {
+    if (!this.currentUser) {
+      if (this.req.originalUrl.includes("/api")) {
+        this.res
+          .status(401)
+          .json({ success: false, error: this.t("flash.login_first") });
+        return false;
+      }
+      this.flash(FlashType.Errors, { msg: this.t("flash.login_first") });
+      this.redirect("/auth");
+      return false;
+    }
+    return true;
+  },
+};

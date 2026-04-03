@@ -3,7 +3,7 @@
  */
 import { upload } from "@configs/fileAttachment";
 import { ApiV1DevController } from "@controllers/api";
-import { action, RailsRoute } from "@lib";
+import { action, RailsRoute } from "@rails";
 import {
   CreateItemValidator,
   EchoValidator,

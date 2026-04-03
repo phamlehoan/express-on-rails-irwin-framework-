@@ -1,5 +1,5 @@
-import { NotFoundError } from "@lib";
 import models from "@models";
+import { NotFoundError } from "@rails";
 import { ApiV1Controller } from "..";
 
 export class ApiV1AdminFeatureController extends ApiV1Controller {

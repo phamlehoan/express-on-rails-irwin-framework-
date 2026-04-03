@@ -1,6 +1,6 @@
 import { FlashType } from "@configs/enum";
-import { NotFoundError } from "@lib";
 import models from "@models";
+import { NotFoundError } from "@rails";
 import {
   RoleCreateValidator,
   RoleUpdateValidator,
