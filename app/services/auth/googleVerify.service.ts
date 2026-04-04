@@ -1,8 +1,8 @@
 import env from "@configs/env";
 import { generateToken } from "@lib";
 import models from "@models";
-import { UnauthorizedError } from "@rails/errors";
 import { OAuth2Client } from "google-auth-library";
+import { UnauthorizedError } from "ts-rails";
 import { BaseService } from "../base.service";
 
 export interface GoogleVerifyResult {

@@ -1,4 +1,4 @@
-import { RailsRoute } from "@rails";
+import { RailsRoute } from "ts-rails";
 import { ApiV1AdminFeatureRoute } from "./feature.route";
 import { ApiV1AdminRoleRoute } from "./role.route";
 import { ApiV1AdminUserRoute } from "./user.route";

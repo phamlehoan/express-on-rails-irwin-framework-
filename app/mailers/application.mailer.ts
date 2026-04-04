@@ -1,4 +1,4 @@
-import { RailsMailer } from "@rails";
+import { RailsMailer } from "ts-rails";
 
 /**
  * ApplicationMailer - Lớp cha cho tất cả các Mailer trong ứng dụng.

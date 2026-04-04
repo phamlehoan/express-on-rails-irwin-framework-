@@ -1,6 +1,6 @@
 import env from "@configs/env";
-import { MailerAdapter } from "@rails";
 import { createTransport, SendMailOptions, Transporter } from "nodemailer";
+import { MailerAdapter } from "ts-rails";
 
 /**
  * TestMailerAdapter - Không gửi mail thật, chỉ in ra console (giống Rails logger).

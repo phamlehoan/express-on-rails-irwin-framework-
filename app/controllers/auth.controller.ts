@@ -3,13 +3,13 @@ import { FlashType } from "@configs/enum";
 import env from "@configs/env";
 import models from "@models";
 import { Prisma } from "@prisma/client";
-import { Security } from "@rails";
 import {
   CreatePasswordValidator,
   LoginValidator,
   UpdatePasswordValidator,
 } from "@validators/auth.validator";
 import axios from "axios";
+import { Security } from "ts-rails";
 import { ApplicationController } from ".";
 
 export type GoogleUser = {

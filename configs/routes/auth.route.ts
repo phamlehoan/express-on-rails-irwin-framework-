@@ -1,5 +1,5 @@
 import { AuthController } from "@controllers";
-import { action, RailsRoute } from "@rails";
+import { action, RailsRoute } from "ts-rails";
 
 export class AuthRoute extends RailsRoute {
   public draw() {

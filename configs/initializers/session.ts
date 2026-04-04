@@ -1,7 +1,7 @@
 import env from "@configs/env";
-import { RailsApplication } from "@rails";
 import { RequestHandler } from "express";
 import session from "express-session";
+import { RailsApplication } from "ts-rails";
 
 /**
  * Khởi tạo Session Middleware

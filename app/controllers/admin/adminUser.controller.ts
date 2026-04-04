@@ -1,10 +1,10 @@
 import { FlashType } from "@configs/enum";
 import models from "@models";
-import { NotFoundError } from "@rails";
 import {
   CreateUserValidator,
   UpdateUserValidator,
 } from "@validators/admin.validator";
+import { NotFoundError } from "ts-rails";
 import { AdminController } from "./admin.controller";
 
 export class AdminUserController extends AdminController {

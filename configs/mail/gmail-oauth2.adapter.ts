@@ -1,7 +1,7 @@
 import env from "@configs/env";
-import { MailerAdapter } from "@rails";
 import { Auth, google } from "googleapis";
 import { createTransport, SendMailOptions, Transporter } from "nodemailer";
+import { MailerAdapter } from "ts-rails";
 
 /**
  * Helper để lấy OAuth2Client và Access Token từ Google.

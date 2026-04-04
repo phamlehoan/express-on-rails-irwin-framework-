@@ -4,7 +4,7 @@ import {
   NotFoundError,
   UnauthorizedError,
   UnprocessableEntityError,
-} from "@rails/errors";
+} from "ts-rails/errors";
 
 describe("Errors", () => {
   it("BadRequestError has status 400", () => {

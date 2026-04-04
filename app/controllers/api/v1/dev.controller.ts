@@ -1,15 +1,15 @@
 import {
-  BadRequestError,
-  buildPaginatedResponse,
-  NotFoundError,
-  parsePagination,
-} from "@rails";
-import {
   CreateItemValidator,
   EchoValidator,
   PaginationValidator,
   UpdateItemValidator,
 } from "@validators/dev.validator";
+import {
+  BadRequestError,
+  buildPaginatedResponse,
+  NotFoundError,
+  parsePagination,
+} from "ts-rails";
 import { ApiV1Controller } from ".";
 
 /**
@@ -95,7 +95,7 @@ export class ApiV1DevController extends ApiV1Controller {
   }
 
   async upload() {
-    const { validateFileUpload } = await import("@rails");
+    const { validateFileUpload } = await import("ts-rails");
     validateFileUpload(this.req.file);
     this.renderJson({
       filename: this.req.file!.originalname,

@@ -1,12 +1,12 @@
 import { FlashType } from "@configs/enum";
 import { buildFeatureTree } from "@middlewares/adminFeatures.middleware";
 import models from "@models";
-import { NotFoundError } from "@rails";
 import {
   FeatureCreateValidator,
   FeatureUpdateValidator,
 } from "@validators/admin.validator";
 import { randomUUID } from "crypto";
+import { NotFoundError } from "ts-rails";
 import { AdminController } from "./admin.controller";
 
 export class AdminFeatureController extends AdminController {

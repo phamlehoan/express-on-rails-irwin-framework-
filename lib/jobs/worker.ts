@@ -1,6 +1,6 @@
 import env from "@configs/env";
-import { RailsApplication } from "@rails";
 import { Worker } from "bullmq";
+import { RailsApplication } from "ts-rails";
 
 /**
  * Logic thực thi Worker cho BullMQ

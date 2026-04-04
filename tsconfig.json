@@ -92,12 +92,6 @@
       "@validators/*": [
         "./app/validators/*"
       ],
-      "@rails": [
-        "./rails"
-      ],
-      "@rails/*": [
-        "./rails/*"
-      ],
       "@services": [
         "./app/services"
       ],
@@ -187,7 +181,8 @@
     "node_modules",
     "dist",
     "__tests__",
-    "vite.config.ts"
+    "vite.config.ts",
+    "rails/express-augment.d.ts"
   ],
   "ts-node": {
     "files": true,

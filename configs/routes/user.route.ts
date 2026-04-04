@@ -1,6 +1,6 @@
 import { UserController } from "@controllers";
 import { ValidateUserLoginMiddleware } from "@middlewares";
-import { action, RailsRoute, RestActions } from "@rails";
+import { action, RailsRoute, RestActions } from "ts-rails";
 
 export class UserRoute extends RailsRoute {
   public draw() {

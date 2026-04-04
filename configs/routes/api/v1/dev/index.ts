@@ -3,13 +3,13 @@
  */
 import { ApiV1DevController } from "@controllers/api";
 import { fileUploader } from "@lib";
-import { action, RailsRoute } from "@rails";
 import {
   CreateItemValidator,
   EchoValidator,
   PaginationValidator,
   UpdateItemValidator,
 } from "@validators/dev.validator";
+import { action, RailsRoute } from "ts-rails";
 
 export class ApiV1DevRoute extends RailsRoute {
   public draw() {

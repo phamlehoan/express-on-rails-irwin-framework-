@@ -1,4 +1,4 @@
-import { ApiResponse, AppError } from "@rails";
+import { ApiResponse, AppError } from "ts-rails";
 import type { ApplicationController } from "../application.controller";
 
 /**

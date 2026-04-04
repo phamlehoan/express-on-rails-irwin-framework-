@@ -1,4 +1,4 @@
-import { ApiResponse, RailsRoute } from "@rails";
+import { ApiResponse, RailsRoute } from "ts-rails";
 import { ApiV1Route } from "./v1";
 
 export class ApiRoute extends RailsRoute {

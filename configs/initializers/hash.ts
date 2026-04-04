@@ -1,5 +1,5 @@
-import { RailsApplication } from "@rails";
 import bcrypt from "bcrypt";
+import { RailsApplication } from "ts-rails";
 
 export function initializeHash() {
   // Cấu hình Password Hasher (Bcrypt) cho RailsApplication

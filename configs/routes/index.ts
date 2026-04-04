@@ -6,7 +6,7 @@ import {
   ValidateAnyPermissionMiddleware,
   ValidateUserPermissionMiddleware,
 } from "@middlewares";
-import { action, RailsRoute, RestActions } from "@rails";
+import { action, RailsRoute, RestActions } from "ts-rails";
 import { AdminRoute } from "./admin";
 import { ApiRoute } from "./api";
 import { AuthRoute } from "./auth.route";

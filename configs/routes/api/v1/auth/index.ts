@@ -2,8 +2,8 @@
  * Auth routes - controller dùng params.permit().
  */
 import { AuthController } from "@controllers/api";
-import { action, RailsRoute } from "@rails";
 import { GoogleVerifyValidator } from "@validators/auth.validator";
+import { action, RailsRoute } from "ts-rails";
 
 export class AuthRoute extends RailsRoute {
   public draw() {

@@ -1,8 +1,8 @@
 import env from "@configs/env";
 import * as jobs from "@jobs";
 import { getJobAdapter } from "@lib";
-import { RailsApplication } from "@rails";
 import cron from "node-cron";
+import { RailsApplication } from "ts-rails";
 
 let isCronStarted = false;
 

@@ -1,5 +1,5 @@
-import { logger } from "@rails/logger";
 import { NextFunction, Request, Response } from "express";
+import { logger } from "ts-rails";
 
 /**
  * Request logging - tương tự Rails request logging.

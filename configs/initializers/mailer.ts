@@ -1,5 +1,5 @@
 import env from "@configs/env";
-import { RailsApplication } from "@rails";
+import { RailsApplication } from "ts-rails";
 import {
   GmailOAuth2MailerAdapter,
   SmtpMailerAdapter,

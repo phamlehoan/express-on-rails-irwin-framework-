@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { RailsChannel } from "@rails";
+import { RailsChannel } from "ts-rails";
 import { ApplicationMiddleware } from "../middlewares";
 
 /**

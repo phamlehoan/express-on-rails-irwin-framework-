@@ -1,10 +1,14 @@
 import models from "@models";
-import { NotFoundError, buildPaginatedResponse, parsePagination } from "@rails";
 import {
   CreateUserValidator,
   PaginationValidator,
   UpdateUserValidator,
 } from "@validators/admin.validator";
+import {
+  NotFoundError,
+  buildPaginatedResponse,
+  parsePagination,
+} from "ts-rails";
 import { ApiV1Controller } from "..";
 
 export class ApiV1AdminUserController extends ApiV1Controller {

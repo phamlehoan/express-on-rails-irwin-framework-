@@ -1,6 +1,6 @@
 import env from "@configs/env";
-import { getSwaggerDocs, setSwaggerDocument, setupSwaggerUI } from "@rails";
 import { Express } from "express";
+import { getSwaggerDocs, setSwaggerDocument, setupSwaggerUI } from "ts-rails";
 
 setSwaggerDocument({
   openapi: "3.0.0",

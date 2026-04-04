@@ -2,9 +2,9 @@
  * Tạo user admin@example.com với role ADMIN (nếu chưa có).
  * Sau seed có thể đăng nhập: email admin@example.com, password admin123
  */
-import { PasswordType, UserStatus } from "@configs/database";
+import { PasswordType, UserStatus } from "@configs/db/enums/user";
 import models from "@models";
-import md5 from "md5";
+import bcrypt from "bcrypt";
 
 const ADMIN_EMAIL = "admin@example.com";
 const ADMIN_PASSWORD = "Abcd@1234";
@@ -58,7 +58,7 @@ export async function seedAdminUser() {
     await models.password.create({
       data: {
         userId: user.id,
-        password: md5(ADMIN_PASSWORD),
+        password: await bcrypt.hash(ADMIN_PASSWORD, 10),
         type: PasswordType.PASSWORD,
       },
     });
@@ -70,7 +70,10 @@ export async function seedAdminUser() {
   });
   if (!hasPassword) {
     await models.password.create({
-      data: { userId: user.id, password: md5(ADMIN_PASSWORD) },
+      data: {
+        userId: user.id,
+        password: await bcrypt.hash(ADMIN_PASSWORD, 10),
+      },
     });
     console.log(
       `[seedAdminUser] Set password for ${ADMIN_EMAIL} (password: ${ADMIN_PASSWORD})`,

@@ -1,6 +1,6 @@
 import env from "@configs/env";
-import { RailsApplication } from "@rails";
 import pino from "pino";
+import { RailsApplication } from "ts-rails";
 
 export function initializeLogger() {
   const pinoLogger = pino({

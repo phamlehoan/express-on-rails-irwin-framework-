@@ -7,9 +7,9 @@
  * Request params: dùng params(Model).permit('field1', 'field2') trong controller (rails/strongParams).
  * Model validation: dùng validateModel/validateAs ở đây.
  */
-import { UnprocessableEntityError } from "@rails/errors";
 import { plainToInstance } from "class-transformer";
 import { validate, ValidationError, ValidatorOptions } from "class-validator";
+import { UnprocessableEntityError } from "ts-rails/errors";
 
 const defaultOptions: ValidatorOptions = {
   whitelist: true,

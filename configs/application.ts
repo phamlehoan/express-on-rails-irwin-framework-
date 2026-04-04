@@ -6,10 +6,10 @@ import { i18nMiddleware } from "@middlewares/i18n.middleware";
 import { rateLimitMiddleware } from "@middlewares/rateLimit.middleware";
 import { requestIdMiddleware } from "@middlewares/requestId.middleware";
 import { requestLoggingMiddleware } from "@middlewares/requestLogging.middleware";
-import { MiddlewareFactory, RailsApplication } from "@rails";
 import cors from "cors";
 import express from "express";
 import flash from "express-flash";
+import { MiddlewareFactory, RailsApplication } from "ts-rails";
 import env from "./env";
 import { initI18n } from "./i18n";
 import {

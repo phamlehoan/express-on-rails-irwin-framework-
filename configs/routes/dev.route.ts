@@ -1,6 +1,6 @@
 import { DevController } from "@controllers";
 import { fileUploader } from "@lib";
-import { action, RailsRoute, RestActions } from "@rails";
+import { action, RailsRoute, RestActions } from "ts-rails";
 
 export class DevRoute extends RailsRoute {
   public draw() {

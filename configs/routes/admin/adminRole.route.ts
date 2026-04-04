@@ -1,7 +1,7 @@
 import { Feature } from "@configs/enum";
 import { AdminRoleController } from "@controllers";
 import { Permission } from "@middlewares";
-import { action, RailsRoute, RestActions } from "@rails";
+import { action, RailsRoute, RestActions } from "ts-rails";
 
 export class AdminRoleRoute extends RailsRoute {
   public draw() {

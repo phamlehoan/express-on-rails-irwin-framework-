@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { AfterAction, RailsController } from "@rails";
+import { AfterAction, RailsController } from "ts-rails";
 import { Authenticatable } from "./concerns/authenticatable";
 import { Rescuable } from "./concerns/rescuable";
 
@@ -45,7 +45,7 @@ export class ApplicationController extends RailsController {
    * An example after_action to log when an action completes.
    */
   protected logActionCompletion() {
-    const { logger } = require("@rails/logger");
+    const { logger } = require("ts-rails/logger");
     logger.debug(`Action completed for request: ${this.req.requestId}`);
   }
 }

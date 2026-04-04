@@ -1,5 +1,5 @@
 import models from "@models";
-import { NotFoundError } from "@rails";
+import { NotFoundError } from "ts-rails";
 import { ApiV1Controller } from "..";
 
 export class ApiV1AdminRoleController extends ApiV1Controller {

@@ -1,5 +1,5 @@
-import { RailsApplication } from "@rails";
 import NodeCache from "node-cache";
+import { RailsApplication } from "ts-rails";
 
 export function initializeCache() {
   // Cấu hình Cache Store (In-memory cho dự án này)
