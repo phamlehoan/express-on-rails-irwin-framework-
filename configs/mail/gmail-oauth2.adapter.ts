@@ -26,44 +26,61 @@ const getGoogleMailClient = async (): Promise<{
  */
 export class GmailOAuth2MailerAdapter implements MailerAdapter {
   private transporter: Transporter | null = null;
-  private defaultFromAddress: string | null = null;
+  private defaultFromAddress: string;
+
+  constructor() {
+    this.defaultFromAddress = env.emailFrom || "";
+  }
 
   async sendMail(options: SendMailOptions): Promise<void> {
+    // Nếu chưa có transporter hoặc chưa lấy được email thật từ Google
     if (!this.transporter || !this.defaultFromAddress) {
       await this.initializeTransporter();
     }
-    await this.transporter!.sendMail(options);
+
+    // Framework có thể truyền from là "" do gọi getDefaultFromAddress() lúc chưa init.
+    // Ta sẽ ưu tiên lấy email đã discovery được nếu options.from không hợp lệ.
+    const fromAddress =
+      options.from && options.from !== ""
+        ? options.from
+        : this.defaultFromAddress;
+
+    await this.transporter!.sendMail({
+      ...options,
+      from: fromAddress,
+    });
   }
 
   getDefaultFromAddress(): string {
-    if (!this.defaultFromAddress) {
-      throw new Error(
-        "GmailOAuth2MailerAdapter not initialized. Call sendMail first.",
-      );
-    }
     return this.defaultFromAddress;
   }
 
   private async initializeTransporter() {
     const { oAuth2Client, accessToken } = await getGoogleMailClient();
-    const oauth2 = google.oauth2({ version: "v2", auth: oAuth2Client });
-    const userInfo = await oauth2.userinfo.get();
-    const email = userInfo.data.email;
 
-    if (!email)
-      throw new Error("Could not retrieve sender email from Google API");
+    // Nếu emailFrom không được setup trong env, lấy trực tiếp từ Google API qua Refresh Token
+    if (!this.defaultFromAddress) {
+      const oauth2 = google.oauth2({ version: "v2", auth: oAuth2Client });
+      const userInfo = await oauth2.userinfo.get();
+      this.defaultFromAddress = userInfo.data.email || "";
+    }
+
+    if (!this.defaultFromAddress) {
+      throw new Error(
+        "GmailOAuth2MailerAdapter: EMAIL_FROM is missing and could not be retrieved from Google API. Please check your Refresh Token.",
+      );
+    }
 
     this.transporter = createTransport({
       service: "gmail",
       auth: {
         type: "OAuth2",
-        user: email,
+        user: this.defaultFromAddress,
         clientId: env.googleClientId,
         clientSecret: env.googleClientSecret,
         refreshToken: env.googleRefreshToken,
         accessToken: accessToken,
       },
     });
-    this.defaultFromAddress = email;
   }
 }

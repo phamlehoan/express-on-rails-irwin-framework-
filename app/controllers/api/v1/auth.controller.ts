@@ -1,5 +1,8 @@
-import { AuthGoogleVerifyService } from "@services/auth/googleVerify.service";
-import { GoogleVerifyValidator } from "@validators/auth.validator";
+import { AuthGoogleVerifyService, AuthRefreshTokenService } from "@services";
+import {
+  GoogleVerifyValidator,
+  RefreshTokenValidator,
+} from "@validators/auth.validator";
 import { ApiV1Controller } from ".";
 
 export class AuthController extends ApiV1Controller {
@@ -8,6 +11,17 @@ export class AuthController extends ApiV1Controller {
       "idToken",
     );
     const result = await new AuthGoogleVerifyService().execute(idToken);
+    this.renderJson(result);
+  }
+
+  async refreshToken() {
+    const { refreshToken } = await this.params(RefreshTokenValidator).permit(
+      "refreshToken",
+    );
+
+    // Gọi Service xử lý nghiệp vụ refresh
+    const result = await new AuthRefreshTokenService().execute(refreshToken);
+
     this.renderJson(result);
   }
 }

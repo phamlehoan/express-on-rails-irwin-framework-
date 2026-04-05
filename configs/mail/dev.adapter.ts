@@ -5,7 +5,7 @@ import { MailerAdapter } from "ts-rails";
 /**
  * TestMailerAdapter - Không gửi mail thật, chỉ in ra console (giống Rails logger).
  */
-export class TestMailerAdapter implements MailerAdapter {
+export class DevMailerAdapter implements MailerAdapter {
   private transporter: Transporter;
   private defaultFromAddress: string;
 

@@ -1,3 +1,4 @@
+import models from "@models";
 import { User } from "@prisma/client";
 import { AfterAction, RailsController } from "ts-rails";
 import { Authenticatable } from "./concerns/authenticatable";
@@ -16,6 +17,10 @@ export interface ApplicationController
 
 @AfterAction("logActionCompletion")
 export class ApplicationController extends RailsController {
+  protected get models() {
+    return models;
+  }
+
   /**
    * Set a flash message.
    * @param type - The type of the flash message (e.g., "errors", "success").

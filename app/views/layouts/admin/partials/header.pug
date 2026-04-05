@@ -26,27 +26,27 @@ nav#accordion-header.navbar.navbar-expand.navbar-light.bg-white.topbar.static-to
     .topbar-divider.d-none.d-sm-block
     li.nav-item.dropdown.no-arrow
       a#userDropdown.nav-link.dropdown-toggle.text-center(role='button' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-        - if (user)
+        - if (currentUser)
           .d-flex.align-items-center
-            = user.firstName + ' ' + user.lastName
-            img.img-profile.rounded-circle(src=`${user.avatarUrl ? user.avatarUrl : '/images/img/user.png'}`)
+            = currentUser.firstName + ' ' + currentUser.lastName
+            img.img-profile.rounded-circle(src=`${currentUser.avatarUrl ? currentUser.avatarUrl : '/images/img/user.png'}`)
         - else
           img.img-profile.rounded-circle(src='/images/img/user.png')
       .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby='userDropdown')
-        - if (user)
+        - if (currentUser)
           .text-center
-            img.img-profile-dropdown.rounded-circle(src=`${user.avatarUrl ? user.avatarUrl : '/images/img/user.png'}`)
+            img.img-profile-dropdown.rounded-circle(src=`${currentUser.avatarUrl ? currentUser.avatarUrl : '/images/img/user.png'}`)
             .fw-bold.mt-2
-              = user.firstName + ' ' + user.lastName
+              = currentUser.firstName + ' ' + currentUser.lastName
           .dropdown-divider
           a.dropdown-item(href='/admin/me')
             i.fa.fa-user.fa-sm.fa-fw.mr-2.text-gray-400.me-1
             | Profile
-          a.dropdown-item(href=`/auth/${user.email}/edit`)
+          a.dropdown-item(href=`/auth/${currentUser.email}/edit`)
             i.fa.fa-cogs.fa-sm.fa-fw.mr-2.text-gray-400.me-1
             | Change password
           .dropdown-divider
-          form.nav-link(method='POST' action=`/auth/${user.id}?_method=DELETE`)
+          form.nav-link(method='POST' action=`/auth/${currentUser.id}?_method=DELETE`)
             .text-center
               button.btn.btn-danger(type="submit")
                 i.fa.fa-sign-out

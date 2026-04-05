@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from "class-validator";
 
 export class LoginValidator {
   @IsNotEmpty({ message: "Email is required" })
@@ -30,6 +36,10 @@ export class UpdatePasswordValidator {
   @IsOptional()
   @IsString()
   oldPassword?: string;
+
+  @IsOptional()
+  @IsString()
+  token?: string;
 }
 
 export class GoogleVerifyValidator {
@@ -40,4 +50,14 @@ export class GoogleVerifyValidator {
   @IsString()
   @MinLength(1)
   idToken!: string;
+}
+
+export class RefreshTokenValidator {
+  static schema = { refreshToken: "string" } as const;
+  static required = ["refreshToken"] as const;
+
+  @IsNotEmpty({ message: "Missing refresh token" })
+  @IsString()
+  @MinLength(1)
+  refreshToken!: string;
 }

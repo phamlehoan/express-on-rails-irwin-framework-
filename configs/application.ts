@@ -19,6 +19,7 @@ import {
   initializeMailer,
   initializeSession,
 } from "./initializers";
+import { initializeHash } from "./initializers/hash";
 import { Route } from "./routes";
 import { setupSwagger } from "./swagger";
 
@@ -47,6 +48,7 @@ export class Application extends RailsApplication {
   // Phương thức mới để chạy tất cả các Initializer
   protected runInitializers() {
     initializeLogger();
+    initializeHash();
     initializeMailer();
     initializeJobs();
     initializeCache();

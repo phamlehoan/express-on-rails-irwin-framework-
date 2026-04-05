@@ -14,7 +14,7 @@ block content
               .form-group
                 input#password.form-control.form-control-user(type='password' name='oldPassword' placeholder='Current Password')
             - else
-              input(type='hidden' name='oldPassword' value=`${token}`)
+              input(type='hidden' name='token' value=`${token}`)
           .form-group
             input#password.form-control.form-control-user(type='password' name='password' placeholder='New Password')
           .form-group

@@ -1,3 +1,6 @@
+import { appPath } from "@lib/utils/path";
+import i18next from "i18next";
+import pug from "pug";
 import { RailsMailer } from "ts-rails";
 
 /**
@@ -17,5 +20,18 @@ export class ApplicationMailer extends RailsMailer {
     throw new Error(
       "ApplicationMailer.getTransporter() should not be called if MailerAdapter is configured.",
     );
+  }
+
+  /**
+   * Render một view thành chuỗi HTML để gửi email.
+   * @param view Path của view (vd: 'user.mailer/created_user')
+   * @param locals Các biến truyền vào template
+   */
+  protected static render(view: string, locals: any): string {
+    const templatePath = appPath("views", `${view}.pug`);
+    return pug.renderFile(templatePath, {
+      t: i18next.t.bind(i18next),
+      ...locals,
+    });
   }
 }

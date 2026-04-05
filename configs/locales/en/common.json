@@ -152,6 +152,8 @@
     "admin_reviewing": "Admin is reviewing...",
     "login_success": "Login successfully",
     "user_not_found": "User is not found.",
+    "reset_password_sent": "A password reset request has been sent to your email.",
+    "invalid_token": "The verification code is invalid or has expired.",
     "input_old_password": "Please input your old password.",
     "password_changed": "Password changed successfully.",
     "logged_out": "You are logged out!",

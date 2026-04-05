@@ -1,9 +1,9 @@
 import env from "@configs/env";
 import { RailsApplication } from "ts-rails";
 import {
+  DevMailerAdapter,
   GmailOAuth2MailerAdapter,
   SmtpMailerAdapter,
-  TestMailerAdapter,
 } from "../mail";
 
 export function initializeMailer() {
@@ -15,7 +15,7 @@ export function initializeMailer() {
       RailsApplication.mailerAdapter = new SmtpMailerAdapter();
       break;
     case "test":
-      RailsApplication.mailerAdapter = new TestMailerAdapter();
+      RailsApplication.mailerAdapter = new DevMailerAdapter();
       break;
     default:
       RailsApplication.loggerAdapter?.warn(

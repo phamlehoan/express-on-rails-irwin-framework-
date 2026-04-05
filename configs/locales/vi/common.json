@@ -153,6 +153,8 @@
     "admin_reviewing": "Admin đang xem xét...",
     "login_success": "Đăng nhập thành công",
     "user_not_found": "Không tìm thấy người dùng.",
+    "reset_password_sent": "Yêu cầu đặt lại mật khẩu đã được gửi đến email của bạn.",
+    "invalid_token": "Mã xác thực không hợp lệ hoặc đã hết hạn.",
     "input_old_password": "Vui lòng nhập mật khẩu cũ.",
     "password_changed": "Đổi mật khẩu thành công.",
     "logged_out": "Bạn đã đăng xuất!",
@@ -185,5 +187,33 @@
     "first_time_password": "Bạn đang đổi mật khẩu lần đầu. Vui lòng đăng nhập bằng phương thức khác trước khi đổi mật khẩu.",
     "password_mismatch": "Mật khẩu và xác nhận không khớp.",
     "password_changed_relogin": "Đổi mật khẩu thành công. Vui lòng đăng nhập lại để xác nhận!"
+  },
+
+  "mailer": {
+    "subjects": {
+      "welcome": "Chào mừng {{name}} đến với {{appName}}",
+      "password_reset": "Yêu cầu khôi phục mật khẩu"
+    },
+    "created_user": {
+      "greeting": "Chào mừng, {{name}}!",
+      "success_msg": "Tài khoản của bạn đã được khởi tạo thành công trên hệ thống của chúng tôi.",
+      "login_email": "Email đăng nhập:",
+      "explore_msg": "Bây giờ bạn có thể đăng nhập để khám phá các tính năng tuyệt vời từ {{appName}}.",
+      "access_account": "Truy cập tài khoản"
+    },
+    "password_reset": {
+      "title": "Khôi phục mật khẩu",
+      "greeting": "Xin chào,",
+      "request_msg": "Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản liên kết với email",
+      "instruction": "Vui lòng nhấn vào nút bên dưới để tiến hành thay đổi mật khẩu:",
+      "button": "Đặt lại mật khẩu",
+      "warning": "Link này sẽ hết hạn sau 15 phút. Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng bỏ qua email này. Tài khoản của bạn vẫn sẽ an toàn."
+    },
+    "common": {
+      "regards": "Trân trọng,",
+      "team": "Đội ngũ {{appName}}",
+      "auto_email_footer": "Đây là email tự động, vui lòng không trả lời email này.",
+      "copyright": "Bản quyền © {{year}} {{appName}}. Bảo lưu mọi quyền."
+    }
   }
 }

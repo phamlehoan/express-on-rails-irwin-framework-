@@ -1,6 +1,8 @@
 import { PasswordType, UserStatus } from "@configs/db/enums";
 import { FlashType } from "@configs/enum";
 import env from "@configs/env";
+import { generateToken, verifyToken } from "@lib";
+import { UserMailer } from "@mailers";
 import models from "@models";
 import { Prisma } from "@prisma/client";
 import {
@@ -66,6 +68,8 @@ export class AuthController extends ApplicationController {
       });
       this.req.session!.userId = newUser.id;
       this.req.session!.save((err) => {
+        // Nếu anh muốn dùng Token thay vì Session, anh có thể trả về JSON tại đây
+        // const tokens = this.generateAuthTokens(newUser.id);
         if (err) return this.redirect("/auth");
         this.flash(FlashType.Success, { msg: this.t("flash.login_success") });
         this.redirect("/");
@@ -99,6 +103,8 @@ export class AuthController extends ApplicationController {
     });
     this.req.session!.userId = loginUser.id;
 
+    // const tokens = this.generateAuthTokens(loginUser.id);
+
     this.req.session!.save((err) => {
       if (err) return this.redirect("/auth");
       this.flash(FlashType.Success, { msg: this.t("flash.login_success") });
@@ -107,7 +113,7 @@ export class AuthController extends ApplicationController {
   }
 
   async index() {
-    this.logoutUser(); // TypeScript đã hiểu logoutUser() thuộc về ApplicationController
+    this.logoutUser();
     this.render("auth.view/index");
   }
 
@@ -138,6 +144,8 @@ export class AuthController extends ApplicationController {
       (await Security.verifyPassword(password, user.passwords[0].password))
     ) {
       this.req.session!.userId = user.id;
+      // const tokens = this.generateAuthTokens(user.id);
+
       this.req.session!.save((err) => {
         if (err) {
           this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
@@ -152,6 +160,7 @@ export class AuthController extends ApplicationController {
     }
   }
 
+  // Change Password Page
   async new() {
     const email = this.req.params.id;
     if (this.req.user && email !== this.req.user.email) {
@@ -160,6 +169,7 @@ export class AuthController extends ApplicationController {
     this.render("auth.view/new");
   }
 
+  // Request send email to reset password
   async create() {
     const { email } = await this.params(CreatePasswordValidator).permit(
       "email",
@@ -171,13 +181,6 @@ export class AuthController extends ApplicationController {
         status: UserStatus.ACTIVE,
         deleted: false,
       },
-      select: {
-        passwords: {
-          where: { deleted: false },
-          select: { password: true },
-          orderBy: { createdAt: Prisma.SortOrder.desc },
-        },
-      },
     });
 
     if (!user) {
@@ -185,19 +188,20 @@ export class AuthController extends ApplicationController {
       return this.render("auth.view/new");
     }
 
-    // TODO: Thêm logic gửi email chứa link tạo password nếu chưa có password nào,
-    // thay vì hiển thị token trực tiếp trên URL
-    const token = user.passwords.length
-      ? user.passwords[0]!.password
-      : undefined;
-    if (!token && !this.req.user) {
-      this.flash(FlashType.Errors, {
-        msg: this.t("flash.first_time_password"),
-      });
-      return this.redirect("/auth");
-    }
+    // Tạo JWT token tạm thời có hiệu lực trong 15 phút
+    const resetToken = generateToken({ id: user.id, email: user.email }, "15m");
+    const protocol = this.req.protocol;
+    const host = this.req.get("host");
+    const baseUrl = env.appUrl || `${protocol}://${host}`;
 
-    return this.redirect(`/auth/${email}/edit?token=${token}`);
+    // Tạo link dẫn tới trang reset password trên Frontend
+    const resetLink = `${baseUrl}/auth/${encodeURIComponent(user.email)}/edit?token=${resetToken}`;
+
+    // Gửi email cho người dùng
+    await UserMailer.passwordReset(user.email, resetLink);
+
+    this.flash(FlashType.Success, { msg: this.t("flash.reset_password_sent") });
+    return this.redirect("/auth");
   }
 
   async edit() {
@@ -217,22 +221,27 @@ export class AuthController extends ApplicationController {
 
     let isFirstTimeCreatePassword = false;
     if (!this.req.user || !this.req.session!.userId) {
-      const user = await models.user.findUnique({
-        where: {
-          email,
-          passwords: {
-            some: {
-              deleted: false,
-              password: token,
-            },
+      try {
+        const decoded = verifyToken(token);
+        if (decoded.email !== email) {
+          this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
+          return this.redirect("/auth");
+        }
+        const user = await models.user.findUnique({
+          where: {
+            id: decoded.id,
+            email,
+            status: UserStatus.ACTIVE,
+            deleted: false,
           },
-          status: UserStatus.ACTIVE,
-          deleted: false,
-        },
-        select: { passwords: true },
-      });
+          select: { passwords: true },
+        });
 
-      if (!user) {
+        if (!user) {
+          this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
+          return this.redirect("/auth");
+        }
+      } catch {
         this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
         return this.redirect("/auth");
       }
@@ -254,13 +263,17 @@ export class AuthController extends ApplicationController {
   }
 
   async update() {
-    const { password, passwordConfirmation, oldPassword } = await this.params(
-      UpdatePasswordValidator,
-    ).permit("password", "passwordConfirmation", "oldPassword");
+    const { password, passwordConfirmation, oldPassword, token } =
+      await this.params(UpdatePasswordValidator).permit(
+        "password",
+        "passwordConfirmation",
+        "oldPassword",
+        "token",
+      );
     const email = this.req.params.id;
-    // Logic xử lý token/oldPassword cần verify qua Bcrypt thay vì so sánh MD5 trực tiếp
 
-    if (!oldPassword && !this.req.user) {
+    // Phải có hoặc oldPassword (đang logged in) hoặc token (quên mật khẩu)
+    if (!oldPassword && !token) {
       this.flash(FlashType.Errors, {
         msg: this.t("flash.first_time_password"),
       });
@@ -273,10 +286,6 @@ export class AuthController extends ApplicationController {
         status: UserStatus.ACTIVE,
         deleted: false,
       },
-      select: {
-        id: true,
-        passwords: true,
-      },
     });
 
     if (!user) {
@@ -284,12 +293,16 @@ export class AuthController extends ApplicationController {
       return this.redirect(`/auth/${email}/edit`);
     }
 
-    if (!oldPassword && user.passwords.length) {
-      this.flash(FlashType.Errors, { msg: this.t("flash.input_old_password") });
-      return this.redirect(`/auth/${email}/edit`);
-    }
-
-    if (oldPassword) {
+    if (token) {
+      // Verify token và kiểm tra tính hợp lệ của User ID
+      try {
+        const decoded = verifyToken(token);
+        if (decoded.id !== user.id) throw new Error("User mismatch");
+      } catch (err) {
+        this.flash(FlashType.Errors, { msg: this.t("flash.invalid_token") });
+        return this.redirect(`/auth/${email}/edit?token=${token}`);
+      }
+    } else if (oldPassword) {
       const currentPwd = await models.password.findFirst({
         where: { userId: user.id, deleted: false },
       });
@@ -299,10 +312,14 @@ export class AuthController extends ApplicationController {
             currentPwd.password,
           )
         : false;
+
       if (!isMatch) {
         this.flash(FlashType.Errors, { msg: this.t("flash.user_not_found") });
         return this.redirect(`/auth/${email}/edit`);
       }
+    } else {
+      this.flash(FlashType.Errors, { msg: this.t("flash.input_old_password") });
+      return this.redirect(`/auth/${email}/edit`);
     }
 
     if (

@@ -58,7 +58,6 @@ export class AdminUserController extends AdminController {
     const roles = await models.role.findMany({ where: { deleted: false } });
 
     this.render("admin/user.view/index", {
-      user: this.req.user,
       users,
       roles,
       total,

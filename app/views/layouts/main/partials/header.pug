@@ -7,7 +7,7 @@ nav#mainNav.navbar.navbar-expand-lg.navbar-dark.navbar-shrink.fixed-top
       i.fa.fa-bars.ms-1
     #navbarResponsive.collapse.navbar-collapse
       ul.navbar-nav.text-uppercase.ms-auto.py-4.py-lg-0
-        - const canAccessAdmin = typeof hasAdminAccess !== 'undefined' ? hasAdminAccess : (user && (user.permissions || []).some(function(p) { return p.indexOf('AM::') === 0 || p.indexOf('UM::') === 0; }));
+        - const canAccessAdmin = typeof hasAdminAccess !== 'undefined' ? hasAdminAccess : (currentUser && (currentUser.permissions || []).some(function(p) { return p.indexOf('AM::') === 0 || p.indexOf('UM::') === 0; }));
         - if (canAccessAdmin)
           li.nav-item
             a.nav-link.btn.btn-primary.btn-sm.text-white.ms-2(href='/admin' style='padding: 0.5rem 1rem') Admin
@@ -22,29 +22,29 @@ nav#mainNav.navbar.navbar-expand-lg.navbar-dark.navbar-shrink.fixed-top
           a.nav-link(href='#about') About
         li.nav-item
           a.nav-link(href='#team') Team
-        - if (!user)
+        - if (!currentUser)
           li.nav-item
             a.nav-link(href='/auth') Login
         - else
           li.nav-item.dropdown.no-arrow
             a#userDropdown.nav-link.dropdown-toggle.text-center(role='button' data-bs-toggle="dropdown")
               .d-flex.align-items-center
-                img.img-profile.rounded-circle(src=`${user.avatarUrl ? user.avatarUrl : '/images/img/user.png'}`)
-                .d-lg-none.d-block.ms-2= user.firstName + ' ' + user.lastName
+                img.img-profile.rounded-circle(src=`${currentUser.avatarUrl ? currentUser.avatarUrl : '/images/img/user.png'}`)
+                .d-lg-none.d-block.ms-2= currentUser.firstName + ' ' + currentUser.lastName
             ul#userDropdownAria.dropdown-menu.shadow.animated--grow-in(aria-labelledby='userDropdown')
               .text-center
-                img.img-profile.rounded-circle(src=`${user.avatarUrl ? user.avatarUrl : '/images/img/user.png'}`)
+                img.img-profile.rounded-circle(src=`${currentUser.avatarUrl ? currentUser.avatarUrl : '/images/img/user.png'}`)
                 .fw-bold.mt-2
-                  = user.firstName + ' ' + user.lastName
+                  = currentUser.firstName + ' ' + currentUser.lastName
               .dropdown-divider
               a.dropdown-item(href='/me')
                 i.fa.fa-user.fa-sm.fa-fw.mr-2.text-gray-400.me-1
                 | Profile
-              a.dropdown-item(href=`/auth/${user.email}/edit`)
+              a.dropdown-item(href=`/auth/${currentUser.email}/edit`)
                 i.fa.fa-cogs.fa-sm.fa-fw.mr-2.text-gray-400.me-1
                 | Change password
               .dropdown-divider
-              form.nav-link(method='POST' action=`/auth/${user.id}?_method=DELETE`)
+              form.nav-link(method='POST' action=`/auth/${currentUser.id}?_method=DELETE`)
                 .text-center
                   button.btn.btn-danger(type="submit")
                     i.fa.fa-sign-out

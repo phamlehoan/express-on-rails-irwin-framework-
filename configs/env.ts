@@ -4,6 +4,7 @@ dotenv.config();
 export default {
   search: process.env.SEARCH,
   nodeEnv: process.env.NODE_ENV || "development",
+  appUrl: process.env.APP_URL || "http://localhost:3000",
   port: process.env.PORT || "3000",
   databaseUrl: process.env.DATABASE_URL || "file:./schema/app.db",
   dbMaxConnections: parseInt(process.env.DB_MAX_CONNECTIONS || "1"),
