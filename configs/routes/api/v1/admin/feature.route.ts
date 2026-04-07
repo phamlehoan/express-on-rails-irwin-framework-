@@ -6,7 +6,6 @@ export class ApiV1AdminFeatureRoute extends RailsRoute {
   public draw() {
     this.resource(ApiV1AdminFeatureController, {
       document: {
-        path: "/admin/features",
         tags: ["Admin Feature"],
       },
       setPermissionForAny: [

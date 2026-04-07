@@ -1,4 +1,4 @@
-import { buildPaginatedResponse, parsePagination } from "ts-rails/pagination";
+import { buildPaginatedResponse, parsePagination } from "ts-rails";
 
 describe("Pagination", () => {
   it("parsePagination returns default values", () => {

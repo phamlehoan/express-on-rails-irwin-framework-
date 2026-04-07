@@ -5,7 +5,7 @@ import { RailsRoute, RestActions } from "ts-rails";
 export class ApiV1AdminRoleRoute extends RailsRoute {
   public draw() {
     this.resource(ApiV1AdminRoleController, {
-      document: { path: "/admin/roles", tags: ["Admin"] },
+      document: { tags: ["Admin Role"] },
       setPermissionForAny: [
         Feature.AdministrationManagement,
         Feature.UserManagement,

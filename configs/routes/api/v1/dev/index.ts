@@ -9,14 +9,14 @@ import {
   PaginationValidator,
   UpdateItemValidator,
 } from "@validators/dev.validator";
-import { action, RailsRoute } from "ts-rails";
+import { action, RailsRoute, RestActions } from "ts-rails";
 
 export class ApiV1DevRoute extends RailsRoute {
   public draw() {
     this.get("/echo", action(ApiV1DevController, "echo"), {
       document: {
         summary: "Echo (params.permit)",
-        tags: ["Dev"],
+        tags: ["Dev System"],
         params: EchoValidator,
       },
     });
@@ -24,7 +24,7 @@ export class ApiV1DevRoute extends RailsRoute {
     this.get("/me", action(ApiV1DevController, "me"), {
       document: {
         summary: "Current user",
-        tags: ["Dev"],
+        tags: ["Dev System"],
         auth: true,
         responses: { 200: "OK", 403: "Unauthorized" },
       },
@@ -45,7 +45,7 @@ export class ApiV1DevRoute extends RailsRoute {
     this.get("/errors/not-found", action(ApiV1DevController, "errorNotFound"), {
       document: {
         summary: "Example NotFoundError",
-        tags: ["Dev"],
+        tags: ["Dev System"],
         responses: { 404: "Not Found" },
       },
     });
@@ -56,7 +56,7 @@ export class ApiV1DevRoute extends RailsRoute {
       {
         document: {
           summary: "Example BadRequestError",
-          tags: ["Dev"],
+          tags: ["Dev System"],
           responses: { 400: "Bad Request" },
         },
       },
@@ -68,13 +68,6 @@ export class ApiV1DevRoute extends RailsRoute {
         summary: "List items (index)",
         tags: ["Dev"],
         params: PaginationValidator,
-      },
-    });
-
-    this.get("/:id", action(ApiV1DevController, "show"), {
-      document: {
-        summary: "Show item",
-        tags: ["Dev"],
       },
     });
 
@@ -95,11 +88,11 @@ export class ApiV1DevRoute extends RailsRoute {
       },
     });
 
-    this.delete("/:id", action(ApiV1DevController, "destroy"), {
+    this.resource(ApiV1DevController, {
       document: {
-        summary: "Destroy item",
         tags: ["Dev"],
       },
+      only: [RestActions.Show, RestActions.Destroy],
     });
   }
 }

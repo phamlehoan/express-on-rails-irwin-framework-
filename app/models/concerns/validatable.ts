@@ -9,7 +9,7 @@
  */
 import { plainToInstance } from "class-transformer";
 import { validate, ValidationError, ValidatorOptions } from "class-validator";
-import { UnprocessableEntityError } from "ts-rails/errors";
+import { UnprocessableEntityError } from "ts-rails";
 
 const defaultOptions: ValidatorOptions = {
   whitelist: true,

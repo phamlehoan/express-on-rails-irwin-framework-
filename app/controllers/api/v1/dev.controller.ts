@@ -90,7 +90,7 @@ export class ApiV1DevController extends ApiV1Controller {
   async me() {
     this.renderJson({
       user: this.req.user,
-      requestId: (this.req as any).requestId,
+      requestId: this.req.requestId,
     });
   }
 

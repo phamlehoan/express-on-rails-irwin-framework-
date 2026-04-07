@@ -50,7 +50,7 @@ export class ApplicationController extends RailsController {
    * An example after_action to log when an action completes.
    */
   protected logActionCompletion() {
-    const { logger } = require("ts-rails/logger");
+    const { logger } = require("ts-rails");
     logger.debug(`Action completed for request: ${this.req.requestId}`);
   }
 }

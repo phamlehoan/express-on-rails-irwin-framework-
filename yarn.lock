@@ -8752,10 +8752,10 @@ ts-pattern@4.3.0:
   resolved "https://registry.npmjs.org/ts-pattern/-/ts-pattern-4.3.0.tgz"
   integrity sha512-pefrkcd4lmIVR0LA49Imjf9DYLK8vtWhqBPA3Ya1ir8xCW0O2yjL9dsCVvI7pCodLC5q7smNpEtDR2yVulQxOg==
 
-ts-rails@1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/ts-rails/-/ts-rails-1.0.1.tgz#37cd9659c92cf779e1b28606c5a417500463efe2"
-  integrity sha512-QkGzSxMVCougPepNw1ExOD1lOJKQDAFuxvUAUcPAj/v6EkvzEoPKZZ4S1EfgGbwRq1tmUQ37Ika3oAJamoggTw==
+ts-rails@1.0.5:
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/ts-rails/-/ts-rails-1.0.5.tgz#78a3dcb77fe0af91895bfee443e62d271f0d6c22"
+  integrity sha512-+b4pibz9kCa5DRMep1V7XFGIbKlsRrbeN3ii/SwG1m1zeycm7IPBXb/hGs/sY9NpKE1AvC980LOWiRx++XPrAg==
   dependencies:
     commander "^9.0.0"
 
