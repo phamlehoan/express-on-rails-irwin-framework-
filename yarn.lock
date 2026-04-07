@@ -2150,7 +2150,7 @@
 
 "@scarf/scarf@=1.4.0":
   version "1.4.0"
-  resolved "https://registry.npmjs.org/@scarf/scarf/-/scarf-1.4.0.tgz"
+  resolved "https://registry.npmjs.org/@scarf/scarf/-/scarf-1.4.0.tgz#3bbb984085dbd6d982494538b523be1ce6562972"
   integrity sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==
 
 "@sinclair/typebox@^0.27.8":
@@ -2774,13 +2774,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/cookie-parser@1.4.6":
-  version "1.4.6"
-  resolved "https://registry.npmjs.org/@types/cookie-parser/-/cookie-parser-1.4.6.tgz#002643c514cccf883a65cbe044dbdc38c0b92ade"
-  integrity sha512-KoooCrD56qlLskXPLGUiJxOMnv5l/8m7cQD2OxJ73NPMhuSz9PmvwRD6EpjDyKBVrdJDdQ4bQK7JFNHnNmax0w==
-  dependencies:
-    "@types/express" "*"
-
 "@types/cors@2.8.17":
   version "2.8.17"
   resolved "https://registry.npmjs.org/@types/cors/-/cors-2.8.17.tgz"
@@ -2920,13 +2913,6 @@
   resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.17.5.tgz"
   integrity sha512-MBIOHVZqVqgfro1euRDWX7OO0fBVUUMrN6Pwm8LQsz8cWhEpihlvR70ENj3f40j58TNxZaWv2ndSkInykNBBJw==
 
-"@types/method-override@0.0.35":
-  version "0.0.35"
-  resolved "https://registry.npmjs.org/@types/method-override/-/method-override-0.0.35.tgz"
-  integrity sha512-HdhM5xiIV8fwsZ3B8e9IKWJOqEgmXXBJ/qQzhs5Z8idjsszqEX4j/7/QAcso27ArZ1tSBXg2XMlI1cIHAsCTXA==
-  dependencies:
-    "@types/express" "*"
-
 "@types/mime@*":
   version "3.0.3"
   resolved "https://registry.npmjs.org/@types/mime/-/mime-3.0.3.tgz"
@@ -2992,11 +2978,6 @@
   resolved "https://registry.npmjs.org/@types/phoenix/-/phoenix-1.6.6.tgz"
   integrity sha512-PIzZZlEppgrpoT2QgbnDU+MMzuR6BbCjllj0bM70lWoejMeNJAxCchxnv7J3XFkI8MpygtRpzXrIlmWUBclP5A==
 
-"@types/pluralize@0.0.33":
-  version "0.0.33"
-  resolved "https://registry.npmjs.org/@types/pluralize/-/pluralize-0.0.33.tgz#8ad9018368c584d268667dd9acd5b3b806e8c82a"
-  integrity sha512-JOqsl+ZoCpP4e8TDke9W79FDcSgPAR0l6pixx2JHkhnRjvShyYiAYw2LVsnA7K08Y6DeOnaU6ujmENO4os/cYg==
-
 "@types/pug@^2.0.10":
   version "2.0.10"
   resolved "https://registry.npmjs.org/@types/pug/-/pug-2.0.10.tgz#52f8dbd6113517aef901db20b4f3fca543b88c1f"
@@ -3052,14 +3033,6 @@
   version "2.0.3"
   resolved "https://registry.npmjs.org/@types/stack-utils/-/stack-utils-2.0.3.tgz"
   integrity sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==
-
-"@types/swagger-ui-express@4.1.8":
-  version "4.1.8"
-  resolved "https://registry.npmjs.org/@types/swagger-ui-express/-/swagger-ui-express-4.1.8.tgz#3c0e0bf2543c7efb500eaa081bfde6d92f88096c"
-  integrity sha512-AhZV8/EIreHFmBV5wAs0gzJUNq9JbbSXgJLQubCC0jtIo6prnI9MIRRxnU4MZX9RB9yXxF1V4R7jtLl/Wcj31g==
-  dependencies:
-    "@types/express" "*"
-    "@types/serve-static" "*"
 
 "@types/validator@10.11.3":
   version "10.11.3"
@@ -8552,9 +8525,9 @@ supports-preserve-symlinks-flag@^1.0.0:
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
 swagger-ui-dist@>=5.0.0:
-  version "5.32.0"
-  resolved "https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-5.32.0.tgz"
-  integrity sha512-nKZB0OuDvacB0s/lC2gbge+RigYvGRGpLLMWMFxaTUwfM+CfndVk9Th2IaTinqXiz6Mn26GK2zriCpv6/+5m3Q==
+  version "5.32.1"
+  resolved "https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-5.32.1.tgz#21abc8944763901c9fade461c2c669f5621985e3"
+  integrity sha512-6HQoo7+j8PA2QqP5kgAb9dl1uxUjvR0SAoL/WUp1sTEvm0F6D5npgU2OGCLwl++bIInqGlEUQ2mpuZRZYtyCzQ==
   dependencies:
     "@scarf/scarf" "=1.4.0"
 
@@ -8752,10 +8725,10 @@ ts-pattern@4.3.0:
   resolved "https://registry.npmjs.org/ts-pattern/-/ts-pattern-4.3.0.tgz"
   integrity sha512-pefrkcd4lmIVR0LA49Imjf9DYLK8vtWhqBPA3Ya1ir8xCW0O2yjL9dsCVvI7pCodLC5q7smNpEtDR2yVulQxOg==
 
-ts-rails@1.0.5:
-  version "1.0.5"
-  resolved "https://registry.npmjs.org/ts-rails/-/ts-rails-1.0.5.tgz#78a3dcb77fe0af91895bfee443e62d271f0d6c22"
-  integrity sha512-+b4pibz9kCa5DRMep1V7XFGIbKlsRrbeN3ii/SwG1m1zeycm7IPBXb/hGs/sY9NpKE1AvC980LOWiRx++XPrAg==
+ts-rails@1.0.10:
+  version "1.0.10"
+  resolved "https://registry.npmjs.org/ts-rails/-/ts-rails-1.0.10.tgz#44cd11e15df77dadf99aed5add7bc7ebf94bb602"
+  integrity sha512-mx4bgs65Z4sQttn04Byoa7nbTnQ1a0LggqupOdbYfTyB/85Ww+y5ITRfu4619ea856c92nD3WnFAmptAZXpmqg==
   dependencies:
     commander "^9.0.0"
 
