@@ -11,7 +11,7 @@ export const Authenticatable = {
   logoutUser(this: ApplicationController) {
     if (this.req.user) {
       this.req.session!.userId = undefined;
-      (this.req as any).user = undefined;
+      this.req.user = undefined;
     }
   },
 

@@ -1,18 +1,22 @@
-import models from '@models';
-import { User } from '@prisma/client';
+import { User } from "@db";
+import models from "@models";
 
 export class ApplicationMiddleware {
+  /**
+   * Định nghĩa Type cho User kèm Permissions
+   */
+  public userWithPermissions:
+    | (User & { features?: string[]; permissions?: string[] })
+    | null = null;
+
   /**
    * Lấy user kèm permissions (từ Role + UserToPermission trực tiếp).
    * Permissions được merge từ cả hai nguồn để hỗ trợ phân quyền theo từng user.
    */
   public async getUserById(
     id: string,
-    isGetPermission = false
-  ): Promise<User & {
-    features?: string[];
-    permissions?: string[];
-  } | null> {
+    isGetPermission = false,
+  ): Promise<(User & { features?: string[]; permissions?: string[] }) | null> {
     const user = await models.user.findUnique({
       where: {
         id,
@@ -29,15 +33,31 @@ export class ApplicationMiddleware {
       const features = new Set<string>();
       const permissions = new Set<string>();
 
-      permissionFeaturesFromRoles.forEach(({ featureCode, permissionCode }) => {
-        features.add(featureCode);
-        permissions.add(`${featureCode}::${permissionCode}`);
-      });
+      permissionFeaturesFromRoles.forEach(
+        ({
+          featureCode,
+          permissionCode,
+        }: {
+          featureCode: string;
+          permissionCode: string;
+        }) => {
+          features.add(featureCode);
+          permissions.add(`${featureCode}::${permissionCode}`);
+        },
+      );
 
-      directUserPermissions.forEach(({ featureCode, permissionCode }) => {
-        features.add(featureCode);
-        permissions.add(`${featureCode}::${permissionCode}`);
-      });
+      directUserPermissions.forEach(
+        ({
+          featureCode,
+          permissionCode,
+        }: {
+          featureCode: string;
+          permissionCode: string;
+        }) => {
+          features.add(featureCode);
+          permissions.add(`${featureCode}::${permissionCode}`);
+        },
+      );
 
       return {
         ...user,
@@ -50,7 +70,9 @@ export class ApplicationMiddleware {
   }
 
   /** Permissions từ Role (User -> Role -> Permission) */
-  private async getPermissionsFromRoles(userId: string) {
+  private async getPermissionsFromRoles(
+    userId: string,
+  ): Promise<{ featureCode: string; permissionCode: string }[]> {
     const permissionFeatures = await models.feature.findMany({
       where: {
         deleted: false,
@@ -83,23 +105,27 @@ export class ApplicationMiddleware {
     });
 
     const result: { featureCode: string; permissionCode: string }[] = [];
-    permissionFeatures.forEach((feature) => {
-      feature.permissions.forEach((p) => {
-        result.push({ featureCode: feature.code, permissionCode: p.code });
-      });
-    });
+    permissionFeatures.forEach(
+      (feat: { code: string; permissions: { code: string }[] }) => {
+        feat.permissions.forEach((p: { code: string }) => {
+          result.push({ featureCode: feat.code, permissionCode: p.code });
+        });
+      },
+    );
     return result;
   }
 
   /** Permissions trực tiếp gán cho user (UserToPermission) */
-  private async getDirectUserPermissions(userId: string) {
+  private async getDirectUserPermissions(
+    userId: string,
+  ): Promise<{ featureCode: string; permissionCode: string }[]> {
     const userPermissions = await models.userToPermission.findMany({
       where: {
         userId,
         permission: {
           deleted: false,
           feature: {
-            deleted: false,
+            deleted: false as boolean,
           },
         },
       },
@@ -117,9 +143,16 @@ export class ApplicationMiddleware {
       },
     });
 
-    return userPermissions.map((up) => ({
-      featureCode: up.permission.feature.code,
-      permissionCode: up.permission.code,
-    }));
+    return userPermissions.map(
+      (up: {
+        permission: {
+          code: string;
+          feature: { code: string };
+        };
+      }) => ({
+        featureCode: up.permission.feature.code,
+        permissionCode: up.permission.code,
+      }),
+    );
   }
 }

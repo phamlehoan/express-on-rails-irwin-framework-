@@ -1,5 +1,5 @@
+import { User } from "@db";
 import models from "@models";
-import { User } from "@prisma/client";
 import { AfterAction, RailsController } from "ts-rails";
 import { Authenticatable } from "./concerns/authenticatable";
 import { Rescuable } from "./concerns/rescuable";

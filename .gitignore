@@ -1,8 +1,11 @@
 node_modules
 dist
-configs/db/schema/*.db
-configs/db/schema/*.db-journal
+
+database/*.db
+database/*.db-journal
 configs/db/dbml
+configs/db/generated
+
 uploads
 app/assets/javascripts/generated
 .env
@@ -10,3 +13,5 @@ app/assets/javascripts/generated
 render.yaml
 
 yarn-error.log
+
+/generated/prisma

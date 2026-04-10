@@ -34,7 +34,8 @@ export class CurrentUserMiddleware extends ApplicationMiddleware {
       // Cho request web: set hasAdminAccess để layout hiển thị nút Admin (có bất kỳ permission AM hoặc UM)
       if (!isApiRequest) {
         const perms = req.user?.permissions ?? [];
-        (res.locals as any).hasAdminAccess = perms.some((p: string) =>
+        const locals = res.locals as Record<string, unknown>;
+        locals.hasAdminAccess = perms.some((p: string) =>
           ADMIN_FEATURE_CODES.some((code) => p.startsWith(`${code}::`)),
         );
       }

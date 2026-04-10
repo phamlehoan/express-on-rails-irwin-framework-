@@ -6,7 +6,7 @@ export class ApiRoute extends RailsRoute {
     this.get(
       "/health",
       async (_req, res) => {
-        const { checkReadiness } = await import("@configs/health");
+        const { checkReadiness } = await import("@configs/plugins");
         const status = await checkReadiness();
         const code = status.status === "ok" ? 200 : 503;
         res.status(code).json(ApiResponse.ok(status));

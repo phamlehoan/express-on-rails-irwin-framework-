@@ -2,17 +2,20 @@ import { join, resolve } from "path";
 
 /**
  * Resolve path from the project root
+ * Tự động nhận diện nếu đang chạy trong 'dist' thì gốc sẽ là 'dist'
  */
-export const rootPath = (...paths: string[]) => resolve(...paths);
+export const rootPath = (...paths: string[]) => {
+  const isDist = __dirname.includes("dist");
+  const base = isDist ? resolve(__dirname, "..") : resolve(".");
 
-/**
- * Resolve path from the app directory
- */
+  return join(base, ...paths);
+};
+
 export const appPath = (...paths: string[]) => join(rootPath("app"), ...paths);
 
-/**
- * Resolve path from node_modules
- */
 export const vendorPath = (packageName: string, ...subPaths: string[]) => {
-  return join(rootPath("node_modules"), packageName, ...subPaths);
+  const actualRoot = __dirname.includes("dist")
+    ? resolve(__dirname, "../../..")
+    : resolve(".");
+  return join(actualRoot, "node_modules", packageName, ...subPaths);
 };

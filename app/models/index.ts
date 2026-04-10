@@ -1,17 +1,15 @@
 import env from "@configs/env";
-import { formatPrismaUrl } from "@lib/utils/prisma";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@db";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
-/**
- * Singleton cho Prisma Client để tối ưu kết nối trong Serverless.
- */
 const prismaClientSingleton = () => {
+  const dbPath = env.databaseUrl.replace("file:", "");
+  const adapter = new PrismaBetterSqlite3({
+    url: dbPath,
+  });
+
   return new PrismaClient({
-    datasources: {
-      db: {
-        url: formatPrismaUrl(env.databaseUrl, env.dbMaxConnections),
-      },
-    },
+    adapter,
     log: env.nodeEnv === "development" ? ["query", "error", "warn"] : ["error"],
   });
 };

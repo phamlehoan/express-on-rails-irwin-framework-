@@ -1,4 +1,5 @@
 import { FlashType } from "@configs/enum";
+import { Prisma, User, UserToRole } from "@db";
 import models from "@models";
 import {
   RoleCreateValidator,
@@ -23,7 +24,7 @@ export class AdminRoleController extends AdminController {
       Math.max(10, parseInt(String(this.req.query.perPage || "10"), 10)),
     );
 
-    const where: any = { deleted: false };
+    const where: Prisma.RoleWhereInput = { deleted: false };
     if (search) {
       where.OR = [
         { code: { contains: search } },
@@ -114,12 +115,14 @@ export class AdminRoleController extends AdminController {
       include: { user: true },
     });
 
-    let assignedUsers = usersInRole.map((ur) => ur.user);
+    let assignedUsers = usersInRole.map(
+      (ur: UserToRole & { user: User }) => ur.user,
+    );
 
     if (search) {
       const q = search.toLowerCase();
       assignedUsers = assignedUsers.filter(
-        (u) =>
+        (u: User) =>
           `${u.firstName || ""} ${u.lastName || ""}`
             .trim()
             .toLowerCase()
@@ -128,12 +131,14 @@ export class AdminRoleController extends AdminController {
     }
 
     if (filterStatus) {
-      assignedUsers = assignedUsers.filter((u) => u.status === filterStatus);
+      assignedUsers = assignedUsers.filter(
+        (u: User) => u.status === filterStatus,
+      );
     }
 
     const cmp = (a: string, b: string) =>
       sortOrder === "asc" ? (a < b ? -1 : 1) : a > b ? -1 : 1;
-    assignedUsers.sort((a, b) => {
+    assignedUsers.sort((a: User, b: User) => {
       const an = `${a.firstName || ""} ${a.lastName || ""}`.trim();
       const bn = `${b.firstName || ""} ${b.lastName || ""}`.trim();
       if (sortBy === "accountName") return cmp(an, bn);
@@ -177,7 +182,7 @@ export class AdminRoleController extends AdminController {
       sortBy,
       sortOrder,
       filterStatus,
-      userIdsInRole: usersInRole.map((ur) => ur.userId),
+      userIdsInRole: usersInRole.map((ur: UserToRole) => ur.userId),
       buildSortUrl,
       buildQueryString,
     });
@@ -212,10 +217,12 @@ export class AdminRoleController extends AdminController {
       where: { roleId },
       select: { userId: true },
     });
-    const userIdsInRole = usersInRole.map((ur) => ur.userId);
+    const userIdsInRole = usersInRole.map(
+      (ur: { userId: string }) => ur.userId,
+    );
 
     const search = String(this.req.query.search || "").trim();
-    const where: any = {
+    const where: Prisma.UserWhereInput = {
       deleted: false,
       id: { notIn: userIdsInRole },
     };
@@ -319,7 +326,7 @@ export class AdminRoleController extends AdminController {
     const role = await models.role.findFirst({ where: { id, deleted: false } });
     if (!role) throw new NotFoundError("Role not found");
 
-    const updateData: any = {};
+    const updateData: Prisma.RoleUpdateInput = {};
     if (code !== undefined) updateData.code = code;
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;

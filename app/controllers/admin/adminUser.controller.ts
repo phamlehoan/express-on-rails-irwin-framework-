@@ -1,4 +1,5 @@
 import { FlashType } from "@configs/enum";
+import { Prisma } from "@db";
 import models from "@models";
 import {
   CreateUserValidator,
@@ -21,7 +22,7 @@ export class AdminUserController extends AdminController {
       Math.max(10, parseInt(String(this.req.query.perPage || "10"), 10)),
     );
 
-    const where: any = { deleted: false };
+    const where: Prisma.UserWhereInput = { deleted: false };
     if (search) {
       where.OR = [
         { email: { contains: search } },
@@ -183,7 +184,7 @@ export class AdminUserController extends AdminController {
     const permissionIdsArr = permissionIds ?? [];
 
     if (!section || section === "personal") {
-      const personalData: Record<string, unknown> = {};
+      const personalData: Prisma.UserUpdateInput = {};
       if (firstName !== undefined) personalData.firstName = firstName;
       if (lastName !== undefined) personalData.lastName = lastName;
       if (email !== undefined) personalData.email = email;

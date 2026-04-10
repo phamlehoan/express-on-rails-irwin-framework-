@@ -1,4 +1,5 @@
 import { FlashType } from "@configs/enum";
+import { Prisma } from "@db";
 import { buildFeatureTree } from "@middlewares/adminFeatures.middleware";
 import models from "@models";
 import {
@@ -20,7 +21,7 @@ export class AdminFeatureController extends AdminController {
       Math.max(10, parseInt(String(this.req.query.perPage || "10"), 10)),
     );
 
-    const where: any = { deleted: false };
+    const where: Prisma.FeatureWhereInput = { deleted: false };
     if (search) {
       where.OR = [
         { code: { contains: search } },
@@ -121,7 +122,7 @@ export class AdminFeatureController extends AdminController {
     const id = randomUUID();
     const now = new Date().toISOString();
     const sortOrderVal = parseInt(String(sortOrder), 10) || 0;
-    await (models as any).$executeRawUnsafe(
+    await models.$executeRawUnsafe(
       `INSERT INTO features (id, created_at, updated_at, deleted, code, name, description, type, parent_id, sort_order) VALUES (?, ?, ?, 0, ?, ?, ?, 'MENU_GROUP', ?, ?)`,
       id,
       now,
@@ -187,7 +188,7 @@ export class AdminFeatureController extends AdminController {
     );
     const { code, name, description, type, parentId, sortOrder } = data;
 
-    const updateData: any = {};
+    const updateData: Prisma.FeatureUpdateInput = {};
     if (code !== undefined) updateData.code = code;
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
@@ -248,7 +249,9 @@ export class AdminFeatureController extends AdminController {
         if (m) {
           const [, id, field] = m;
           if (!items![id]) items![id] = {};
-          (items as any)[id][field] = String(value ?? "");
+          (items as Record<string, Record<string, string>>)[id][
+            field as "parentId" | "sortOrder"
+          ] = String(value ?? "");
         }
       }
     }
@@ -274,7 +277,7 @@ export class AdminFeatureController extends AdminController {
       }
       if (updates.length) {
         params.push(id);
-        await (models as any).$executeRawUnsafe(
+        await models.$executeRawUnsafe(
           `UPDATE features SET ${updates.join(", ")} WHERE id = ?`,
           ...params,
         );

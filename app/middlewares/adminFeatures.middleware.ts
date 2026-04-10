@@ -8,10 +8,11 @@ export type FeatureWithChildren = Awaited<
  * Build feature tree from flat list.
  */
 export function buildFeatureTree(
-  flat: Array<{ id: string; parentId: string | null; [k: string]: unknown }>,
+  flat: Array<Awaited<ReturnType<typeof models.feature.findFirst>>>,
 ): FeatureWithChildren[] {
   const byId = new Map<string, FeatureWithChildren>();
   for (const f of flat) {
+    if (!f) continue;
     byId.set(f.id, { ...f, children: [] } as unknown as FeatureWithChildren);
   }
   const roots: FeatureWithChildren[] = [];
@@ -23,11 +24,19 @@ export function buildFeatureTree(
       if (parent?.children) {
         parent.children.push(f);
         parent.children.sort(
-          (a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
+          (a: FeatureWithChildren, b: FeatureWithChildren) => {
+            const orderA = (a as { sortOrder?: number | null }).sortOrder ?? 0;
+            const orderB = (b as { sortOrder?: number | null }).sortOrder ?? 0;
+            return (orderA ?? 0) - (orderB ?? 0);
+          },
         );
       } else roots.push(f);
     }
   }
-  roots.sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  roots.sort((a: FeatureWithChildren, b: FeatureWithChildren) => {
+    const orderA = (a as { sortOrder?: number | null }).sortOrder ?? 0;
+    const orderB = (b as { sortOrder?: number | null }).sortOrder ?? 0;
+    return (orderA ?? 0) - (orderB ?? 0);
+  });
   return roots;
 }

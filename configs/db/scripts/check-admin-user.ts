@@ -2,8 +2,8 @@
  * Kiểm tra user admin@example.com: roles và permissions.
  * Chạy: npx ts-node -r tsconfig-paths/register db/scripts/check-admin-user.ts
  */
-import models from "@models";
 import { ApplicationMiddleware } from "@middlewares";
+import models from "@models";
 
 const EMAIL = "admin@example.com";
 
@@ -45,7 +45,15 @@ async function main() {
     for (const ur of user.roles) {
       const r = ur.role;
       console.log("  -", r.code, r.name);
-      const perms = r.permissions?.map((rp) => rp.permission) ?? [];
+      const perms =
+        r.permissions?.map(
+          (rp: {
+            permission: {
+              code: string;
+              feature: { code: string };
+            };
+          }) => rp.permission,
+        ) ?? [];
       for (const p of perms) {
         console.log("      ", p.feature.code + "::" + p.code);
       }
@@ -64,10 +72,15 @@ async function main() {
 
   const appMiddleware = new ApplicationMiddleware();
   const withPerms = await appMiddleware.getUserById(user.id, true);
-  const perms = (withPerms as any)?.permissions ?? [];
+  const perms = withPerms?.permissions ?? [];
   console.log("\n--- Permissions merged (AM/UM để vào admin) ---");
-  console.log("  ", perms.length ? perms.join(", ") : "(rỗng – không đủ quyền vào admin)");
-  const hasAdmin = perms.some((p: string) => p.startsWith("AM::") || p.startsWith("UM::"));
+  console.log(
+    "  ",
+    perms.length ? perms.join(", ") : "(rỗng – không đủ quyền vào admin)",
+  );
+  const hasAdmin = perms.some(
+    (p: string) => p.startsWith("AM::") || p.startsWith("UM::"),
+  );
   console.log("\n  Có quyền vào admin?", hasAdmin ? "CÓ" : "KHÔNG");
 }
 

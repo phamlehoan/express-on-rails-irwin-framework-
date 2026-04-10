@@ -38,7 +38,9 @@ export class AuthRefreshTokenService extends ApplicationService {
     }
 
     const user = storedToken.user;
-    const userRoles = user.roles.map((r) => r.role.code);
+    const userRoles = user.roles.map(
+      (r: { role: { code: string } }) => r.role.code,
+    );
 
     // 3. Tạo cặp Token mới
     const newAccessToken = generateToken(

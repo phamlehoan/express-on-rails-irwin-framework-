@@ -1,4 +1,5 @@
-import { User } from "@prisma/client";
+import { User } from "@db";
+import { Request } from "express";
 import { RailsChannel } from "ts-rails";
 import { ApplicationMiddleware } from "../middlewares";
 
@@ -14,7 +15,9 @@ export abstract class ApplicationChannel extends RailsChannel {
   protected async getCurrentUser(): Promise<
     (User & { permissions?: string[] }) | null
   > {
-    const req = this.socket.request as any;
+    const req = this.socket.request as Request & {
+      session?: { userId?: string };
+    };
     const userId = req.session?.userId;
 
     if (userId) {

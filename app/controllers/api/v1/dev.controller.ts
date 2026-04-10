@@ -23,7 +23,9 @@ export class ApiV1DevController extends ApiV1Controller {
       "page",
       "perPage",
     );
-    const { page, perPage, skip } = parsePagination(permitted as any);
+    const { page, perPage, skip } = parsePagination(
+      permitted as Record<string, unknown>,
+    );
     const allItems = Array.from({ length: 50 }, (_, i) => ({
       id: String(i + 1),
       name: `Item ${i + 1}`,

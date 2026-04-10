@@ -1,5 +1,5 @@
 import { FlashType } from "@configs/enum";
-import { User } from "@prisma/client";
+import { User } from "@db";
 import { NextFunction, Request, Response } from "express";
 import { ApplicationMiddleware } from "./application.middleware";
 

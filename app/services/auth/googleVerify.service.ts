@@ -71,7 +71,9 @@ export class AuthGoogleVerifyService extends ApplicationService {
 
     // 1. Tạo JWT Access Token & Refresh Token
     // Thường mình sẽ đưa thêm role/permissions vào AccessToken để Backend không phải query DB nhiều lần
-    const userRoles = user.roles.map((r) => r.role.code);
+    const userRoles = user.roles.map(
+      (r: { role: { code: string } }) => r.role.code,
+    );
 
     const accessToken = generateToken(
       {

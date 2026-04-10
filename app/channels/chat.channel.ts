@@ -22,7 +22,7 @@ export class ChatChannel extends ApplicationChannel {
 
   private async handleMessage(data: unknown) {
     const message = new ChatMessageValidator();
-    message.content = (data as any)?.content;
+    message.content = (data as Record<string, string>)?.content || "";
 
     const user = await this.getCurrentUser();
     const errors = await validate(message);

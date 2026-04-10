@@ -1,23 +1,35 @@
 import * as jobs from "@jobs";
+import { APIGatewayProxyEvent, Context } from "aws-lambda";
 import { execSync } from "child_process";
 import serverless from "serverless-http";
 import application from "./configs/application";
 
-let cachedHandler: any;
+let cachedHandler: serverless.Handler;
 
-export const handler = async (event: any, context: any) => {
+export const handler = async (
+  event: APIGatewayProxyEvent | Record<string, unknown>,
+  context: Context,
+) => {
   if (!cachedHandler) {
     await application.initialize();
 
     // Hỗ trợ trigger từ EventBridge (CloudWatch Events)
+    const eventAny = event as Record<string, unknown>;
     if (
-      event.source === "aws.events" ||
-      event["detail-type"] === "Scheduled Event"
+      eventAny.source === "aws.events" ||
+      eventAny["detail-type"] === "Scheduled Event"
     ) {
-      const jobClassName = event.job || event.detail?.job;
-      const Klass = (jobs as any)[jobClassName];
-      if (Klass) {
-        return await new Klass().perform(...(event.args || []));
+      const jobClassName = (eventAny.job ||
+        (eventAny.detail as Record<string, string>)?.job) as string;
+      // Định nghĩa kiểu cho jobMap để tránh dùng any
+      const jobMap = jobs as unknown as Record<string, unknown>;
+      const JobClass = jobMap[jobClassName] as
+        | { new (): { perform: (...args: unknown[]) => Promise<unknown> } }
+        | undefined;
+
+      if (JobClass) {
+        const args = (eventAny.args as unknown[]) || [];
+        return await new JobClass().perform(...args);
       }
     }
 
@@ -50,7 +62,7 @@ export const migrate = async () => {
         output: output.toString(),
       }),
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Migration failed:", error);
     throw error;
   }
@@ -73,7 +85,7 @@ export const resolveMigration = async (event: { migrationName: string }) => {
         output: output.toString(),
       }),
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Resolve failed:", error);
     throw error;
   }

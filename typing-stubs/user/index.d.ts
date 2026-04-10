@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { User } from "@db";
 import "express-session";
 import "jsonwebtoken";
 
