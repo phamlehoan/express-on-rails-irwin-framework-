@@ -26,8 +26,8 @@
     "module": "CommonJS" /* Specify what module code is generated. */,
     "rootDir": "./" /* Specify the root folder within your source files. */,
     "paths": {
-      "@db": ["./configs/db/generated/prisma/client"],
-      "@db/*": ["./configs/db/generated/prisma/client/*"],
+      "@db": ["./app/models/generated/prisma/client"],
+      "@db/*": ["./app/models/generated/prisma/client/*"],
       "@configs": [
         "./configs"
       ],

@@ -4,7 +4,7 @@ dist
 database/*.db
 database/*.db-journal
 configs/db/dbml
-configs/db/generated
+app/models/generated
 
 uploads
 app/assets/javascripts/generated
