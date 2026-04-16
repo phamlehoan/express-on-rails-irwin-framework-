@@ -1,5 +1,5 @@
-import { PasswordType } from "@configs/db/enums";
 import { generateToken, verifyToken } from "@lib";
+import { PasswordType } from "@models";
 import { UnauthorizedError } from "ts-rails";
 import { ApplicationService } from "../application.service";
 

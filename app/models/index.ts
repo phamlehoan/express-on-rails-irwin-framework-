@@ -25,3 +25,5 @@ const models = globalForPrisma.prisma ?? prismaClientSingleton();
 export default models;
 
 if (env.nodeEnv !== "production") globalForPrisma.prisma = models;
+
+export * from "./enums";

@@ -1,4 +1,5 @@
 extends ../../layouts/admin/layout
+include ../../layouts/admin/partials/tablePagination.mixin.pug
 
 block content
   .container-fluid
@@ -43,7 +44,7 @@ block content
           input(type="hidden" name="sortOrder" value=sortOrder)
           input(type="hidden" name="perPage" value=perPage)
           .input-group.input-group-sm.me-auto(style="max-width: 500px")
-            input.form-control(type="search" name="search" placeholder=t('admin.search_by_account_email') value=search)
+            input.form-control.form-control-sm(type="search" name="search" placeholder=t('admin.search_by_account_email') value=search)
             button.btn.btn-sm.btn-primary(type="submit" title=t('search'))
               i.fa.fa-search
           .d-flex.align-items-center.gap-2.ms-auto
@@ -88,33 +89,11 @@ block content
                 else
                   tr
                     td(colspan="4").text-muted.text-center.py-4 No users assigned
-        .table-footer.d-flex.justify-content-between.align-items-center.p-3.border-top.bg-light.rounded-bottom
-          span.text-muted.small
-            | Showing #{Math.min((page-1)*perPage+1, totalAssigned)}-#{Math.min(page*perPage, totalAssigned)} of #{totalAssigned} users
-          .d-flex.align-items-center.gap-2
-            form.d-inline(method="get" action=`/admin/roles/${role.id}`)
-              input(type="hidden" name="search" value=search)
-              input(type="hidden" name="sortBy" value=sortBy)
-              input(type="hidden" name="sortOrder" value=sortOrder)
-              input(type="hidden" name="filterStatus" value=filterStatus)
-              select.form-select.form-select-sm(name="perPage" style="min-width: 70px" onchange="this.form.submit()")
-                option(value="10" selected=perPage===10) 10
-                option(value="25" selected=perPage===25) 25
-                option(value="50" selected=perPage===50) 50
-              span.small.text-muted.ms-1 Items per page
-            if totalAssigned > perPage
-              nav
-                ul.pagination.pagination-sm.mb-0
-                  - const totalPages = Math.ceil(totalAssigned / perPage)
-                  - const baseUrl = `/admin/roles/${role.id}?page=`
-                  - const qs = buildQueryString()
-                  li.page-item(class=page<=1?'disabled':'')
-                    a.page-link(href=page<=1?'#':baseUrl+(page-1)+qs) &lsaquo;
-                  - for (let p = 1; p <= totalPages; p++)
-                    li.page-item(class=p===page?'active':'')
-                      a.page-link(href=baseUrl+p+qs)= p
-                  li.page-item(class=page>=totalPages?'disabled':'')
-                    a.page-link(href=page>=totalPages?'#':baseUrl+(page+1)+qs) &rsaquo;
+        +tablePagination(`/admin/roles/${role.id}`, page, perPage, totalAssigned, buildQueryString)
+          input(type="hidden" name="search" value=search)
+          input(type="hidden" name="sortBy" value=sortBy)
+          input(type="hidden" name="sortOrder" value=sortOrder)
+          input(type="hidden" name="filterStatus" value=filterStatus)
 
     //- Permission Information
     .card.mb-4.content-card

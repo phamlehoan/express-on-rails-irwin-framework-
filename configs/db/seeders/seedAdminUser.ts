@@ -2,8 +2,7 @@
  * Tạo user admin@example.com với role ADMIN (nếu chưa có).
  * Sau seed có thể đăng nhập: email admin@example.com, password admin123
  */
-import { PasswordType, UserStatus } from "@configs/db/enums/user";
-import models from "@models";
+import models, { PasswordType, UserStatus } from "@models";
 import bcrypt from "bcrypt";
 
 const ADMIN_EMAIL = "admin@example.com";

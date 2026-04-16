@@ -148,7 +148,10 @@ export class AdminRoleController extends AdminController {
     });
 
     const total = assignedUsers.length;
-    const skip = (page - 1) * perPage;
+    const totalPages =
+      total === 0 ? 1 : Math.max(1, Math.ceil(total / perPage));
+    const safePage = Math.min(Math.max(1, page), totalPages);
+    const skip = (safePage - 1) * perPage;
     const paginatedUsers = assignedUsers.slice(skip, skip + perPage);
 
     const q: Record<string, string> = {};
@@ -176,7 +179,7 @@ export class AdminRoleController extends AdminController {
       features,
       assignedUsers: paginatedUsers,
       totalAssigned: total,
-      page,
+      page: safePage,
       perPage,
       search,
       sortBy,

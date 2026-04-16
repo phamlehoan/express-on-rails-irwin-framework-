@@ -1,0 +1,36 @@
+//- Footer đồng nhất: trái = trang hiện tại / tổng trang; giữa = nút phân trang; phải = chọn số dòng/trang (một hàng, không wrap).
+//- Gọi: +tablePagination(basePath, page, perPage, total, buildQueryString) … block: input hidden (search, sort, …) gửi kèm form đổi perPage.
+mixin tablePagination(basePath, page, perPage, total, buildQueryString)
+  -
+    var tpTotalPages = total === 0 ? 1 : Math.max(1, Math.ceil(total / perPage))
+    var tpSafePage = Math.min(Math.max(1, page), tpTotalPages)
+    var qs = typeof buildQueryString === 'function' ? buildQueryString() : ''
+  .table-footer.table-pagination-footer.d-flex.flex-nowrap.align-items-center.justify-content-between.gap-2.px-3.py-2.border.border-top-0.bg-white.rounded-bottom
+    .table-pagination-footer__info.flex-shrink-0.text-muted.small.text-nowrap
+      = t('paging_page_of', { current: tpSafePage, total: tpTotalPages })
+    .table-pagination-footer__nav.flex-grow-1.min-width-0
+      if tpTotalPages > 1
+        nav(aria-label="Pagination").d-flex.justify-content-center
+          ul.pagination.pagination-sm.mb-0.flex-nowrap
+            - var maxBtns = 10
+            - var endPg = Math.min(tpTotalPages, tpSafePage + 4)
+            - var startPg = Math.max(1, endPg - maxBtns + 1)
+            - endPg = Math.min(tpTotalPages, startPg + maxBtns - 1)
+            li.page-item(class=tpSafePage<=1?'disabled':'')
+              a.page-link(href=tpSafePage<=1?'#':basePath+'?page='+(tpSafePage-1)+qs)
+                span(aria-hidden="true") &lsaquo;
+            - for (var pi = startPg; pi <= endPg; pi++)
+              li.page-item(class=pi===tpSafePage?'active':'')
+                a.page-link(href=basePath+'?page='+pi+qs)= pi
+            li.page-item(class=tpSafePage>=tpTotalPages?'disabled':'')
+              a.page-link(href=tpSafePage>=tpTotalPages?'#':basePath+'?page='+(tpSafePage+1)+qs)
+                span(aria-hidden="true") &rsaquo;
+    .table-pagination-footer__per.flex-shrink-0
+      form.d-inline-flex.flex-nowrap.align-items-center.gap-2(method="get" action=basePath)
+        input(type="hidden" name="page" value="1")
+        block
+        span.small.text-muted.text-nowrap= t('paging_rows_label')
+        select.form-select.form-select-sm(name="perPage" style="width: 4.25rem; min-width: 4.25rem; flex-shrink: 0" onchange="this.form.submit()")
+          option(value="10" selected=perPage===10) 10
+          option(value="25" selected=perPage===25) 25
+          option(value="50" selected=perPage===50) 50

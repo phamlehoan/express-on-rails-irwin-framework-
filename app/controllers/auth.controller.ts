@@ -1,10 +1,9 @@
-import { PasswordType, UserStatus } from "@configs/db/enums";
 import { FlashType } from "@configs/enum";
 import env from "@configs/env";
 import { Prisma } from "@db";
 import { generateToken, verifyToken } from "@lib";
 import { UserMailer } from "@mailers";
-import models from "@models";
+import models, { PasswordType, UserStatus } from "@models";
 import {
   CreatePasswordValidator,
   LoginValidator,

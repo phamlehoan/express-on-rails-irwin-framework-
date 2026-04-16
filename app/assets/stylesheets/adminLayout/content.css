@@ -94,22 +94,57 @@
   border-radius: 0;
 }
 
-/* Inputs - bo cong, focus */
+/* Footer phân trang bảng — một hàng; giữa cuộn ngang khi nhiều nút */
+#block-content .table-pagination-footer {
+  min-height: 2.75rem;
+}
+
+#block-content .table-pagination-footer__nav {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+#block-content .table-pagination-footer__nav .pagination {
+  flex-wrap: nowrap;
+}
+
+#block-content .table-pagination-footer .page-link {
+  padding: 0.25rem 0.45rem;
+  font-size: 0.8125rem;
+}
+
+/* Inputs & selects — cùng line-height, min-height, padding để không bị lệch */
 #block-content .form-control,
 #block-content .form-select {
+  box-sizing: border-box;
   border-radius: 0.375rem;
   border: 1px solid #d1d5db;
-  padding: 0.5rem 0.75rem;
   font-size: 0.9rem;
-}
-
-#block-content .form-control {
-  padding-right: 0.75rem;
+  line-height: 1.5;
+  min-height: calc(1.5em + 1rem + 2px);
+  padding: 0.5rem 0.75rem;
 }
 
 #block-content .form-select {
-  padding-right: 2.25rem;
+  padding-right: 2.5rem;
   min-width: 5rem;
+  background-position: right 0.65rem center;
+  background-size: 1rem 0.75rem;
+}
+
+#block-content .form-control-sm,
+#block-content .form-select-sm {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  min-height: calc(1.5em + 0.5rem + 2px);
+  padding: 0.25rem 0.5rem;
+}
+
+#block-content .form-select-sm {
+  padding-right: 2rem;
+  background-position: right 0.5rem center;
+  background-size: 0.875rem 0.625rem;
 }
 
 #block-content .form-control:focus,
@@ -183,9 +218,21 @@
   padding: 0.5rem 1rem;
 }
 
-#block-content .btn-sm {
-  padding: 0.375rem 0.75rem;
+/* btn-sm cùng “dòng” với form-control-sm / form-select-sm (toolbar, input-group) */
+#block-content .btn-sm:not(.btn-link) {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.75rem;
   font-size: 0.875rem;
+  line-height: 1.5;
+  min-height: calc(1.5em + 0.5rem + 2px);
+}
+
+#block-content .btn-sm.btn-link {
+  min-height: unset;
+  line-height: 1.5;
 }
 
 /* Breadcrumb */
@@ -228,11 +275,11 @@ body.sidebar-toggled #block-content nav.breadcrumb-sticky {
 }
 
 /* Dành chỗ cho breadcrumb fixed - tránh nội dung bị che khi scroll */
-#block-content .container-fluid>nav.breadcrumb-sticky+* {
+#block-content .container-fluid > nav.breadcrumb-sticky + * {
   margin-top: var(--breadcrumb-content-margin-top) !important;
 }
 
-#block-content .breadcrumb-item+.breadcrumb-item::before {
+#block-content .breadcrumb-item + .breadcrumb-item::before {
   color: #9ca3af;
 }
 
