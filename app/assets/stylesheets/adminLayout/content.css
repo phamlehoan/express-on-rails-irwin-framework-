@@ -275,11 +275,11 @@ body.sidebar-toggled #block-content nav.breadcrumb-sticky {
 }
 
 /* Dành chỗ cho breadcrumb fixed - tránh nội dung bị che khi scroll */
-#block-content .container-fluid > nav.breadcrumb-sticky + * {
+#block-content .container-fluid>nav.breadcrumb-sticky+* {
   margin-top: var(--breadcrumb-content-margin-top) !important;
 }
 
-#block-content .breadcrumb-item + .breadcrumb-item::before {
+#block-content .breadcrumb-item+.breadcrumb-item::before {
   color: #9ca3af;
 }
 
@@ -296,4 +296,32 @@ body.sidebar-toggled #block-content nav.breadcrumb-sticky {
 #block-content .pagination .page-link {
   border-radius: 0.375rem;
   margin: 0 0.125rem;
+}
+
+/* Alerts Center — giữ cho dropdown navbar + trang danh sách (implement sau) */
+.dropdown-scroll {
+  max-height: 20rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.alerts-center-row:hover {
+  background-color: #f3f4f6;
+}
+
+#alertsUnreadBadge.badge-counter,
+#notificationsUnreadBadge.badge-counter {
+  background-color: #ff0000;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 1rem;
+  padding: 0.2em 0.45em;
+  vertical-align: top;
+  margin-left: -0.25rem;
+}
+
+tr.alerts-index-row[data-alert-href]:not([data-alert-href=""]),
+tr.alerts-index-row[data-tray-href]:not([data-tray-href=""]),
+tr.notifications-index-row[data-alert-href]:not([data-alert-href=""]) {
+  cursor: pointer;
 }

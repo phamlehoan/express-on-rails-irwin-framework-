@@ -1,3 +1,7 @@
+import { loadDotenv } from "../loadDotenv";
+
+loadDotenv();
+
 import models from "@models";
 import { seedFeatures } from "./seeders/features";
 import { seedAdminUser } from "./seeders/seedAdminUser";

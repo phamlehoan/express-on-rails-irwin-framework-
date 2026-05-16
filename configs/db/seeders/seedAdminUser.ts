@@ -1,6 +1,7 @@
 /**
  * Tạo user admin@example.com với role ADMIN (nếu chưa có).
- * Sau seed có thể đăng nhập: email admin@example.com, password admin123
+ * Sau seed: email admin@example.com, password Abcd@1234
+ * Role ADMIN và permissions được gán trong seedFeatures().
  */
 import models, { PasswordType, UserStatus } from "@models";
 import bcrypt from "bcrypt";
@@ -49,34 +50,29 @@ export async function seedAdminUser() {
     console.log(`[seedAdminUser] Assigned ADMIN role to ${ADMIN_EMAIL}`);
   }
 
-  // Set password if not exists
-  const existingPassword = await models.password.findFirst({
-    where: { userId: user.id, deleted: false },
+  const pwdHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  const existingPw = await models.password.findFirst({
+    where: {
+      userId: user.id,
+      deleted: false,
+      type: PasswordType.PASSWORD,
+    },
   });
-  if (!existingPassword) {
+  if (!existingPw) {
     await models.password.create({
       data: {
         userId: user.id,
-        password: await bcrypt.hash(ADMIN_PASSWORD, 10),
+        password: pwdHash,
         type: PasswordType.PASSWORD,
       },
     });
     console.log(`[seedAdminUser] Set password for ${ADMIN_EMAIL}`);
-  }
-
-  const hasPassword = await models.password.findFirst({
-    where: { userId: user.id, deleted: false },
-  });
-  if (!hasPassword) {
-    await models.password.create({
-      data: {
-        userId: user.id,
-        password: await bcrypt.hash(ADMIN_PASSWORD, 10),
-      },
+  } else {
+    await models.password.update({
+      where: { id: existingPw.id },
+      data: { password: pwdHash },
     });
-    console.log(
-      `[seedAdminUser] Set password for ${ADMIN_EMAIL} (password: ${ADMIN_PASSWORD})`,
-    );
+    console.log(`[seedAdminUser] Refreshed password for ${ADMIN_EMAIL}`);
   }
 
   console.log("[seedAdminUser] Done");

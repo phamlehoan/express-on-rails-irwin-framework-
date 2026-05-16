@@ -17,6 +17,21 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
+CREATE TABLE "user_push_tokens" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" DATETIME NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "platform" TEXT NOT NULL,
+    "device_id" TEXT,
+    "app_version" TEXT,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "last_error" TEXT,
+    CONSTRAINT "user_push_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "passwords" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -94,42 +109,27 @@ CREATE TABLE "permissions" (
 );
 
 -- CreateTable
-CREATE TABLE "user_to_permission" (
+CREATE TABLE "user_to_permissions" (
     "user_id" TEXT NOT NULL,
     "permission_id" TEXT NOT NULL,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY ("user_id", "permission_id"),
-    CONSTRAINT "user_to_permission_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "user_to_permission_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "permissions" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "user_to_permissions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "user_to_permissions_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "permissions" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "role_to_permission" (
+CREATE TABLE "role_to_permissions" (
     "role_id" TEXT NOT NULL,
     "permission_id" TEXT NOT NULL,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY ("role_id", "permission_id"),
-    CONSTRAINT "role_to_permission_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "role_to_permission_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "permissions" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "requests" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "created_by_id" TEXT NOT NULL,
-    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" DATETIME,
-    "request_type" TEXT NOT NULL,
-    "json_parameters" TEXT NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'PENDING',
-    "approved_by" TEXT,
-    "approved_at" DATETIME,
-    CONSTRAINT "requests_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "requests_approved_by_fkey" FOREIGN KEY ("approved_by") REFERENCES "users" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "role_to_permissions_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "role_to_permissions_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "permissions" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -137,6 +137,12 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_google_id_key" ON "users"("google_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "user_push_tokens_token_key" ON "user_push_tokens"("token");
+
+-- CreateIndex
+CREATE INDEX "user_push_tokens_user_id_is_active_idx" ON "user_push_tokens"("user_id", "is_active");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "roles_code_key" ON "roles"("code");

@@ -2,6 +2,8 @@ doctype html
 html
   head
     title= title
+    link(rel="icon" href="/images/favicon.svg" type="image/svg+xml")
+    link(rel="icon" href="/images/favicon.ico" sizes="any")
     link(rel="stylesheet" href="/css/bootstrap.min.css")
     link(rel="stylesheet" href="/css/font-awesome/css/font-awesome.min.css")
     link(rel="stylesheet" href="/stylesheets/utilities.css")
@@ -14,14 +16,14 @@ html
           .col-xl-10.col-lg-12.col-md-9
             .card.o-hidden.border-0.shadow-lg.my-5
               .card-body.p-0
-                .row.align-items-center.m-2
-                  .col
-                    a(href="/")
-                      i.fa.fa-angle-left
-                      .d-inline.ps-1= t('back_to_home')
+                .auth-card-toolbar.px-3.pt-3.pb-0
+                  a.auth-back-home(href=withLocale('/') aria-label=t('back_to_home'))
+                    span.auth-back-home__icon
+                      i.fa.fa-arrow-left(aria-hidden="true")
+                    span.auth-back-home__text= t('back_to_home')
                 block content
 
-    script(type="text/javascript" src="/javascripts/main.js")
     script(type="text/javascript" src="/js/popper.min.js")
-    script(type="text/javascript" src="/js/bootstrap.min.js")
     script(type="text/javascript" src="/js/jquery.min.js")
+    script(type="text/javascript" src="/js/bootstrap.min.js")
+    script(type="text/javascript" src="/javascripts/main.js")

@@ -73,13 +73,13 @@ async function main() {
   const appMiddleware = new ApplicationMiddleware();
   const withPerms = await appMiddleware.getUserById(user.id, true);
   const perms = withPerms?.permissions ?? [];
-  console.log("\n--- Permissions merged (AM/UM để vào admin) ---");
+  console.log("\n--- Permissions merged (USM/RAP để vào admin) ---");
   console.log(
     "  ",
     perms.length ? perms.join(", ") : "(rỗng – không đủ quyền vào admin)",
   );
   const hasAdmin = perms.some(
-    (p: string) => p.startsWith("AM::") || p.startsWith("UM::"),
+    (p: string) => p.startsWith("USM::") || p.startsWith("RAP::"),
   );
   console.log("\n  Có quyền vào admin?", hasAdmin ? "CÓ" : "KHÔNG");
 }

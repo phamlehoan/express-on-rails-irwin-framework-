@@ -2,10 +2,41 @@ import env from "@configs/env";
 import { createClient } from "@supabase/supabase-js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import { Jimp } from "jimp";
 import multer, { FileFilterCallback } from "multer";
 import path from "path";
-import sharp from "sharp";
 import { rootPath } from "./path";
+
+const RESIZE_MAX_WIDTH = 1024;
+const JPEG_QUALITY = 80;
+
+/** Pure-JS resize (Jimp) — avoids native `sharp` + `@img/sharp-libvips-*` breaking Netlify function bundling. */
+async function resizeToJpegBuffer(
+  input: Buffer,
+  maxWidth: number = RESIZE_MAX_WIDTH,
+  quality: number = JPEG_QUALITY,
+): Promise<Buffer> {
+  const image = await Jimp.read(input);
+  if (image.width > maxWidth) {
+    await image.resize({ w: maxWidth });
+  }
+  return Buffer.from(
+    await image.getBuffer("image/jpeg", { quality: Math.round(quality) }),
+  );
+}
+
+async function resizeToJpegFile(
+  input: Buffer,
+  filePath: string,
+  maxWidth: number = RESIZE_MAX_WIDTH,
+  quality: number = JPEG_QUALITY,
+): Promise<void> {
+  const image = await Jimp.read(input);
+  if (image.width > maxWidth) {
+    await image.resize({ w: maxWidth });
+  }
+  await image.write(filePath as `${string}.jpg`);
+}
 
 export const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
@@ -49,10 +80,7 @@ export class DiskStorageAdapter implements StorageAdapter {
     const fileName = `${Date.now()}_${path.basename(file.originalname, path.extname(file.originalname))}.jpg`;
     const filePath = path.join(uploadDir, fileName);
 
-    await sharp(file.buffer)
-      .resize({ width: 1024, withoutEnlargement: true })
-      .jpeg({ quality: 80 })
-      .toFile(filePath);
+    await resizeToJpegFile(file.buffer, filePath);
 
     return `/uploads/${fileName}`;
   }
@@ -71,10 +99,7 @@ export class CloudinaryStorageAdapter implements StorageAdapter {
   }
 
   async upload(file: Express.Multer.File): Promise<string | null> {
-    const resizedImage = await sharp(file.buffer)
-      .resize({ width: 1024, withoutEnlargement: true })
-      .jpeg({ quality: 80 })
-      .toBuffer();
+    const resizedImage = await resizeToJpegBuffer(file.buffer);
 
     return new Promise((resolve, reject) => {
       cloudinary.uploader
@@ -101,10 +126,7 @@ export class SupabaseStorageAdapter implements StorageAdapter {
     file: Express.Multer.File,
     bucket: string = "task-attachments",
   ): Promise<string | null> {
-    const resizedImage = await sharp(file.buffer)
-      .resize({ width: 1024, withoutEnlargement: true })
-      .jpeg({ quality: 80 })
-      .toBuffer();
+    const resizedImage = await resizeToJpegBuffer(file.buffer);
 
     const fileName = `${Date.now()}_${path.basename(file.originalname, path.extname(file.originalname))}.jpg`;
     const { error } = await this.supabase.storage

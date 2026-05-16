@@ -23,11 +23,16 @@
     // "useDefineForClassFields": true,                  /* Emit ECMAScript-standard-compliant class fields. */
     // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
     /* Modules */
-    "module": "CommonJS" /* Specify what module code is generated. */,
+    "module": "CommonJS" /* CJS — Node `pnpm start` không cần `.js` trên import tương đối (giống warehouse). */,
+    "moduleResolution": "node10",
     "rootDir": "./" /* Specify the root folder within your source files. */,
     "paths": {
-      "@db": ["./app/models/generated/prisma/client"],
-      "@db/*": ["./app/models/generated/prisma/client/*"],
+      "@db": [
+        "./app/models/generated/prisma/client"
+      ],
+      "@db/*": [
+        "./app/models/generated/prisma/client/*"
+      ],
       "@configs": [
         "./configs"
       ],
@@ -108,8 +113,14 @@
       ]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
-    "typeRoots": ["./node_modules/@types", "./typing-stubs"] /* Specify multiple folders that act like './node_modules/@types'. */,
-    "types": ["node", "jest"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./typing-stubs"
+    ] /* Specify multiple folders that act like './node_modules/@types'. */,
+    "types": [
+      "node",
+      "jest"
+    ],
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
     // "allowImportingTsExtensions": true,               /* Allow imports to include TypeScript file extensions. Requires '--moduleResolution bundler' and either '--noEmit' or '--emitDeclarationOnly' to be set. */

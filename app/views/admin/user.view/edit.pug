@@ -5,7 +5,7 @@ block content
     nav(aria-label="breadcrumb").breadcrumb-sticky
       ol.breadcrumb.mb-0
         li.breadcrumb-item
-          a(href="/admin/users")= t('sidebar.account_management')
+          a(href=withLocale('/admin/users'))= t('sidebar.account_management')
         li.breadcrumb-item
           a(href=`/admin/users/${targetUser.id}`)= targetUser.email
         li.breadcrumb-item.active(aria-current="page")= t('edit')
@@ -58,29 +58,90 @@ block content
             .card-header
               span.text-uppercase.text-primary.fw-bold Direct Permissions
             .card-body
+              - const menuGroups = features.filter(f => f.type === 'MENU_GROUP').sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0) || String(a.code).localeCompare(String(b.code)))
+              - const useMenuGroups = menuGroups.length > 0
+              - const byParent = {}
+              - features.forEach(f => { if (f.parentId) { (byParent[f.parentId] = byParent[f.parentId] || []).push(f); } })
+              - const menuGroupDescendants = (gid) => { const out = []; const st = [...(byParent[gid] || [])]; while (st.length) { const x = st.pop(); out.push(x); (byParent[x.id] || []).forEach(c => st.push(c)); } return out; }
+              - const permIdsUnderGroup = (gid) => menuGroupDescendants(gid).flatMap(f => f.permissions || [])
+              - const userHasAnyPermInGroup = (gid) => permIdsUnderGroup(gid).some(p => targetUser.permissions.some(up => up.permissionId === p.id))
+              - const firstGroupId = menuGroups.length ? menuGroups[0].id : ''
               p.small.text-muted.mb-2 Permissions ngoài role, ghi đè cho user này
               .form-check.form-check-select-all.mb-2.pb-2.border-bottom
                 label.form-check-label(for="selectAllUserPerms") Select All
                 input.form-check-input#selectAllUserPerms(type="checkbox" title="Select all permissions")
-              .accordion#userPermsEditAccordion
-                each f in features
-                  .accordion-item.border.rounded.mb-2
-                    h2.accordion-header
-                      button.accordion-button.collapsed(type="button" data-bs-toggle="collapse" data-bs-target=`#edit-collapse-${f.id}`)
-                        = f.name
-                    .accordion-collapse.collapse(id=`edit-collapse-${f.id}`)
-                      .accordion-body.pt-0
-                        each p in f.permissions
-                          - const hasPerm = targetUser.permissions.some(up => up.permissionId === p.id)
-                          .form-check.form-check-right
-                            label.form-check-label(for=`perm-${p.id}`)= p.code
-                            input.form-check-input(
-                              type="checkbox"
-                              name="permissionIds"
-                              value=p.id
-                              id=`perm-${p.id}`
-                              checked=hasPerm
-                            )
+              if useMenuGroups
+                p.small.text-muted.mb-2 Chọn module bên trái; checkbox module để gán nhanh quyền trong module.
+                .row
+                  .col-md-5.border-end.pe-md-3.mb-3.mb-md-0
+                    .list-group.list-group-flush
+                      each g in menuGroups
+                        - const hasAny = userHasAnyPermInGroup(g.id)
+                        - const rowActive = g.id === firstGroupId
+                        .list-group-item.list-group-item-action.user-menu-group-row.py-2(
+                          class=rowActive ? 'active' : ''
+                          data-panel-id=g.id
+                          role="button"
+                          tabindex="0"
+                        )
+                          .d-flex.align-items-center.gap-2.w-100
+                            span.d-inline-flex.align-items-center
+                              input.form-check-input.user-module-check.flex-shrink-0(
+                                type="checkbox"
+                                id=`umod-${g.id}`
+                                data-group=g.id
+                                checked=hasAny
+                                title="Toggle all permissions in this module"
+                                aria-label="Toggle all permissions in this module"
+                                onclick="event.stopPropagation()"
+                              )
+                            span.flex-grow-1.small.ps-1= g.name
+                  .col-md-7
+                    p.small.text-muted.mb-2 Chức năng & quyền
+                    #user-perm-panels
+                      each g in menuGroups
+                        - const panelHidden = g.id !== firstGroupId
+                        .user-perm-feature-panel(data-panel=g.id class=panelHidden ? 'd-none' : '')
+                          each f in features.filter(x => x.parentId === g.id && x.type !== 'MENU_GROUP')
+                            .accordion.mb-2
+                              .accordion-item.border.rounded
+                                h2.accordion-header
+                                  button.accordion-button.collapsed.small(type="button" data-bs-toggle="collapse" data-bs-target=`#ucollapse-${g.id}-${f.id}`)
+                                    = f.name
+                                .accordion-collapse.collapse(id=`ucollapse-${g.id}-${f.id}`)
+                                  .accordion-body.pt-0
+                                    each p in f.permissions
+                                      - const hasPerm = targetUser.permissions.some(up => up.permissionId === p.id)
+                                      .form-check.form-check-right
+                                        label.form-check-label(for=`perm-${p.id}`)= p.code
+                                        input.form-check-input(
+                                          type="checkbox"
+                                          name="permissionIds"
+                                          value=p.id
+                                          id=`perm-${p.id}`
+                                          data-menu-group=g.id
+                                          checked=hasPerm
+                                        )
+              else
+                .accordion#userPermsEditAccordion
+                  each f in features
+                    .accordion-item.border.rounded.mb-2
+                      h2.accordion-header
+                        button.accordion-button.collapsed(type="button" data-bs-toggle="collapse" data-bs-target=`#edit-collapse-${f.id}`)
+                          = f.name
+                      .accordion-collapse.collapse(id=`edit-collapse-${f.id}`)
+                        .accordion-body.pt-0
+                          each p in f.permissions
+                            - const hasPerm = targetUser.permissions.some(up => up.permissionId === p.id)
+                            .form-check.form-check-right
+                              label.form-check-label(for=`perm-${p.id}`)= p.code
+                              input.form-check-input(
+                                type="checkbox"
+                                name="permissionIds"
+                                value=p.id
+                                id=`perm-${p.id}`
+                                checked=hasPerm
+                              )
 
       .d-flex.gap-2.mb-4
         button.btn.btn-primary(type="submit")
@@ -90,19 +151,75 @@ block content
 
   script.
     document.addEventListener('DOMContentLoaded', function() {
+      var useMenuGroups = #{useMenuGroups ? 'true' : 'false'} === 'true';
+      function visibleUserPermInputs() {
+        if (!useMenuGroups) return document.querySelectorAll('input[name="permissionIds"]');
+        var panel = document.querySelector('.user-perm-feature-panel:not(.d-none)');
+        return panel ? panel.querySelectorAll('input[name="permissionIds"]') : [];
+      }
+      function syncUserModuleCheckForGroup(gid) {
+        var inputs = document.querySelectorAll('input[name="permissionIds"][data-menu-group="' + gid + '"]');
+        var mod = document.querySelector('.user-module-check[data-group="' + gid + '"]');
+        if (!mod || inputs.length === 0) return;
+        var allOn = Array.prototype.every.call(inputs, function(p) { return p.checked; });
+        var someOn = Array.prototype.some.call(inputs, function(p) { return p.checked; });
+        mod.checked = allOn;
+        mod.indeterminate = someOn && !allOn;
+      }
+      if (useMenuGroups) {
+        document.querySelectorAll('.user-menu-group-row').forEach(function(row) {
+          row.addEventListener('click', function(e) {
+            if (e.target.closest('.user-module-check')) return;
+            var id = row.dataset.panelId;
+            document.querySelectorAll('.user-menu-group-row').forEach(function(r) { r.classList.remove('active'); });
+            row.classList.add('active');
+            document.querySelectorAll('.user-perm-feature-panel').forEach(function(p) {
+              if (p.dataset.panel === id) p.classList.remove('d-none');
+              else p.classList.add('d-none');
+            });
+            updateUserSelectAllPerms();
+          });
+        });
+        document.querySelectorAll('.user-module-check').forEach(function(cb) {
+          cb.addEventListener('change', function() {
+            if (!this.checked && this.dataset.group) {
+              var gid = this.dataset.group;
+              document.querySelectorAll('input[name="permissionIds"][data-menu-group="' + gid + '"]').forEach(p => p.checked = false);
+            }
+            updateUserSelectAllPerms();
+          });
+        });
+      }
       var selectAll = document.getElementById('selectAllUserPerms');
       if (selectAll) {
         selectAll.addEventListener('change', function() {
-          document.querySelectorAll('input[name="permissionIds"]').forEach(p => p.checked = this.checked);
+          var list = visibleUserPermInputs();
+          Array.prototype.forEach.call(list, function(p) { p.checked = selectAll.checked; });
+          if (useMenuGroups) {
+            if (selectAll.checked) document.querySelectorAll('.user-module-check').forEach(cb => { cb.checked = true; cb.indeterminate = false; });
+            else document.querySelectorAll('.user-module-check').forEach(function(cb) { syncUserModuleCheckForGroup(cb.dataset.group); });
+          }
         });
-        function updateSelectAll() {
-          var all = document.querySelectorAll('input[name="permissionIds"]');
-          var checked = document.querySelectorAll('input[name="permissionIds"]:checked');
-          selectAll.checked = all.length > 0 && checked.length === all.length;
-        }
-        document.querySelectorAll('input[name="permissionIds"]').forEach(cb => {
-          cb.addEventListener('change', updateSelectAll);
-        });
-        updateSelectAll();
       }
+      function updateUserSelectAllPerms() {
+        var list = visibleUserPermInputs();
+        var n = list.length;
+        var c = Array.prototype.filter.call(list, function(p) { return p.checked; }).length;
+        if (selectAll) {
+          selectAll.checked = n > 0 && c === n;
+          selectAll.indeterminate = c > 0 && c < n;
+        }
+      }
+      document.querySelectorAll('input[name="permissionIds"]').forEach(cb => {
+        cb.addEventListener('change', function() {
+          updateUserSelectAllPerms();
+          if (useMenuGroups && this.dataset.menuGroup) syncUserModuleCheckForGroup(this.dataset.menuGroup);
+        });
+      });
+      if (useMenuGroups) {
+        document.querySelectorAll('.user-module-check[data-group]').forEach(function(cb) {
+          syncUserModuleCheckForGroup(cb.dataset.group);
+        });
+      }
+      updateUserSelectAllPerms();
     });

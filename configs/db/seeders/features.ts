@@ -1,56 +1,105 @@
 /**
- * Danh sách features - khi thêm tính năng mới, thêm vào đây.
- * Chạy: yarn db:seed
+ * Features/permissions khớp `configs/routes` (USM, RAP). Chạy: pnpm db:seed
  */
+import models from "@models";
 import {
-  assignPermissionToRole,
+  assignAllPermissionsToRole,
   ensureRole,
   registerFeature,
   setFeatureParents,
 } from "./registerFeature";
 
+/** Feature codes dùng trong routes + enum. */
+const ROUTE_FEATURE_CODES = ["AM", "USM", "RAP"] as const;
+
+/** Permission codes theo từng feature (khớp ts-rails resource + route tùy chỉnh). */
+const ROUTE_PERMISSIONS_BY_FEATURE: Record<string, readonly string[]> = {
+  USM: ["READ", "CREATE", "UPDATE", "DELETE"],
+  RAP: ["READ", "CREATE", "UPDATE", "DELETE"],
+};
+
 export const FEATURES = [
   {
     code: "AM",
-    name: "Administration Management",
-    description: "Quản lý users, permissions, roles",
+    name: "Administration",
+    description: "Menu group (no permissions)",
     type: "MENU_GROUP",
     parentCode: null as string | null,
     sortOrder: 0,
+    permissionCodes: [] as const,
   },
   {
-    code: "UM",
-    name: "User Management",
-    description: "Quản lý tài khoản người dùng",
+    code: "USM",
+    name: "Users",
+    description: "User account management",
     type: "FEATURE",
     parentCode: "AM",
-    sortOrder: 0,
-  },
-  {
-    code: "TASK",
-    name: "Task",
-    description: "Quản lý công việc",
-    type: "MENU_GROUP",
-    parentCode: null as string | null,
     sortOrder: 1,
+    permissionCodes: ROUTE_PERMISSIONS_BY_FEATURE.USM,
   },
   {
-    code: "TASK_TYPE",
-    name: "Task Type",
-    description: "Loại công việc",
+    code: "RAP",
+    name: "Roles & permissions",
+    description: "Role and permission management",
     type: "FEATURE",
-    parentCode: "TASK",
-    sortOrder: 0,
-  },
-  {
-    code: "CHAT",
-    name: "Chat",
-    description: "Real-time chat",
-    type: "FEATURE",
-    parentCode: null as string | null,
+    parentCode: "AM",
     sortOrder: 2,
+    permissionCodes: ROUTE_PERMISSIONS_BY_FEATURE.RAP,
   },
 ];
+
+async function prunePermissionsNotOnRoutes(): Promise<void> {
+  const allowedPairs = new Set<string>();
+  for (const [featureCode, codes] of Object.entries(ROUTE_PERMISSIONS_BY_FEATURE)) {
+    for (const code of codes) {
+      allowedPairs.add(`${featureCode}::${code}`);
+    }
+  }
+
+  const active = await models.permission.findMany({
+    where: { deleted: false },
+    include: { feature: true },
+  });
+
+  const toDrop = active.filter((p) => {
+    const f = p.feature;
+    if (!f || f.deleted) return true;
+    if (!ROUTE_FEATURE_CODES.includes(f.code as (typeof ROUTE_FEATURE_CODES)[number])) {
+      return true;
+    }
+    const key = `${f.code}::${p.code}`;
+    return !allowedPairs.has(key);
+  });
+
+  if (toDrop.length === 0) return;
+
+  await models.permission.updateMany({
+    where: { id: { in: toDrop.map((p) => p.id) } },
+    data: { deleted: true },
+  });
+  console.log(`[seedFeatures] Soft-deleted ${toDrop.length} permission(s) not used on routes`);
+}
+
+async function pruneFeaturesNotOnRoutes(): Promise<void> {
+  const r = await models.feature.updateMany({
+    where: { code: { notIn: [...ROUTE_FEATURE_CODES] }, deleted: false },
+    data: { deleted: true },
+  });
+  if (r.count > 0) {
+    console.log(`[seedFeatures] Soft-deleted ${r.count} feature(s) not on routes`);
+  }
+}
+
+/** Chỉ giữ role ADMIN (framework single-role). */
+async function pruneRolesExceptAdmin(): Promise<void> {
+  const r = await models.role.updateMany({
+    where: { code: { not: "ADMIN" }, deleted: false },
+    data: { deleted: true },
+  });
+  if (r.count > 0) {
+    console.log(`[seedFeatures] Soft-deleted ${r.count} role(s) other than ADMIN`);
+  }
+}
 
 export async function seedFeatures() {
   for (const def of FEATURES) {
@@ -58,16 +107,13 @@ export async function seedFeatures() {
   }
   await setFeatureParents(FEATURES);
 
-  // Role ADMIN phải tồn tại trước khi gán permission (tạo nếu chưa có)
-  await ensureRole(
-    "ADMIN",
-    "Administrator",
-    "Full access to admin and user management",
-  );
+  await pruneFeaturesNotOnRoutes();
+  await prunePermissionsNotOnRoutes();
 
-  // ADMIN role có full quyền AM và UM
-  await assignPermissionToRole("ADMIN", "AM");
-  await assignPermissionToRole("ADMIN", "UM");
-  await assignPermissionToRole("ADMIN", "CHAT");
+  await ensureRole("ADMIN", "Administrator", "Full administrative access");
+  await pruneRolesExceptAdmin();
+
+  await assignAllPermissionsToRole("ADMIN");
+
   console.log("[seedFeatures] Done");
 }

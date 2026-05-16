@@ -3,7 +3,7 @@
     <nav aria-label="breadcrumb" class="breadcrumb-sticky">
       <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item">
-          <a href="/admin/features">{{ t("admin.feature_management") }}</a>
+          <a :href="withLocalePath('/admin/features')">{{ t("admin.feature_management") }}</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page">
           {{ feature.name }}
@@ -156,6 +156,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, PropType } from "vue";
+import { withLocalePath } from "../../i18n";
 
 export default defineComponent({
   name: "FeatureDetail",
@@ -163,7 +164,7 @@ export default defineComponent({
     const t = inject<
       (key: string, opts?: Record<string, string | number>) => string
     >("t", (k) => k);
-    return { t };
+    return { t, withLocalePath };
   },
   props: {
     feature: { type: Object as PropType<any>, required: true },

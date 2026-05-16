@@ -5,7 +5,7 @@ block content
     nav(aria-label="breadcrumb").breadcrumb-sticky
       ol.breadcrumb.mb-0
         li.breadcrumb-item
-          a(href="/admin/features")= t('admin.feature_management')
+          a(href=withLocale('/admin/features'))= t('admin.feature_management')
         li.breadcrumb-item.active(aria-current="page")= t('admin.new_feature')
 
     .card.mb-4.content-card
@@ -23,9 +23,9 @@ block content
             .col-md-4.mb-3
               label.form-label Type
               select.form-select(name="type")
-                option(value="FEATURE") FEATURE
-                option(value="MENU_GROUP") MENU_GROUP
-                option(value="SYSTEM") SYSTEM
+                option(value="FEATURE") Feature
+                option(value="MENU_GROUP") Menu Group
+                option(value="SYSTEM") System
             .col-md-4.mb-3
               label.form-label Parent
               select.form-select(name="parentId")
@@ -40,4 +40,4 @@ block content
               textarea.form-control(name="description" rows="2" placeholder="Optional")
           .d-flex.gap-2
             button.btn.btn-primary(type="submit") Create
-            a.btn.btn-outline-secondary(href="/admin/features") Cancel
+            a.btn.btn-outline-secondary(href=withLocale('/admin/features')) Cancel

@@ -3,8 +3,31 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  MaxLength,
   MinLength,
 } from "class-validator";
+
+/** Đăng ký tài khoản công khai (`GET/POST /users/new`). */
+export class RegisterUserValidator {
+  @IsNotEmpty({ message: "First name is required" })
+  @IsString()
+  @MaxLength(100)
+  firstName!: string;
+
+  @IsNotEmpty({ message: "Last name is required" })
+  @IsString()
+  @MaxLength(100)
+  lastName!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  middleName?: string;
+
+  @IsNotEmpty({ message: "Email is required" })
+  @IsEmail({}, { message: "Invalid email" })
+  email!: string;
+}
 
 export class LoginValidator {
   @IsNotEmpty({ message: "Email is required" })
@@ -60,4 +83,97 @@ export class RefreshTokenValidator {
   @IsString()
   @MinLength(1)
   refreshToken!: string;
+}
+
+export class InviteAcceptValidator {
+  static schema = {
+    token: "string",
+    password: "string",
+    passwordConfirmation: "string",
+  } as const;
+  static required = ["token", "password", "passwordConfirmation"] as const;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(1)
+  token!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8, { message: "Password must be at least 8 characters" })
+  password!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8, { message: "Password confirmation must be at least 8 characters" })
+  passwordConfirmation!: string;
+}
+
+export class UpdateMyProfileValidator {
+  static schema = {
+    firstName: "string",
+    lastName: "string",
+    middleName: "string",
+    gender: "string",
+    phoneNumber: "string",
+    address: "string",
+  } as const;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  middleName?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  gender?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  phoneNumber?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  address?: string | null;
+}
+
+export class ChangeMyPasswordValidator {
+  static schema = {
+    oldPassword: "string",
+    newPassword: "string",
+    newPasswordConfirmation: "string",
+  } as const;
+  static required = [
+    "oldPassword",
+    "newPassword",
+    "newPasswordConfirmation",
+  ] as const;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(1)
+  oldPassword!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8, { message: "New password must be at least 8 characters" })
+  newPassword!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8, { message: "Confirmation must be at least 8 characters" })
+  newPasswordConfirmation!: string;
 }

@@ -5,7 +5,7 @@ block content
     nav(aria-label="breadcrumb").breadcrumb-sticky
       ol.breadcrumb.mb-0
         li.breadcrumb-item
-          a(href="/admin/users")= t('sidebar.account_management')
+          a(href=withLocale('/admin/users'))= t('sidebar.account_management')
         li.breadcrumb-item.active(aria-current="page")= t('admin.new_user')
 
     form(method="post" action="/admin/users")

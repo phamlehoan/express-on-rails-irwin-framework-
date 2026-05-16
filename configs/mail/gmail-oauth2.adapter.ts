@@ -3,43 +3,39 @@ import { Auth, google } from "googleapis";
 import { createTransport, SendMailOptions, Transporter } from "nodemailer";
 import { MailerAdapter } from "ts-rails";
 
-/**
- * Helper để lấy OAuth2Client và Access Token từ Google.
- * (Được chuyển từ configs/mail/index.ts)
- */
-const getGoogleMailClient = async (): Promise<{
-  oAuth2Client: Auth.OAuth2Client;
-  accessToken: string;
-}> => {
-  const oAuth2Client = new google.auth.OAuth2(
+/** Phải trùng client khi tạo GOOGLE_REFRESH_TOKEN (OAuth Playground mặc định). */
+const gmailOAuthRedirectUri =
+  process.env.GMAIL_OAUTH_REDIRECT_URI ||
+  "https://developers.google.com/oauthplayground";
+
+function createMailOAuth2Client(): Auth.OAuth2Client {
+  return new google.auth.OAuth2(
     env.googleClientId,
     env.googleClientSecret,
-    "https://developers.google.com/oauthplayground",
+    gmailOAuthRedirectUri,
   );
-  oAuth2Client.setCredentials({ refresh_token: env.googleRefreshToken });
-  const { token } = await oAuth2Client.getAccessToken();
-  return { oAuth2Client, accessToken: token as string };
-};
+}
 
 /**
- * GmailOAuth2MailerAdapter - Gửi mail qua Gmail sử dụng OAuth2.
+ * Gmail SMTP + XOAUTH2.
+ * Email hộp thư lấy từ Gmail API `users.getProfile` (chỉ cần scope mail, vd https://mail.google.com/).
+ * Không dùng `oauth2.userinfo` — token chỉ có Gmail sẽ báo "missing required authentication credential".
  */
 export class GmailOAuth2MailerAdapter implements MailerAdapter {
   private transporter: Transporter | null = null;
   private defaultFromAddress: string;
+  private mailboxEmail: string;
 
   constructor() {
-    this.defaultFromAddress = env.emailFrom || "";
+    this.defaultFromAddress = "";
+    this.mailboxEmail = "";
   }
 
   async sendMail(options: SendMailOptions): Promise<void> {
-    // Nếu chưa có transporter hoặc chưa lấy được email thật từ Google
-    if (!this.transporter || !this.defaultFromAddress) {
+    if (!this.transporter) {
       await this.initializeTransporter();
     }
 
-    // Framework có thể truyền from là "" do gọi getDefaultFromAddress() lúc chưa init.
-    // Ta sẽ ưu tiên lấy email đã discovery được nếu options.from không hợp lệ.
     const fromAddress =
       options.from && options.from !== ""
         ? options.from
@@ -56,30 +52,64 @@ export class GmailOAuth2MailerAdapter implements MailerAdapter {
   }
 
   private async initializeTransporter() {
-    const { oAuth2Client, accessToken } = await getGoogleMailClient();
+    const oAuth2Client = createMailOAuth2Client();
+    oAuth2Client.setCredentials({ refresh_token: env.googleRefreshToken });
 
-    // Nếu emailFrom không được setup trong env, lấy trực tiếp từ Google API qua Refresh Token
-    if (!this.defaultFromAddress) {
-      const oauth2 = google.oauth2({ version: "v2", auth: oAuth2Client });
-      const userInfo = await oauth2.userinfo.get();
-      this.defaultFromAddress = userInfo.data.email || "";
-    }
-
-    if (!this.defaultFromAddress) {
+    const { token: probe } = await oAuth2Client.getAccessToken();
+    if (!probe || typeof probe !== "string") {
       throw new Error(
-        "GmailOAuth2MailerAdapter: EMAIL_FROM is missing and could not be retrieved from Google API. Please check your Refresh Token.",
+        "Gmail OAuth2: could not obtain access token. Check GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN.",
       );
     }
 
+    const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
+    const profile = await gmail.users.getProfile({ userId: "me" });
+    const mailbox = (profile.data.emailAddress || "").trim();
+    if (!mailbox) {
+      throw new Error(
+        "GmailOAuth2MailerAdapter: Gmail profile has no emailAddress. Enable Gmail API and use a refresh token with mail scope (e.g. https://mail.google.com/).",
+      );
+    }
+    this.mailboxEmail = mailbox;
+
+    const fromEnv = (env.emailFrom || "").trim();
+    const sameMailbox =
+      fromEnv.length > 0 && fromEnv.toLowerCase() === mailbox.toLowerCase();
+    this.defaultFromAddress = sameMailbox ? fromEnv : mailbox;
+
     this.transporter = createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      requireTLS: true,
       auth: {
         type: "OAuth2",
-        user: this.defaultFromAddress,
-        clientId: env.googleClientId,
-        clientSecret: env.googleClientSecret,
-        refreshToken: env.googleRefreshToken,
-        accessToken: accessToken,
+        user: this.mailboxEmail,
+        provisionCallback: (_user, _renew, callback) => {
+          const cb = callback as (
+            err: Error | null,
+            accessToken?: string,
+            expires?: number,
+          ) => void;
+          const c = createMailOAuth2Client();
+          c.setCredentials({ refresh_token: env.googleRefreshToken });
+          void c
+            .getAccessToken()
+            .then(({ token }) => {
+              if (!token || typeof token !== "string") {
+                cb(
+                  new Error(
+                    "Gmail provisionCallback: empty access token. Check refresh token and Gmail scopes.",
+                  ),
+                );
+                return;
+              }
+              cb(null, token, 3600);
+            })
+            .catch((err: unknown) => {
+              cb(err instanceof Error ? err : new Error(String(err)));
+            });
+        },
       },
     });
   }

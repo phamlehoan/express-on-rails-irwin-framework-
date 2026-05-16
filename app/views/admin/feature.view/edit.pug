@@ -5,7 +5,7 @@ block content
     nav(aria-label="breadcrumb").breadcrumb-sticky
       ol.breadcrumb.mb-0
         li.breadcrumb-item
-          a(href="/admin/features")= t('admin.feature_management')
+          a(href=withLocale('/admin/features'))= t('admin.feature_management')
         li.breadcrumb-item
           a(href=`/admin/features/${feature.id}`)= feature.name
         li.breadcrumb-item.active(aria-current="page")= t('edit')
@@ -25,9 +25,9 @@ block content
             .col-md-4.mb-3
               label.form-label Type
               select.form-select(name="type")
-                option(value="FEATURE" selected=feature.type==='FEATURE') FEATURE
-                option(value="MENU_GROUP" selected=feature.type==='MENU_GROUP') MENU_GROUP
-                option(value="SYSTEM" selected=feature.type==='SYSTEM') SYSTEM
+                option(value="FEATURE" selected=feature.type==='FEATURE') Feature
+                option(value="MENU_GROUP" selected=feature.type==='MENU_GROUP') Menu Group
+                option(value="SYSTEM" selected=feature.type==='SYSTEM') System
             .col-md-4.mb-3
               label.form-label Parent
               select.form-select(name="parentId")

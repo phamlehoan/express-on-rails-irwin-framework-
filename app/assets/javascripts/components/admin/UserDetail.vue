@@ -231,8 +231,70 @@
       <div class="card-body">
         <template v-if="!isEditPermissions">
           <div
+            v-if="hasMenuGroups && user.permissions && user.permissions.length"
+            class="row"
+          >
+            <div class="col-md-4 border-end pe-md-3 mb-3 mb-md-0">
+              <div
+                v-for="g in menuGroups"
+                :key="g.id"
+                class="role-perm-module py-2 px-2 mb-2"
+                :class="{
+                  'role-perm-module--active':
+                    selectedDirectPermViewGroupId === g.id,
+                }"
+                role="button"
+                tabindex="0"
+                @click="selectedDirectPermViewGroupId = g.id"
+              >
+                <span class="small">{{ g.name }}</span>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <p
+                v-if="viewFeaturesInSelectedGroup.length === 0"
+                class="text-muted small mb-0"
+              >
+                {{ t("admin.perm_no_child_features") }}
+              </p>
+              <div v-else class="accordion">
+                <div
+                  class="accordion-item border rounded mb-2"
+                  v-for="f in viewFeaturesInSelectedGroup"
+                  :key="f.id"
+                >
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      :data-bs-target="`#user-view-collapse-${f.id}`"
+                    >
+                      {{ f.name }}
+                    </button>
+                  </h2>
+                  <div
+                    class="accordion-collapse collapse"
+                    :id="`user-view-collapse-${f.id}`"
+                  >
+                    <div class="accordion-body pt-0">
+                      <ul class="list-unstyled mb-0">
+                        <li
+                          v-for="up in userPermsInFeature(f)"
+                          :key="up.permissionId"
+                        >
+                          {{ getPermCode(up) }}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
             class="accordion"
-            v-if="user.permissions && user.permissions.length"
+            v-else-if="user.permissions && user.permissions.length"
           >
             <div
               class="accordion-item border rounded mb-2"
@@ -286,7 +348,86 @@
               :checked="allPermsSelected"
             />
           </div>
-          <div class="accordion">
+          <div v-if="hasMenuGroups" class="row">
+            <div class="col-md-4 border-end pe-md-3 mb-3 mb-md-0">
+              <div
+                v-for="g in menuGroups"
+                :key="g.id"
+                class="role-perm-module d-flex align-items-center gap-2 py-2 px-2 mb-2"
+                :class="{
+                  'role-perm-module--active': selectedMenuGroupId === g.id,
+                }"
+                role="button"
+                tabindex="0"
+                @click="selectedMenuGroupId = g.id"
+              >
+                <span @click.stop>
+                  <input
+                    type="checkbox"
+                    class="form-check-input mt-0"
+                    :checked="moduleCheckedMenuGroup(g)"
+                    @change="onMenuGroupCheck(g, $event)"
+                  />
+                </span>
+                <span class="small">{{ g.name }}</span>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <p v-if="!selectedMenuGroupId" class="text-muted small mb-0">
+                {{ t("admin.perm_pick_menu_group") }}
+              </p>
+              <p
+                v-else-if="featuresInSelectedGroup.length === 0"
+                class="text-muted small mb-0"
+              >
+                {{ t("admin.perm_no_child_features") }}
+              </p>
+              <div v-else class="accordion">
+                <div
+                  class="accordion-item border rounded mb-2"
+                  v-for="f in featuresInSelectedGroup"
+                  :key="f.id"
+                >
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      :data-bs-target="`#edit-collapse-${f.id}`"
+                    >
+                      {{ f.name }}
+                    </button>
+                  </h2>
+                  <div
+                    class="accordion-collapse collapse"
+                    :id="`edit-collapse-${f.id}`"
+                  >
+                    <div class="accordion-body pt-0">
+                      <div
+                        class="form-check form-check-right"
+                        v-for="p in f.permissions"
+                        :key="p.id"
+                      >
+                        <label
+                          class="form-check-label"
+                          :for="`perm-${p.id}`"
+                          >{{ p.code }}</label
+                        >
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          :value="p.id"
+                          v-model="form.permissionIds"
+                          :id="`perm-${p.id}`"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="accordion">
             <div
               class="accordion-item border rounded mb-2"
               v-for="f in features"
@@ -297,14 +438,14 @@
                   class="accordion-button collapsed"
                   type="button"
                   data-bs-toggle="collapse"
-                  :data-bs-target="`#edit-collapse-${f.id}`"
+                  :data-bs-target="`#edit-collapse-flat-${f.id}`"
                 >
                   {{ f.name }}
                 </button>
               </h2>
               <div
                 class="accordion-collapse collapse"
-                :id="`edit-collapse-${f.id}`"
+                :id="`edit-collapse-flat-${f.id}`"
               >
                 <div class="accordion-body pt-0">
                   <div
@@ -312,7 +453,7 @@
                     v-for="p in f.permissions"
                     :key="p.id"
                   >
-                    <label class="form-check-label" :for="`perm-${p.id}`">{{
+                    <label class="form-check-label" :for="`perm-flat-${p.id}`">{{
                       p.code
                     }}</label>
                     <input
@@ -320,7 +461,7 @@
                       type="checkbox"
                       :value="p.id"
                       v-model="form.permissionIds"
-                      :id="`perm-${p.id}`"
+                      :id="`perm-flat-${p.id}`"
                     />
                   </div>
                 </div>
@@ -335,6 +476,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, PropType } from "vue";
+import { withLocalePath } from "../../i18n";
 
 export default defineComponent({
   name: "UserDetail",
@@ -367,6 +509,8 @@ export default defineComponent({
       isEditPersonal: false,
       isEditRoles: false,
       isEditPermissions: false,
+      selectedMenuGroupId: "",
+      selectedDirectPermViewGroupId: "",
       form: {
         firstName: targetUser.firstName || "",
         lastName: targetUser.lastName || "",
@@ -399,11 +543,46 @@ export default defineComponent({
       if (s === "INACTIVE") return "bg-danger";
       return "bg-warning";
     },
+    menuGroups() {
+      return (this.features as { type?: string; sortOrder?: number; code: string }[])
+        .filter((f) => f.type === "MENU_GROUP")
+        .sort(
+          (a, b) =>
+            (a.sortOrder || 0) - (b.sortOrder || 0) ||
+            String(a.code).localeCompare(String(b.code)),
+        );
+    },
+    hasMenuGroups() {
+      return this.menuGroups.length > 0;
+    },
+    featuresInSelectedGroup() {
+      return this.childFeaturesUnderGroup(this.selectedMenuGroupId);
+    },
+    /** Child features under a menu group that the user has at least one direct permission on. */
+    viewFeaturesInSelectedGroup() {
+      if (!this.hasMenuGroups) return [];
+      const gid =
+        this.selectedDirectPermViewGroupId ||
+        (this.menuGroups[0] && (this.menuGroups[0] as { id: string }).id) ||
+        "";
+      return this.childFeaturesUnderGroup(gid).filter(
+        (f: { id: string }) => this.userPermsInFeature(f).length > 0,
+      );
+    },
+    visiblePermIdList() {
+      const list = this.hasMenuGroups
+        ? this.featuresInSelectedGroup
+        : this.features;
+      const ids: string[] = [];
+      for (const f of list as { permissions?: { id: string }[] }[]) {
+        for (const p of f.permissions || []) ids.push(p.id);
+      }
+      return ids;
+    },
     allPermsSelected() {
-      const all = this.features
-        .flatMap((f: { permissions?: { id: string }[] }) => f.permissions || [])
-        .map((p: { id: string }) => p.id);
-      return all.length > 0 && this.form.permissionIds.length === all.length;
+      const vis = this.visiblePermIdList as string[];
+      if (!vis.length) return false;
+      return vis.every((id: string) => this.form.permissionIds.includes(id));
     },
     rolesSelectedLabel() {
       const n = (this.form.roleIds || []).length;
@@ -412,14 +591,44 @@ export default defineComponent({
         : this.t("admin.select_roles");
     },
     breadcrumb() {
-      // Dịch key i18n từ prop
       return {
         ...this.parentBreadcrumb,
         text: this.t(this.parentBreadcrumb.text),
+        url: withLocalePath(this.parentBreadcrumb.url),
       };
     },
   },
+  created() {
+    this.ensureDirectPermViewGroup();
+  },
   methods: {
+    ensureDirectPermViewGroup() {
+      if (!this.hasMenuGroups || !this.menuGroups.length) return;
+      const ok = this.menuGroups.some(
+        (g: { id: string }) => g.id === this.selectedDirectPermViewGroupId,
+      );
+      if (!this.selectedDirectPermViewGroupId || !ok) {
+        this.selectedDirectPermViewGroupId = (this.menuGroups[0] as { id: string })
+          .id;
+      }
+    },
+    childFeaturesUnderGroup(groupId: string) {
+      if (!groupId) return [];
+      return (this.features as {
+        parentId?: string | null;
+        type?: string;
+        sortOrder?: number;
+        code: string;
+      }[])
+        .filter(
+          (f) => f.parentId === groupId && f.type !== "MENU_GROUP",
+        )
+        .sort(
+          (a, b) =>
+            (a.sortOrder || 0) - (b.sortOrder || 0) ||
+            String(a.code).localeCompare(String(b.code)),
+        );
+    },
     toggleEdit(section: string) {
       if (section === "personal") {
         this.isEditPersonal = !this.isEditPersonal;
@@ -429,7 +638,12 @@ export default defineComponent({
         if (!this.isEditRoles) this.resetFormSection("roles");
       } else if (section === "permissions") {
         this.isEditPermissions = !this.isEditPermissions;
-        if (!this.isEditPermissions) this.resetFormSection("permissions");
+        if (!this.isEditPermissions) {
+          this.resetFormSection("permissions");
+          this.selectedMenuGroupId = "";
+        } else if (this.menuGroups.length) {
+          this.selectedMenuGroupId = this.menuGroups[0].id;
+        }
       }
     },
     resetFormSection(section: string) {
@@ -459,9 +673,67 @@ export default defineComponent({
     getPermCode(up: { permission?: { code: string } }) {
       return up.permission ? up.permission.code : "";
     },
+    getChildrenByParent(): Map<string, { id: string; permissions?: { id: string }[] }[]> {
+      const m = new Map<string, { id: string; permissions?: { id: string }[] }[]>();
+      for (const f of this.features as { id: string; parentId?: string | null }[]) {
+        if (!f.parentId) continue;
+        const arr = m.get(f.parentId) || [];
+        arr.push(f as { id: string; permissions?: { id: string }[] });
+        m.set(f.parentId, arr);
+      }
+      return m;
+    },
+    descendantsOfFeature(rootId: string) {
+      const m = this.getChildrenByParent();
+      const out: { id: string; permissions?: { id: string }[] }[] = [];
+      const stack = [...(m.get(rootId) || [])];
+      while (stack.length) {
+        const f = stack.pop()!;
+        out.push(f);
+        for (const c of m.get(f.id) || []) stack.push(c);
+      }
+      return out;
+    },
+    menuGroupPermIds(g: { id: string }) {
+      const ids: string[] = [];
+      for (const f of this.descendantsOfFeature(g.id)) {
+        for (const p of f.permissions || []) ids.push(p.id);
+      }
+      return ids;
+    },
+    moduleCheckedMenuGroup(g: { id: string }) {
+      const ids = this.menuGroupPermIds(g);
+      return (
+        ids.length > 0 && ids.every((id) => this.form.permissionIds.includes(id))
+      );
+    },
+    toggleMenuGroup(g: { id: string }, on: boolean) {
+      const ids = this.menuGroupPermIds(g);
+      if (on) {
+        this.form.permissionIds = [...new Set([...this.form.permissionIds, ...ids])];
+      } else {
+        this.form.permissionIds = this.form.permissionIds.filter(
+          (id: string) => !ids.includes(id),
+        );
+      }
+    },
+    onMenuGroupCheck(g: { id: string }, e: Event) {
+      const el = e.target as HTMLInputElement;
+      this.toggleMenuGroup(g, el.checked);
+    },
     toggleAllPerms(e: Event) {
       const checked = (e.target as HTMLInputElement).checked;
-      if (checked) {
+      const vis = this.visiblePermIdList as string[];
+      if (this.hasMenuGroups) {
+        if (checked) {
+          this.form.permissionIds = [...new Set([...this.form.permissionIds, ...vis])];
+        } else {
+          const visSet = new Set(vis);
+          this.form.permissionIds = this.form.permissionIds.filter(
+            (id: string) => !visSet.has(id),
+          );
+        }
+      } else if (checked) {
         this.form.permissionIds = this.features
           .flatMap(
             (f: { permissions?: { id: string }[] }) => f.permissions || [],
@@ -515,3 +787,27 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.role-perm-module {
+  cursor: pointer;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 0.375rem;
+  background: #fff;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+.role-perm-module:hover {
+  background: #f8f9fa;
+}
+.role-perm-module--active {
+  background: #eef5fc;
+  border-color: #9ec5fe;
+  box-shadow: inset 3px 0 0 #6ea8fe;
+}
+.role-perm-module--active .small {
+  color: #052c65;
+  font-weight: 600;
+}
+</style>

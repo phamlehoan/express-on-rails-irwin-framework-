@@ -1,6 +1,6 @@
 import { User } from "@db";
 import models from "@models";
-import { AfterAction, RailsController } from "ts-rails";
+import { AfterAction, logger, RailsController } from "ts-rails";
 import { Authenticatable } from "./concerns/authenticatable";
 import { Rescuable } from "./concerns/rescuable";
 
@@ -17,6 +17,12 @@ export interface ApplicationController
 
 @AfterAction("logActionCompletion")
 export class ApplicationController extends RailsController {
+  /** Locale chuẩn (`en`|`vi`) từ i18n middleware. */
+  protected get requestLocale(): "en" | "vi" {
+    const loc = (this.req as { locale?: string }).locale;
+    return loc === "en" || loc === "vi" ? loc : "vi";
+  }
+
   protected get models() {
     return models;
   }
@@ -50,7 +56,6 @@ export class ApplicationController extends RailsController {
    * An example after_action to log when an action completes.
    */
   protected logActionCompletion() {
-    const { logger } = require("ts-rails");
     logger.debug(`Action completed for request: ${this.req.requestId}`);
   }
 }

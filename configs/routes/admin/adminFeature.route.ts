@@ -5,14 +5,9 @@ import { action, RailsRoute } from "ts-rails";
 
 export class AdminFeatureRoute extends RailsRoute {
   public draw() {
-    this.resource(AdminFeatureController, {
-      setPermissionForAny: [Feature.AdministrationManagement],
-    });
+    this.resource(AdminFeatureController);
     this.post("/reorder", action(AdminFeatureController, "reorder"), {
-      setPermissionForAny: [
-        `${Feature.AdministrationManagement}::${Permission.Update}`,
-        `${Feature.UserManagement}::${Permission.Update}`,
-      ],
+      setPermissionForAny: [`${Feature.UserManagement}::${Permission.Update}`],
     });
   }
 }

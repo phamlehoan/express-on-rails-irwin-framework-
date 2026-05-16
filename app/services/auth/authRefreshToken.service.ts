@@ -1,5 +1,5 @@
+import { PasswordType, UserStatus } from "@models";
 import { generateToken, verifyToken } from "@lib";
-import { PasswordType } from "@models";
 import { UnauthorizedError } from "ts-rails";
 import { ApplicationService } from "../application.service";
 
@@ -38,6 +38,9 @@ export class AuthRefreshTokenService extends ApplicationService {
     }
 
     const user = storedToken.user;
+    if (user.deleted || user.status !== UserStatus.ACTIVE) {
+      throw new UnauthorizedError("Refresh token is not valid or has been revoked.");
+    }
     const userRoles = user.roles.map(
       (r: { role: { code: string } }) => r.role.code,
     );

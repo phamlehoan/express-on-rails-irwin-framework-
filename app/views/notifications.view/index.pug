@@ -1,0 +1,56 @@
+extends ../layouts/admin/layout
+
+block content
+  .container-fluid
+    h1.h3.mb-4.text-gray-800= t('notifications.page_title')
+    .card.shadow.mb-4
+      .card-body.p-0
+        if notifications.length === 0
+          p.text-muted.p-4.mb-0= t('notifications.empty')
+        else
+          .table-responsive
+            table.table.table-hover.table-bordered.mb-0
+              thead.thead-light
+                tr
+                  th= t('notifications.col_time')
+                  th= t('notifications.col_type')
+                  th= t('notifications.col_title')
+                  th= t('notifications.col_message')
+                  th= t('notifications.col_read')
+              tbody
+                each n in notifications
+                  - const link = n.data && n.data.link ? n.data.link : ''
+                  tr.notifications-index-row(
+                    role=link ? 'button' : undefined
+                    tabindex=link ? 0 : undefined
+                    data-notification-id=n.id
+                    data-alert-href=link ? withLocale(link) : ''
+                    class=!n.readAt ? 'table-warning' : ''
+                  )
+                    td.small= new Date(n.createdAt).toLocaleString()
+                    td
+                      span.badge(class=n.type === 'error' ? 'bg-danger' : n.type === 'warning' ? 'bg-warning text-dark' : n.type === 'success' ? 'bg-success' : 'bg-secondary')= n.type
+                    td= n.title
+                    td.small.text-break= n.message || '—'
+                    td.small= n.readAt ? new Date(n.readAt).toLocaleString() : t('notifications.unread')
+
+    script.
+      (function () {
+        document.querySelectorAll("tr.notifications-index-row[data-notification-id]").forEach(function (row) {
+          row.addEventListener("click", function (e) {
+            if (e.target.closest(".table-actions, a, button")) return;
+            var id = row.getAttribute("data-notification-id");
+            var href = row.getAttribute("data-alert-href");
+            if (!id) return;
+            if (href) {
+              fetch("/notifications/" + encodeURIComponent(id) + "/read", { method: "POST", credentials: "include" }).finally(function () {
+                window.location.href = href;
+              });
+            } else {
+              fetch("/notifications/" + encodeURIComponent(id) + "/read", { method: "POST", credentials: "include" }).then(function () {
+                location.reload();
+              });
+            }
+          });
+        });
+      })();

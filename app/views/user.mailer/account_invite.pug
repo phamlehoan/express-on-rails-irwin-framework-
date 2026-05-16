@@ -1,0 +1,21 @@
+extends ../layouts/email/layout
+
+block content
+  h2 #{t('mailer.account_invite.greeting', { name: fullName })}
+  p #{t('mailer.account_invite.body')}
+
+  .user-info(style={ 'border-left-color': accentColor })
+    p(style="margin:0")
+      strong #{t('mailer.created_user.login_email')}
+      | #{to}
+
+  p #{t('mailer.account_invite.instruction')}
+
+  div(style="text-align: center")
+    a.btn(href=activateLink, style={ 'background-color': accentColor }) #{t('mailer.account_invite.button')}
+
+  p(style="margin-top:16px;font-size:13px;color:#666") #{t('mailer.account_invite.link_hint')}
+
+  p(style="margin-top: 30px") #{t('mailer.common.regards')}
+  p
+    strong #{t('mailer.common.team', { appName })}

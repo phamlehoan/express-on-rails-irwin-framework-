@@ -10,8 +10,9 @@ export class DevMailerAdapter implements MailerAdapter {
   private defaultFromAddress: string;
 
   constructor() {
-    const jsonTransport = require("nodemailer/rails/json-transport");
-    this.transporter = createTransport(new jsonTransport());
+    // `nodemailer/rails/json-transport` không tồn tại trong gói npm; dùng transport JSON của nodemailer.
+    const JSONTransport = require("nodemailer/lib/json-transport");
+    this.transporter = createTransport(new JSONTransport());
     // Ghi đè hàm sendMail để log nội dung ra terminal cho anh dễ debug
     const originalSend = this.transporter.sendMail.bind(this.transporter);
     this.transporter.sendMail = (options: any) => {

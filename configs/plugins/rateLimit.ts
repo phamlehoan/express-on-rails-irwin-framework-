@@ -16,7 +16,7 @@ export function rateLimitMiddleware(options?: {
   windowMs?: number;
   max?: number;
 }) {
-  const isDev = env.nodeEnv === "development";
+  const isDev = env.appEnv === "development";
   const windowMs = options?.windowMs ?? 5 * 60 * 1000; // 5 phút
   const max = options?.max ?? 300;
 

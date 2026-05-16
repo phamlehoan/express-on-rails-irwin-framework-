@@ -16,7 +16,9 @@ declare module "jsonwebtoken" {
 
 declare global {
   namespace Express {
-    export interface Request {
+    // Không dùng `export interface` — có thể làm TS không merge đúng với
+    // `Request` từ @types/express (mất `params`, `body`, …).
+    interface Request {
       user?: (User & { permissions?: string[] }) | null;
       /** Dữ liệu đã validate bởi params.permit() */
       validated?: unknown;
@@ -25,3 +27,5 @@ declare global {
     }
   }
 }
+
+export {};

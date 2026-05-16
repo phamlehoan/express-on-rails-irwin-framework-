@@ -21,16 +21,16 @@ block content
           .d-flex.align-items-center.gap-2.ms-auto
             select.form-select.form-select-sm(name="filterType" style="min-width: 120px" onchange="this.form.submit()")
               option(value="")= t('admin.all_type')
-              option(value="MENU_GROUP" selected=filterType==='MENU_GROUP') MENU_GROUP
-              option(value="FEATURE" selected=filterType==='FEATURE') FEATURE
-              option(value="SYSTEM" selected=filterType==='SYSTEM') SYSTEM
+              option(value="MENU_GROUP" selected=filterType==='MENU_GROUP') Menu Group
+              option(value="FEATURE" selected=filterType==='FEATURE') Feature
+              option(value="SYSTEM" selected=filterType==='SYSTEM') System
             button.btn.btn-sm.btn-outline-secondary(type="button" onclick="location.reload()" title=t('refresh'))
               i.fa.fa-refresh
         button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#newFeatureModal")
           i.fa.fa-plus.me-1
           | New Feature
       .card-body
-        p.small.text-muted.mb-3 Tính năng có thể tạo mới và sửa. Những feature có type FEATURE thì không được phép sửa/xóa.
+        p.small.text-muted.mb-3 Tính năng có thể tạo mới và sửa. Những feature có type Feature thì không được phép sửa/xóa.
         .table-responsive.rounded.border
           table.table.table-hover.mb-0
             thead

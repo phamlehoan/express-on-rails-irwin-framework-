@@ -12,6 +12,7 @@ import { ApiRoute } from "./api";
 import { AuthRoute } from "./auth.route";
 import { DevRoute } from "./dev.route";
 import { ProfileRoute } from "./profile.route";
+import { NotificationRoute } from "./notification.route";
 import { UserRoute } from "./user.route";
 
 // Configure the permission factory for the entire application.
@@ -40,13 +41,14 @@ export class Route extends RailsRoute {
   public draw() {
     this.path(action(CurrentUserMiddleware));
 
-    if (env.nodeEnv === "development") this.path("/dev", DevRoute.draw());
+    if (env.appEnv === "development") this.path("/dev", DevRoute.draw());
 
     this.path("/api", ApiRoute.draw());
 
     this.path("/admin", AdminRoute.draw());
     this.path("/auth", AuthRoute.draw());
     this.path("/me", ProfileRoute.draw());
+    this.path("/notifications", NotificationRoute.draw());
     this.path("/users", UserRoute.draw());
 
     this.resource(HomeController, {

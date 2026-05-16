@@ -565,7 +565,7 @@ body.sidebar-toggled #wrapper #accordion-header {
     display: block;
     width: 100%;
     text-align: left;
-    padding: 1rem;
+    padding: 0.7rem 1rem;
     width: 14rem;
   }
 

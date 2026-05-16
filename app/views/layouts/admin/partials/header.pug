@@ -1,53 +1,59 @@
-// Topbar
-nav#accordion-header.navbar.navbar-expand.navbar-light.bg-white.topbar.static-top.shadow
-  button#sidebarToggleTop.btn.btn-link.d-md-none.rounded-circle.mr-3
-    i.fa.fa-bars
-  span.navbar-text.d-none.d-sm-inline-block.mr-auto.ml-md-3.my-2.my-md-0.fw-semibold.text-gray-800
-    = typeof pageTitle !== 'undefined' && pageTitle ? pageTitle : ''
-  ul.navbar-nav.ml-auto
-    li.nav-item.dropdown.no-arrow.mx-1
-      a#alertsDropdown.nav-link.dropdown-toggle(href='#' role='button' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-        i.fa.fa-bell.fa-fw
-        span.badge.badge-danger.badge-counter 3+
-      .dropdown-list.dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby='alertsDropdown')
-        h6.dropdown-header Alerts Center
-        a.dropdown-item.d-flex.align-items-center(href='#')
-          .mr-3
-            .icon-circle.bg-primary
-              i.fa.fa-file-alt.text-white
-          div
-            .small.text-gray-500 December 12, 2019
-            span.font-weight-bold A new monthly report is ready to download!
-        a.dropdown-item.text-center.small.text-gray-500(href='#') Show All Alerts
-
-    li.nav-item.dropdown.no-arrow
-      a.nav-link(href=localeUrl(locale === 'vi' ? 'en' : 'vi') title=locale === 'vi' ? 'English' : 'Tiếng Việt')
-        span.small= locale === 'vi' ? 'EN' : 'VI'
-    .topbar-divider.d-none.d-sm-block
-    li.nav-item.dropdown.no-arrow
-      a#userDropdown.nav-link.dropdown-toggle.text-center(role='button' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-        - if (currentUser)
-          .d-flex.align-items-center
-            = currentUser.firstName + ' ' + currentUser.lastName
-            img.img-profile.rounded-circle(src=`${currentUser.avatarUrl ? currentUser.avatarUrl : '/images/img/user.png'}`)
-        - else
-          img.img-profile.rounded-circle(src='/images/img/user.png')
-      .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby='userDropdown')
-        - if (currentUser)
-          .text-center
-            img.img-profile-dropdown.rounded-circle(src=`${currentUser.avatarUrl ? currentUser.avatarUrl : '/images/img/user.png'}`)
-            .fw-bold.mt-2
-              = currentUser.firstName + ' ' + currentUser.lastName
-          .dropdown-divider
-          a.dropdown-item(href='/admin/me')
-            i.fa.fa-user.fa-sm.fa-fw.mr-2.text-gray-400.me-1
-            | Profile
-          a.dropdown-item(href=`/auth/${currentUser.email}/edit`)
-            i.fa.fa-cogs.fa-sm.fa-fw.mr-2.text-gray-400.me-1
-            | Change password
-          .dropdown-divider
-          form.nav-link(method='POST' action=`/auth/${currentUser.id}?_method=DELETE`)
-            .text-center
-              button.btn.btn-danger(type="submit")
-                i.fa.fa-sign-out
-                | Logout
+// Topbar
+nav#accordion-header.navbar.navbar-expand.navbar-light.bg-white.topbar.static-top.shadow
+  button#sidebarToggleTop.btn.btn-link.d-md-none.rounded-circle.mr-3
+    i.fa.fa-bars
+  span.navbar-text.d-none.d-sm-inline-block.mr-auto.ml-md-3.my-2.my-md-0.fw-semibold.text-gray-800
+    = typeof pageTitle !== 'undefined' && pageTitle ? pageTitle : ''
+  ul.navbar-nav.ml-auto
+    - if (currentUser)
+      li.nav-item.dropdown.no-arrow.mx-1
+        a#notificationsDropdown.nav-link.dropdown-toggle(
+          href='#'
+          role='button'
+          data-bs-toggle='dropdown'
+          aria-haspopup='true'
+          aria-expanded='false'
+          data-sse-path='/notifications/stream'
+        )
+          i.fa.fa-bell.fa-fw
+          span#notificationsUnreadBadge.badge.badge-danger.badge-counter.d-none 0
+        .dropdown-list.dropdown-menu.dropdown-menu-right.shadow.animated--grow-in.py-0(aria-labelledby='notificationsDropdown' style='min-width: 22rem;')
+          h6.dropdown-header.text-uppercase.small.text-muted.mb-0.py-2= t('header.notifications_center')
+          #notificationsCenterList.dropdown-scroll.px-0(
+            data-msg-empty=t('notifications.dropdown_empty')
+            data-label-new=t('notifications.badge_new')
+          )
+          .dropdown-divider.my-0
+          a#notificationsMarkAllRead.dropdown-item.small.py-2(href='#')= t('notifications.mark_all_read')
+          a.dropdown-item.text-center.small.text-gray-500.py-2.border-top(href=withLocale('/notifications'))= t('header.show_all_notifications')
+    li.nav-item.dropdown.no-arrow
+      a.nav-link(href=localeUrl(locale === 'vi' ? 'en' : 'vi') title=locale === 'vi' ? 'English' : 'Tiếng Việt')
+        span.small= locale === 'vi' ? 'EN' : 'VI'
+    .topbar-divider.d-none.d-sm-block
+    - if (!currentUser)
+      li.nav-item
+        a.nav-link(href=withLocale('/auth'))= t('header.login')
+    - else
+      li.nav-item.dropdown.no-arrow
+        a#userDropdown.nav-link.dropdown-toggle.text-center(role='button' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+          .d-flex.align-items-center
+            = currentUser.firstName + ' ' + currentUser.lastName
+            img.img-profile.rounded-circle(src=`${currentUser.avatarUrl ? currentUser.avatarUrl : '/images/img/user.png'}`)
+        .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby='userDropdown')
+          .text-center
+            img.img-profile-dropdown.rounded-circle(src=`${currentUser.avatarUrl ? currentUser.avatarUrl : '/images/img/user.png'}`)
+            .fw-bold.mt-2
+              = currentUser.firstName + ' ' + currentUser.lastName
+          .dropdown-divider
+          a.dropdown-item(href=withLocale('/admin/me'))
+            i.fa.fa-user.fa-sm.fa-fw.mr-2.text-gray-400.me-1
+            = t('header.profile')
+          a.dropdown-item(href=withLocale(`/auth/${currentUser.email}/edit`))
+            i.fa.fa-cogs.fa-sm.fa-fw.mr-2.text-gray-400.me-1
+            = t('header.change_password')
+          .dropdown-divider
+          form.nav-link(method='POST' action=`/auth/${currentUser.id}?_method=DELETE`)
+            .text-center
+              button.btn.btn-danger(type="submit")
+                i.fa.fa-sign-out
+                |  #{t('header.logout')}

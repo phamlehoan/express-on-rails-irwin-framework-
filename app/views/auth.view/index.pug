@@ -3,7 +3,7 @@ extends ../layouts/auth/layout
 block content
   .row
     .col-lg-6.d-none.d-lg-block
-      img.img-fluid(src='/images/img/login.png')
+      img.auth-hero-img.img-fluid(src='/images/img/auth-hero.svg' alt='')
     .col-lg-6
       .p-5
         .text-center
@@ -22,4 +22,4 @@ block content
         .text-center
           a.small(href='/auth/new')= t('auth.forgot_password')
         .text-center
-          a.small(href='/users/new')= t('auth.create_account')
+          a.small(href=withLocale('/users/new'))= t('auth.create_account')

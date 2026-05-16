@@ -9,6 +9,11 @@ export interface FeatureDefinition {
   type?: string;
   parentCode?: string | null;
   sortOrder?: number;
+  /**
+   * Mặc định: FEATURE → READ+CREATE+UPDATE+DELETE; MENU_GROUP → không tạo permission (giống IoT).
+   * Ghi đè danh sách (vd TRA; PRD READ+UPDATE đơn giá trên Cloud).
+   */
+  permissionCodes?: readonly string[];
 }
 
 /**
@@ -41,9 +46,11 @@ export async function registerFeature(def: FeatureDefinition) {
     feature = await models.feature.findFirstOrThrow({ where: { id: feature.id } });
   }
 
-  // Tạo permissions (READ, CREATE, UPDATE, DELETE) cho mọi feature kể cả MENU_GROUP
-  // để role có thể được gán quyền (vd: AM cho Role & Permissions)
-  for (const code of PERMISSION_CODES) {
+  const codes: readonly string[] =
+    def.permissionCodes ??
+    (feature.type === "MENU_GROUP" ? [] : [...PERMISSION_CODES]);
+
+  for (const code of codes) {
     const existing = await models.permission.findFirst({
       where: {
         code,
@@ -59,7 +66,7 @@ export async function registerFeature(def: FeatureDefinition) {
           name: code.charAt(0) + code.slice(1).toLowerCase(),
           description: `${code} data`,
           featureId: feature.id,
-          type: def.type || "FEATURE",
+          type: feature.type,
         },
       });
       console.log(`[registerFeature] Created permission: ${def.code}::${code}`);
@@ -123,6 +130,27 @@ export async function assignPermissionToRole(
     });
   }
   console.log(`[assignPermissionToRole] ${roleCode} <- ${featureCode}`);
+}
+
+/** Gán toàn bộ permission hiện có trong DB cho role (super-admin). */
+export async function assignAllPermissionsToRole(roleCode: string) {
+  const role = await models.role.findFirst({
+    where: { code: roleCode, deleted: false },
+  });
+  if (!role) throw new Error(`Role ${roleCode} not found`);
+  const all = await models.permission.findMany({ where: { deleted: false } });
+  for (const p of all) {
+    await models.roleToPermission.upsert({
+      where: {
+        roleId_permissionId: { roleId: role.id, permissionId: p.id },
+      },
+      create: { roleId: role.id, permissionId: p.id },
+      update: {},
+    });
+  }
+  console.log(
+    `[assignAllPermissionsToRole] ${roleCode} <- ${all.length} permissions`,
+  );
 }
 
 /**

@@ -10,7 +10,7 @@ import {
   NotFoundError,
   parsePagination,
 } from "ts-rails";
-import { ApiV1Controller } from ".";
+import { ApiV1Controller } from "./apiV1.controller";
 
 /**
  * Dev API Controller - ví dụ REST + custom actions (Rails-style).

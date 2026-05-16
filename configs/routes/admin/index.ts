@@ -15,10 +15,7 @@ export class AdminRoute extends RailsRoute {
 
     this.resource(AdminController, {
       only: [RestActions.Index],
-      setPermissionForAny: [
-        Feature.AdministrationManagement,
-        Feature.UserManagement,
-      ],
+      setPermissionForAny: [Feature.UserManagement],
     });
   }
 }

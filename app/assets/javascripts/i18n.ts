@@ -29,10 +29,25 @@ export function createT(messages: Record<string, unknown>): (key: string, opts?:
 }
 
 export function getI18n() {
-  const data = window.__I18N__ || { locale: 'en', messages: {} };
+  const data = window.__I18N__ || { locale: "vi", messages: {} };
   return {
     locale: data.locale,
     messages: data.messages as Record<string, unknown>,
     t: createT(data.messages as Record<string, unknown>),
   };
+}
+
+/** Giữ `?locale=` giống server (res.locals.withLocale). */
+export function withLocalePath(href: string, locale?: string): string {
+  const loc =
+    locale ?? (typeof window !== "undefined" ? window.__I18N__?.locale : undefined) ?? "vi";
+  if (!href || href.startsWith("#")) return href;
+  try {
+    const u = new URL(href, "http://_");
+    u.searchParams.set("locale", loc);
+    return u.pathname + u.search + u.hash;
+  } catch {
+    const sep = href.includes("?") ? "&" : "?";
+    return `${href}${sep}locale=${encodeURIComponent(loc)}`;
+  }
 }

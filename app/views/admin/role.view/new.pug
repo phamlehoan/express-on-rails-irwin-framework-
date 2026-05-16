@@ -5,7 +5,7 @@ block content
     nav(aria-label="breadcrumb").breadcrumb-sticky
       ol.breadcrumb.mb-0
         li.breadcrumb-item
-          a(href="/admin/roles")= t('sidebar.roles_permissions')
+          a(href=withLocale('/admin/roles'))= t('sidebar.roles_permissions')
         li.breadcrumb-item.active(aria-current="page")= t('admin.new_role')
 
     .card.mb-4.content-card
@@ -27,4 +27,4 @@ block content
             button.btn.btn-primary(type="submit")
               i.fa.fa-save.me-1
               | Create
-            a.btn.btn-outline-secondary(href="/admin/roles") Cancel
+            a.btn.btn-outline-secondary(href=withLocale('/admin/roles')) Cancel

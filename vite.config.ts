@@ -5,6 +5,9 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
+import { fileURLToPath } from "node:url";
+
+const configDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [vue()],
@@ -13,7 +16,7 @@ export default defineConfig({
     outDir: "app/assets/generated",
     emptyOutDir: true,
     rollupOptions: {
-      input: path.resolve(__dirname, "app/assets/javascripts/main.ts"),
+      input: path.resolve(configDir, "app/assets/javascripts/main.ts"),
       output: {
         entryFileNames: "bundle.js",
         chunkFileNames: "[name].js",
@@ -23,7 +26,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@assets": path.resolve(__dirname, "app/assets"),
+      "@assets": path.resolve(configDir, "app/assets"),
     },
   },
 });

@@ -1,12 +1,57 @@
-import dotenv from "dotenv";
-dotenv.config();
+import { loadDotenv } from "../loadDotenv";
+
+loadDotenv();
+
+/** Giá trị từ `process.env.NODE_ENV` (Vite chỉ chấp nhận `development` trong file `.env`). */
+const nodeEnv = process.env.NODE_ENV || "development";
+/**
+ * Môi trường chạy app (SQLite local vs Turso…).
+ * Ưu tiên `APP_ENV`; không set thì dùng `NODE_ENV`.
+ */
+const appEnv = (process.env.APP_ENV || "").trim() || nodeEnv;
+
+/** Bỏ BOM / ngoặc `.env` kiểu `DATABASE_URL='file:...'`. */
+function stripEnvValue(s: string | undefined): string {
+  return (s ?? "")
+    .trim()
+    .replace(/^\uFEFF/, "")
+    .replace(/^['"]|['"]$/g, "");
+}
+
+/**
+ * Đang chạy trong bundle deploy (Netlify Functions thường `cwd === /var/task`),
+ * hoặc runtime Netlify có SITE_ID + URL. Không dùng SQLite file — chỉ Turso.
+ */
+export function isServerlessDeployedBundle(): boolean {
+  if (process.cwd() === "/var/task") return true;
+  return Boolean(process.env.SITE_ID?.trim() && process.env.URL?.trim());
+}
+
+const tursoDatabaseUrl = stripEnvValue(process.env.TURSO_DATABASE_URL);
+const explicitDatabaseUrl = stripEnvValue(process.env.DATABASE_URL);
+/** Server đầy đủ / CI: `DATABASE_URL`. Deploy bundle: không gán đường file DB. */
+const databaseUrl = isServerlessDeployedBundle()
+  ? ""
+  : tursoDatabaseUrl && /^file:/i.test(explicitDatabaseUrl)
+    ? ""
+    : explicitDatabaseUrl ||
+      (tursoDatabaseUrl ? "" : "file:./database/app.db");
 
 export default {
   search: process.env.SEARCH,
-  nodeEnv: process.env.NODE_ENV || "development",
+  nodeEnv,
+  appEnv,
   appUrl: process.env.APP_URL || "http://localhost:3000",
+  /** Base URL client app (email kích hoạt / đặt mật khẩu). */
+  clientAppUrl: process.env.CLIENT_APP_URL || "http://localhost:9000",
+  /** Mặc định true: link dạng `origin/#/activate-account?token=` (Quasar hash). Đặt `false` nếu dùng history mode. */
+  clientAppHashRouter: process.env.CLIENT_APP_HASH_ROUTER !== "false",
   port: process.env.PORT || "3000",
-  databaseUrl: process.env.DATABASE_URL || "file:./schema/app.db",
+  databaseUrl,
+  /** Turso (serverless): `libsql://...` + `TURSO_AUTH_TOKEN`. */
+  tursoDatabaseUrl,
+  /** Bắt buộc khi dùng Turso (`turso db tokens create ...`). */
+  tursoAuthToken: stripEnvValue(process.env.TURSO_AUTH_TOKEN),
   dbMaxConnections: parseInt(process.env.DB_MAX_CONNECTIONS || "1"),
   sessionSecret: process.env.SESSION_SECRET || "your-session-secret",
   jwtSecret: process.env.JWT_SECRET || "your-jwt-secret",
@@ -30,4 +75,19 @@ export default {
   redisHost: process.env.REDIS_HOST || "127.0.0.1",
   redisPort: parseInt(process.env.REDIS_PORT || "6379"),
   storageService: process.env.STORAGE_SERVICE || "local",
+
+  /** Google AI Studio / Generative Language API — chỉ dùng trên server. */
+  googleAiApiKey: process.env.GOOGLE_AI_API_KEY || "",
+  /**
+   * Danh sách model thử theo thứ tự (khi hết quota / lỗi tạm thời thì tự hạ xuống model sau).
+   * Tên phải khớp AI Studio (ví dụ gemma-3-12b-it). Override bằng GOOGLE_AI_MODEL_FALLBACK=gemma-3-4b-it,gemini-2.0-flash
+   */
+  googleAiModelFallback: (process.env.GOOGLE_AI_MODEL_FALLBACK || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+  /** Firebase Cloud Messaging (server key dạng service account). */
+  fcmProjectId: process.env.FCM_PROJECT_ID || "",
+  fcmClientEmail: process.env.FCM_CLIENT_EMAIL || "",
+  fcmPrivateKey: (process.env.FCM_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
 };

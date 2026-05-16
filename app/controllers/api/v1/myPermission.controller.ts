@@ -1,17 +1,9 @@
-import models from "@models";
-import { ApiV1Controller } from ".";
+import { getMergedPermissionStrings } from "@lib/utils/userPermissions";
+import { ApiV1Controller } from "./apiV1.controller";
 
 export class MyPermissionController extends ApiV1Controller {
   async index() {
-    const myPermissions = await models.permission.findMany({
-      where: {
-        users: {
-          some: {
-            userId: this.req.user!.id,
-          },
-        },
-      },
-    });
-    this.renderJson(myPermissions.map((p: { code: string }) => p.code));
+    const codes = await getMergedPermissionStrings(this.req.user!.id);
+    this.renderJson(codes);
   }
 }

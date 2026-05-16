@@ -3,7 +3,7 @@
     <nav aria-label="breadcrumb" class="breadcrumb-sticky">
       <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item">
-          <a href="/admin">{{ t("header.admin") }}</a>
+          <a :href="withLocalePath('/admin')">{{ t("header.admin") }}</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page">
           {{ t("profile.my_profile") }}
@@ -142,6 +142,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, PropType } from "vue";
+import { withLocalePath } from "../../i18n";
 
 export default defineComponent({
   name: "ProfileDetail",
@@ -149,7 +150,7 @@ export default defineComponent({
     const t = inject<
       (key: string, opts?: Record<string, string | number>) => string
     >("t", (k) => k);
-    return { t };
+    return { t, withLocalePath };
   },
   props: {
     currentUser: { type: Object as PropType<any>, required: true },

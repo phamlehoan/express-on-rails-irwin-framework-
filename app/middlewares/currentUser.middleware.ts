@@ -2,7 +2,8 @@ import { verifyToken } from "@lib";
 import { NextFunction, Request, Response } from "express";
 import { ApplicationMiddleware } from "./application.middleware";
 
-const ADMIN_FEATURE_CODES = ["AM", "UM"];
+/** USM/RAP khớp mã feature seed (AM là MENU_GROUP không có permission). */
+const ADMIN_FEATURE_CODES = ["USM", "RAP"];
 
 export class CurrentUserMiddleware extends ApplicationMiddleware {
   public async execute(req: Request, res: Response, next: NextFunction) {
@@ -31,7 +32,7 @@ export class CurrentUserMiddleware extends ApplicationMiddleware {
 
       req.user = userId ? await super.getUserById(userId, true) : null;
 
-      // Cho request web: set hasAdminAccess để layout hiển thị nút Admin (có bất kỳ permission AM hoặc UM)
+      // Cho request web: set hasAdminAccess (quyền quản trị USM hoặc RAP)
       if (!isApiRequest) {
         const perms = req.user?.permissions ?? [];
         const locals = res.locals as Record<string, unknown>;

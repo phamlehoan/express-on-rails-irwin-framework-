@@ -1,5 +1,5 @@
 ul#accordion-sidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion
-  a.sidebar-brand.d-flex.align-items-center.justify-content-center(href='/admin')
+  a.sidebar-brand.d-flex.align-items-center.justify-content-center(href=withLocale('/admin'))
     .sidebar-brand-icon
       | Irwin
     .sidebar-brand-text.mx-1
@@ -7,37 +7,41 @@ ul#accordion-sidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordi
 
   hr.sidebar-divider.my-0
 
-  li.nav-item
-    a.nav-link(href='/')
-      i.fa.fa-fw.fa-home
-      span= t('sidebar.web_app')
+  li.nav-item(class=activeMenu === 'home' ? 'active' : '')
+    a.nav-link(href=withLocale('/admin'))
+      i.fa.fa-fw.fa-tachometer
+      span= t('sidebar.dashboard')
 
-  hr.sidebar-divider
+  - if (currentUser)
+    li.nav-item(class=activeMenu === 'notifications' ? 'active' : '')
+      a.nav-link(href=withLocale('/notifications'))
+        i.fa.fa-fw.fa-bell
+        span= t('sidebar.notifications')
 
-  .sidebar-heading= t('sidebar.admin_management')
-  li.nav-item(class=activeMenu === 'users' ? 'active' : '')
-    a.nav-link(href='/admin/users')
-      i.fa.fa-fw.fa-users
-      span= t('sidebar.account_management')
-  li.nav-item(class=activeMenu === 'roles' ? 'active' : '')
-    a.nav-link(href='/admin/roles')
-      i.fa.fa-fw.fa-shield
-      span= t('sidebar.roles_permissions')
-  li.nav-item(class=activeMenu === 'features' ? 'active' : '')
-    a.nav-link(href='/admin/features')
-      i.fa.fa-fw.fa-cog
-      span= t('sidebar.features')
+  - if (currentUser && ['USM::READ', 'RAP::READ'].some((code) => currentUser.permissions?.includes(code)))
+    hr.sidebar-divider.my-0.mb-1
+    .sidebar-heading= t('sidebar.admin_management')
+    - if (['USM::READ'].some((code) => currentUser.permissions?.includes(code)))
+      li.nav-item(class=activeMenu === 'users' ? 'active' : '')
+        a.nav-link(href=withLocale('/admin/users'))
+          i.fa.fa-fw.fa-users
+          span= t('sidebar.account_management')
+    - if (['RAP::READ'].some((code) => currentUser.permissions?.includes(code)))
+      li.nav-item(class=activeMenu === 'roles' ? 'active' : '')
+        a.nav-link(href=withLocale('/admin/roles'))
+          i.fa.fa-fw.fa-shield
+          span= t('sidebar.roles_permissions')
+    li.nav-item(class=activeMenu === 'features' ? 'active' : '')
+      a.nav-link(href=withLocale('/admin/features'))
+        i.fa.fa-fw.fa-cog
+        span= t('sidebar.features')
 
   - if (process.env.NODE_ENV === 'development')
     hr.sidebar-divider.my-0
     li.nav-item(class=activeMenu === 'dev' ? 'active' : '')
-      a.nav-link(role='button' href='#' data-bs-toggle='collapse' data-bs-target='#collapseDev' aria-expanded=activeMenu === 'dev' ? 'true' : 'false' aria-controls='collapseDev' class=activeMenu === 'dev' ? 'nav-link' : 'nav-link collapsed')
+      a.nav-link(href=withLocale('/dev'))
         i.fa.fa-fw.fa-wrench
         span= t('sidebar.dev')
-      #collapseDev.collapse(aria-labelledby='headingDev' data-parent='#accordion-sidebar' class=activeMenu === 'dev' ? 'collapse show' : 'collapse')
-        .bg-white.py-2.collapse-inner.rounded
-          h6.collapse-header= t('sidebar.dev_tools')
-          a.collapse-item(href='/dev' class=activeMenu === 'dev' ? 'active' : '')= t('sidebar.ui_utilities')
 
   .text-center.d-none.d-md-inline
     button#sidebarToggle.rounded-circle.border-0

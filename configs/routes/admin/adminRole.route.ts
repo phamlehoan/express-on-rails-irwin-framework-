@@ -7,13 +7,10 @@ export class AdminRoleRoute extends RailsRoute {
   public draw() {
     this.resource(AdminRoleController, {
       except: [RestActions.New],
-      setPermissionForAny: [Feature.AdministrationManagement],
+      setPermissionFor: Feature.RoleAndPermission,
     });
 
-    const updatePerms = [
-      `${Feature.AdministrationManagement}::${Permission.Update}`,
-      `${Feature.UserManagement}::${Permission.Update}`,
-    ];
+    const updatePerms = [`${Feature.RoleAndPermission}::${Permission.Update}`];
 
     this.get("/:id/assign", action(AdminRoleController, "assignPage"), {
       setPermissionForAny: updatePerms,

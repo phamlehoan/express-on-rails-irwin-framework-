@@ -16,8 +16,8 @@ export async function initI18n(): Promise<void> {
   const localesPath = path.join(process.cwd(), "configs", "locales");
 
   await i18next.use(Backend).init({
-    lng: "en",
-    fallbackLng: "en",
+    lng: "vi",
+    fallbackLng: "vi",
     preload: ["en", "vi"],
     backend: {
       loadPath: path.join(localesPath, "{{lng}}", "{{ns}}.json"),
@@ -65,9 +65,25 @@ export function i18nMiddleware(
     return url.pathname + url.search;
   };
 
+  /** Thêm ?locale= vào href (dùng trong Pug — khớp withLocalePath phía client). */
+  res.locals.withLocale = (href: string) => {
+    if (!href || href.startsWith("#")) return href;
+    try {
+      const u = new URL(href, "http://_");
+      u.searchParams.set("locale", locale);
+      return u.pathname + u.search + u.hash;
+    } catch {
+      const sep = href.includes("?") ? "&" : "?";
+      return `${href}${sep}locale=${encodeURIComponent(locale)}`;
+    }
+  };
+
   const t = res.locals.t as (k: string) => string;
   const path = req.path || "";
-  if (path.startsWith("/admin/users")) {
+  if (path === "/" || path === "/vi" || path === "/en") {
+    res.locals.activeMenu = "home";
+    res.locals.pageTitle = t("landing.page_title");
+  } else if (path.startsWith("/admin/users")) {
     res.locals.activeMenu = "users";
     res.locals.pageTitle =
       path === "/admin/users"
@@ -91,6 +107,11 @@ export function i18nMiddleware(
   } else if (path.startsWith("/dev")) {
     res.locals.activeMenu = "dev";
     res.locals.pageTitle = t("sidebar.dev");
+  } else if (path === "/users/new") {
+    res.locals.pageTitle = t("users.register_title");
+  } else if (path.startsWith("/notifications")) {
+    res.locals.activeMenu = "notifications";
+    res.locals.pageTitle = t("notifications.page_title");
   } else {
     res.locals.activeMenu = "";
     res.locals.pageTitle = "";
@@ -112,5 +133,5 @@ function detectLocale(req: Request): string {
     if (preferred && SUPPORTED_LOCALES.includes(preferred)) return preferred;
   }
 
-  return "en";
+  return "vi";
 }

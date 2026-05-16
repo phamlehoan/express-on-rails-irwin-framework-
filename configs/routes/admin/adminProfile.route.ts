@@ -6,16 +6,10 @@ import { action, RailsRoute } from "ts-rails";
 export class AdminProfileRoute extends RailsRoute {
   public draw() {
     this.get(action(AdminProfileController, "show"), {
-      setPermissionForAny: [
-        `${Feature.AdministrationManagement}::${Permission.Read}`,
-        `${Feature.UserManagement}::${Permission.Read}`,
-      ],
+      setPermissionFor: `${Feature.UserManagement}::${Permission.Read}`,
     });
     this.put(action(AdminProfileController, "update"), {
-      setPermissionForAny: [
-        `${Feature.AdministrationManagement}::${Permission.Update}`,
-        `${Feature.UserManagement}::${Permission.Update}`,
-      ],
+      setPermissionFor: `${Feature.UserManagement}::${Permission.Update}`,
     });
   }
 }

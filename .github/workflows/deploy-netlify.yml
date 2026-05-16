@@ -1,0 +1,109 @@
+# Deploy lên Netlify từ GitHub Actions (Repository secrets).
+# Irwin Framework — deploy Netlify từ GitHub Actions.
+#
+# Settings → Secrets and variables → Actions → Repository secrets (tên khớp chính xác):
+#   NETLIFY_AUTH_TOKEN, NETLIFY_SITE_ID — deploy (CLI); không map vào bước Build.
+#   TURSO_DATABASE_URL, TURSO_AUTH_TOKEN — bắt buộc cho Lambda DB.
+#   GOOGLE_AI_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, GOOGLE_REFRESH_TOKEN
+#   FCM_PROJECT_ID, FCM_CLIENT_EMAIL, FCM_PRIVATE_KEY (tùy chọn, push sau này)
+#
+# Các secret khác (JWT_SECRET, MAIL_*, …) thêm vào GitHub và bổ sung vào env bước Build + DEFAULT_KEYS
+# trong scripts/netlifyWriteRuntimeSecrets.mjs nếu cần đưa lên Lambda.
+#
+# Nếu NETLIFY_* chỉ có trong Environment (Settings → Environments): bật `environment:` trên job `deploy`.
+#
+# PR từ fork: GitHub không inject secrets của base repo → job fail (bình thường).
+#
+# pnpm: theo packageManager trong package.json. Netlify: nên tắt auto-build nếu chỉ deploy từ CI.
+name: Deploy Netlify
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master, develop]
+
+concurrency:
+  group: netlify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # environment: netlify
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        env:
+          NETLIFY: "true"
+          CONTEXT: ${{ github.ref_name }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REDIRECT_URI: ${{ secrets.GOOGLE_REDIRECT_URI }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          FCM_PROJECT_ID: ${{ secrets.FCM_PROJECT_ID }}
+          FCM_CLIENT_EMAIL: ${{ secrets.FCM_CLIENT_EMAIL }}
+          FCM_PRIVATE_KEY: ${{ secrets.FCM_PRIVATE_KEY }}
+        run: node scripts/runWithDotenv.mjs -- pnpm netlify-build
+
+      - name: Verify TURSO_* in runtime JSON (fail deploy sớm nếu build thiếu env)
+        run: |
+          node <<'VERIFY'
+          const fs = require("fs");
+          for (const p of [
+            "netlify/functions/.runtime-secrets.json",
+            "netlify/.runtime-secrets.json",
+          ]) {
+            if (!fs.existsSync(p)) {
+              console.error("Missing file:", p);
+              process.exit(1);
+            }
+            const j = JSON.parse(fs.readFileSync(p, "utf8"));
+            if (!j.TURSO_DATABASE_URL || !j.TURSO_AUTH_TOKEN) {
+              console.error("Missing TURSO_* in", p, "key count:", Object.keys(j).length);
+              process.exit(1);
+            }
+          }
+          console.log(
+            "OK: both runtime JSON files contain TURSO_DATABASE_URL and TURSO_AUTH_TOKEN.",
+          );
+          VERIFY
+
+      - name: Check Netlify secrets (avoid interactive “link project” in CI)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID || vars.NETLIFY_SITE_ID }}
+        run: |
+          echo "Checking Netlify credentials for this workflow run…"
+          err=0
+          if [ -z "${NETLIFY_AUTH_TOKEN:-}" ]; then
+            echo "::error::NETLIFY_AUTH_TOKEN is empty. Add Repository secret (same name) under Settings → Secrets and variables → Actions. If you use an Environment for secrets, set \`environment: <name>\` on this job in deploy-netlify.yml."
+            err=1
+          fi
+          if [ -z "${NETLIFY_SITE_ID:-}" ]; then
+            echo "::error::NETLIFY_SITE_ID is empty. Add Repository secret or Variable named NETLIFY_SITE_ID (Netlify → Site configuration → Site details → Site ID). If it lives only in a GitHub Environment, set \`environment: <name>\` on this job."
+            err=1
+          fi
+          exit "$err"
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID || vars.NETLIFY_SITE_ID }}
+        run: pnpm exec netlify deploy --prod --dir=dist --functions=netlify/functions --site="${NETLIFY_SITE_ID}"

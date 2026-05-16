@@ -1,5 +1,6 @@
 import { FlashType } from "@configs/enum";
 import { User } from "@db";
+import { canonPermissionString } from "@lib";
 import { NextFunction, Request, Response } from "express";
 import { ApplicationMiddleware } from "./application.middleware";
 
@@ -9,7 +10,7 @@ export class ValidateUserPermissionMiddleware extends ApplicationMiddleware {
   constructor(permissionCode: string) {
     super();
 
-    this.permissionCode = permissionCode;
+    this.permissionCode = canonPermissionString(permissionCode);
   }
 
   public async execute(req: Request, res: Response, next: NextFunction) {
@@ -27,7 +28,10 @@ export class ValidateUserPermissionMiddleware extends ApplicationMiddleware {
       }
     }
 
-    if (!user.permissions?.includes(this.permissionCode)) {
+    const allowed = user.permissions?.some(
+      (p) => canonPermissionString(p) === this.permissionCode,
+    );
+    if (!allowed) {
       const t = (res.locals?.t as (k: string) => string) || ((k: string) => k);
       if (isApiRequest) {
         return res.status(403).json({
@@ -46,14 +50,14 @@ export class ValidateUserPermissionMiddleware extends ApplicationMiddleware {
 
 /**
  * Kiểm tra user có ít nhất một trong các permission.
- * Dùng cho admin khi chấp nhận AM hoặc UM.
+ * Dùng cho admin khi chấp nhận nhiều feature (vd USM hoặc RAP).
  */
 export class ValidateAnyPermissionMiddleware extends ApplicationMiddleware {
   private permissionCodes: string[];
 
   constructor(permissionCodes: string[]) {
     super();
-    this.permissionCodes = permissionCodes;
+    this.permissionCodes = permissionCodes.map((c) => canonPermissionString(c));
   }
 
   public async execute(req: Request, res: Response, next: NextFunction) {
@@ -71,9 +75,8 @@ export class ValidateAnyPermissionMiddleware extends ApplicationMiddleware {
       }
     }
 
-    const hasAny = this.permissionCodes.some((code) =>
-      user.permissions?.includes(code),
-    );
+    const userCanon = (user.permissions ?? []).map((p) => canonPermissionString(p));
+    const hasAny = this.permissionCodes.some((code) => userCanon.includes(code));
 
     if (!hasAny) {
       const t = (res.locals?.t as (k: string) => string) || ((k: string) => k);

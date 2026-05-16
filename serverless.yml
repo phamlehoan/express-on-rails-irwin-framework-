@@ -8,6 +8,8 @@ provider:
   environment:
     NODE_ENV: production
     DATABASE_URL: ${env:DATABASE_URL}
+    TURSO_DATABASE_URL: ${env:TURSO_DATABASE_URL, ''}
+    TURSO_AUTH_TOKEN: ${env:TURSO_AUTH_TOKEN, ''}
 
 functions:
   api:

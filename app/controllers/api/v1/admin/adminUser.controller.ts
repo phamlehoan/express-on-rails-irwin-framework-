@@ -1,4 +1,11 @@
+import { UserMailer } from "@mailers/user.mailer";
 import models from "@models";
+import {
+  buildActivateAccountUrl,
+  buildResetPasswordUrl,
+  generateInviteToken,
+  generatePasswordResetToken,
+} from "@services";
 import {
   CreateUserValidator,
   PaginationValidator,
@@ -7,9 +14,10 @@ import {
 import {
   NotFoundError,
   buildPaginatedResponse,
+  logger,
   parsePagination,
 } from "ts-rails";
-import { ApiV1Controller } from "..";
+import { ApiV1Controller } from "../apiV1.controller";
 
 export class ApiV1AdminUserController extends ApiV1Controller {
   async index() {
@@ -78,7 +86,51 @@ export class ApiV1AdminUserController extends ApiV1Controller {
       },
       include: { roles: { include: { role: true } } },
     });
+
+    try {
+      const inviteToken = generateInviteToken(user.id);
+      const activateLink = buildActivateAccountUrl(inviteToken);
+      await UserMailer.accountInvite(
+        user.email,
+        user.firstName,
+        user.lastName,
+        activateLink,
+      );
+    } catch (err) {
+      logger?.error?.(
+        "[ApiV1AdminUserController.create] Failed to send invite email",
+        err,
+      );
+    }
+
     this.renderJson(user, 201);
+  }
+
+  /** Gửi email đặt lại mật khẩu (link công khai giống luồng kích hoạt). */
+  async sendPasswordReset() {
+    const id = this.req.params.id;
+    const user = await models.user.findFirst({
+      where: { id, deleted: false },
+    });
+    if (!user) throw new NotFoundError("User not found");
+
+    try {
+      const token = generatePasswordResetToken(user.id);
+      const resetLink = buildResetPasswordUrl(token);
+      await UserMailer.passwordReset(user.email, resetLink);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      logger?.error?.(
+        `[ApiV1AdminUserController.sendPasswordReset] Failed to send email: ${msg}`,
+        err,
+      );
+      return this.res.status(502).json({
+        success: false,
+        error: "Failed to send password reset email.",
+      });
+    }
+
+    this.renderJson({ ok: true });
   }
 
   async update() {

@@ -22,20 +22,88 @@
   "loading": "Loading...",
 
   "sidebar": {
-    "web_app": "Web App",
+    "dashboard": "Dashboard",
+    "notifications": "Notifications",
     "admin_management": "Administration Management",
     "account_management": "Account Management",
     "roles_permissions": "Roles & Permissions",
     "features": "Features",
-    "dev": "Dev",
-    "dev_tools": "Development Tools:",
-    "ui_utilities": "UI Utilities"
+    "dev": "Dev"
+  },
+
+  "notifications": {
+    "page_title": "Notifications",
+    "center_title": "Notifications",
+    "list_heading": "All notifications",
+    "view_all": "View all",
+    "mark_all_read": "Mark all read",
+    "dropdown_empty": "No notifications yet.",
+    "badge_new": "New",
+    "empty": "No notifications",
+    "loading": "Loading…",
+    "unread": "New",
+    "col_time": "Time",
+    "col_type": "Type",
+    "col_title": "Title",
+    "col_message": "Message",
+    "col_read": "Read at"
+  },
+
+  "home": {
+    "page_title": "Dashboard",
+    "welcome_title": "Welcome",
+    "welcome_subtitle": "Choose a section below to get started.",
+    "card_users_hint": "Manage user accounts and access.",
+    "card_roles_hint": "Configure roles and permissions.",
+    "card_features_hint": "Browse application features and menu structure.",
+    "card_profile_hint": "View and update your profile."
+  },
+
+  "landing": {
+    "page_title": "Irwin Framework",
+    "masthead_subheading": "Welcome to Irwin Framework",
+    "masthead_heading": "A modern foundation for Node.js web apps",
+    "masthead_cta": "Tell me more",
+    "services_heading": "What you get",
+    "services_intro": "Opinionated building blocks inspired by Rails—without leaving the Express ecosystem.",
+    "service_dev_title": "Ship faster",
+    "service_dev_body": "TypeScript, structured routing, validators, mailers, and Prisma are wired so you focus on business logic instead of repetitive plumbing.",
+    "service_admin_title": "Admin & RBAC ready",
+    "service_admin_body": "User management, roles, features, and permissions ship with seeds you can adapt as the product grows.",
+    "service_secure_title": "Security-minded defaults",
+    "service_secure_body": "Sessions, password hashing, email-based activation, and clear API auth patterns keep onboarding and audits straightforward.",
+    "highlights_heading": "What’s in the box",
+    "highlights_intro": "Concrete pieces you can extend—admin UI, APIs, and patterns that stay familiar if you already know Rails.",
+    "highlight1_title": "Rails-style layout",
+    "highlight1_body": "Controllers, views, mailers, jobs, and folder conventions echo Ruby on Rails 6 so teams can navigate the codebase with muscle memory.",
+    "highlight2_title": "Integrations that scale",
+    "highlight2_body": "Prisma, mail adapters, optional Turso, notifications (SSE + FCM hooks), and Vue islands on admin screens—add what each product needs without fork fatigue.",
+    "highlight3_title": "AI-era core",
+    "highlight3_body": "The core is split and the architecture rebuilt for clarity; server-side AI assistant wiring ships as a first-class module you can trim or extend.",
+    "about_heading": "Our story",
+    "about_intro": "Three chapters from a Rails-shaped experiment on Node to a framework that chases the same developer experience—now with room for AI and specialized stacks.",
+    "about_milestone1_date": "2023",
+    "about_milestone1_title": "Project kickoff",
+    "about_milestone1_body": "We bootstrapped Irwin with basic building blocks and a file and folder layout aligned with Ruby on Rails 6 so structure stays predictable from day one.",
+    "about_milestone2_date": "2024",
+    "about_milestone2_title": "New libraries & bespoke features",
+    "about_milestone2_body": "We layered in newer libraries and feature modules tailored to real projects—extra flexibility without giving up the convention-over-configuration spirit.",
+    "about_milestone3_date": "2025 — today",
+    "about_milestone3_title": "Core split & AI surge",
+    "about_milestone3_body": "Riding the AI wave, we separated the framework core, reworked architecture, and pushed syntax familiarity with Rails to about 95% so ergonomics stay front and center.",
+    "about_cta_line1": "Let’s contribute",
+    "about_cta_line2": "together",
+    "about_cta_line3": "and make Irwin",
+    "about_cta_line4": "better every day!",
+    "team_heading": "Core team",
+    "team_intro": "Maintainers who prefer boring, well-structured backends over throwaway prototypes.",
+    "team_close": "Contributions are welcome—docs, typings, or optional modules (queues, SSO, CMS). Open the README when you bootstrap your next build."
   },
 
   "header": {
+    "notifications_center": "Notifications",
+    "show_all_notifications": "Show all notifications",
     "search_placeholder": "Search for...",
-    "alerts_center": "Alerts Center",
-    "show_all_alerts": "Show All Alerts",
     "profile": "Profile",
     "change_password": "Change password",
     "logout": "Logout",
@@ -44,6 +112,7 @@
     "login": "Login",
     "services": "Services",
     "products": "Products",
+    "highlights": "Highlights",
     "about": "About",
     "team": "Team"
   },
@@ -122,6 +191,15 @@
     "description_placeholder": "Optional description"
   },
 
+  "users": {
+    "register_title": "Create an account",
+    "register_subtitle": "We will email you a link to set your password and activate your account.",
+    "register_submit": "Sign up",
+    "register_email_hint": "Check your inbox after submitting. The link expires after a few days.",
+    "middle_name_optional": "Middle name (optional)",
+    "already_have_account": "Already have an account? Sign in"
+  },
+
   "auth": {
     "welcome_back": "Welcome Back!",
     "enter_email": "Enter Email Address",
@@ -161,6 +239,11 @@
     "password_changed": "Password changed successfully.",
     "logged_out": "You are logged out!",
     "user_created": "Created user {{email}}",
+    "user_created_invite_sent": "Created {{email}} and sent activation email.",
+    "user_created_invite_failed": "Created {{email}}, but the activation email could not be sent. Check mail settings.",
+    "registration_invite_sent": "Account created for {{email}}. Check your email to set your password.",
+    "registration_invite_failed": "Account created for {{email}}, but we could not send the activation email. Contact support.",
+    "registration_email_exists": "An account with this email already exists.",
     "user_updated": "User updated",
     "user_deleted_success": "User deleted",
     "select_one_user": "Select at least one user",
@@ -189,5 +272,41 @@
     "first_time_password": "You are changing your password for the first time. Please log in to your account using another method before changing your password.",
     "password_mismatch": "Password and confirmation do not match.",
     "password_changed_relogin": "Change password successfully. Please login to confirm your new password!"
+  },
+
+  "mailer": {
+    "subjects": {
+      "welcome": "Welcome {{name}} to {{appName}}",
+      "password_reset": "Password reset request",
+      "account_invite": "[{{appName}}] Activate your account — set password"
+    },
+    "created_user": {
+      "greeting": "Welcome, {{name}}!",
+      "success_msg": "Your account has been created on our system.",
+      "login_email": "Login email:",
+      "explore_msg": "You can now sign in to explore {{appName}}.",
+      "access_account": "Access account"
+    },
+    "password_reset": {
+      "title": "Reset password",
+      "greeting": "Hello,",
+      "request_msg": "We received a request to reset the password for the account linked to",
+      "instruction": "Click the button below to set a new password:",
+      "button": "Reset password",
+      "warning": "This link expires in 7 days. If you did not request a password reset, you can ignore this email."
+    },
+    "account_invite": {
+      "greeting": "Hello {{name}},",
+      "body": "An administrator created an account for you. It is pending until you set a password.",
+      "instruction": "Click the button below to set your password and activate your account:",
+      "button": "Activate & set password",
+      "link_hint": "This link expires after a limited time. If the button does not work, copy the URL into your browser."
+    },
+    "common": {
+      "regards": "Best regards,",
+      "team": "The {{appName}} team",
+      "auto_email_footer": "This is an automated message. Please do not reply.",
+      "copyright": "Copyright © {{year}} {{appName}}. All rights reserved."
+    }
   }
 }

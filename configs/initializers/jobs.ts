@@ -11,7 +11,7 @@ let isCronStarted = false;
  */
 async function startCronJobs() {
   if (isCronStarted) return;
-  if (env.nodeEnv !== "development" && env.nodeEnv !== "production") return;
+  if (env.appEnv !== "development" && env.appEnv !== "production") return;
 
   // 1. Quét các Job định nghĩa cứng trong Code (Convention)
   RailsApplication.jobClasses.forEach((Klass: any) => {

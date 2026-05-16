@@ -1,8 +1,7 @@
 export enum Feature {
   AdministrationManagement = "AM",
-  UserManagement = "UM",
-  Task = "TASK",
-  TaskType = "TASK_TYPE",
+  UserManagement = "USM",
+  RoleAndPermission = "RAP",
 }
 
 export enum FlashType {

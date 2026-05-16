@@ -2,8 +2,10 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "./generated/prisma"
+  provider     = "prisma-client"
+  output       = "./generated/prisma"
+  // Netlify Functions esbuild bundles as CJS; ESM + import.meta.url breaks __dirname in generated client.
+  moduleFormat = "cjs"
 }
 
 generator dbml {
@@ -36,16 +38,57 @@ model User {
   roles             UserToRole[]
   permissions       UserToPermission[]
   passwords         Password[]
+  pushTokens        UserPushToken[]
+  notifications     AppNotification[]
   roleCreated       Role[]             @relation("createdBy")
   roleUpdated       Role[]             @relation("updatedBy")
   featureCreated    Feature[]          @relation("createdBy")
   featureUpdated    Feature[]          @relation("updatedBy")
   permissionCreated Permission[]       @relation("createdBy")
   permissionUpdated Permission[]       @relation("updatedBy")
-  requestCreator    Request[]          @relation("createdBy")
-  requestApprover   Request[]          @relation("approvedBy")
 
   @@map("users")
+}
+
+/// Device token FCM theo user (web/mobile) để gửi push cá nhân.
+model UserPushToken {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  userId    String   @map("user_id")
+  token     String   @unique @map("token")
+  /// ANDROID | IOS | WEB
+  platform  String   @map("platform")
+  deviceId  String?  @map("device_id")
+  appVersion String? @map("app_version")
+  isActive  Boolean  @default(true) @map("is_active")
+  lastError String?  @map("last_error")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@map("user_push_tokens")
+}
+
+/// In-app notification (SSE web + FCM mobile). Gửi qua `lib/notifications`.
+model AppNotification {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deleted   Boolean   @default(false) @map("deleted")
+
+  userId  String  @map("user_id")
+  type    String  @default("info") @map("type")
+  title   String  @map("title")
+  message String? @map("message")
+  /// JSON: link, entityId, metadata…
+  data    String? @map("data")
+  readAt  DateTime? @map("read_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, deleted, readAt, createdAt])
+  @@map("app_notifications")
 }
 
 model Password {
@@ -160,7 +203,7 @@ model UserToPermission {
   permission Permission @relation(fields: [permissionId], references: [id])
 
   @@id([userId, permissionId])
-  @@map("user_to_permission")
+  @@map("user_to_permissions")
 }
 
 model RoleToPermission {
@@ -174,24 +217,5 @@ model RoleToPermission {
   permission Permission @relation(fields: [permissionId], references: [id])
 
   @@id([roleId, permissionId])
-  @@map("role_to_permission")
-}
-
-model Request {
-  id          String    @id() @default(uuid())
-  createdById String    @map("created_by_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime? @updatedAt @map("updated_at")
-
-  requestType    String    @map("request_type") // CREATE_TASK
-  jsonParameters String    @map("json_parameters")
-  status         String    @default("PENDING") // PENDING, APPROVED, REJECTED
-  approvedBy     String?   @map("approved_by")
-  approvedAt     DateTime? @map("approved_at")
-
-  // Relation
-  requester User  @relation("createdBy", fields: [createdById], references: [id])
-  approver  User? @relation("approvedBy", fields: [approvedBy], references: [id])
-
-  @@map("requests")
+  @@map("role_to_permissions")
 }

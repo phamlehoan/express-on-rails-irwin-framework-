@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 420" role="img" aria-labelledby="authHeroTitle">
+  <title id="authHeroTitle">Secure sign in</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8eefb"/>
+      <stop offset="55%" stop-color="#f5f7fc"/>
+      <stop offset="100%" stop-color="#dce6fa"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f8fafc"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4e73df"/>
+      <stop offset="100%" stop-color="#224abe"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6b7fd7"/>
+      <stop offset="100%" stop-color="#4e73df"/>
+    </linearGradient>
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#224abe" flood-opacity=".14"/>
+    </filter>
+  </defs>
+
+  <rect width="520" height="420" rx="24" fill="url(#bgGrad)"/>
+
+  <circle cx="74" cy="96" r="52" fill="#4e73df" opacity=".07"/>
+  <circle cx="456" cy="312" r="78" fill="#224abe" opacity=".05"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="100" y="68" width="320" height="284" rx="18" fill="url(#cardGrad)" stroke="#e1e8f5" stroke-width="1.5"/>
+    <rect x="100" y="68" width="320" height="46" rx="18" fill="url(#accentGrad)"/>
+    <rect x="100" y="102" width="320" height="12" fill="url(#accentGrad)"/>
+  </g>
+
+  <circle cx="128" cy="91" r="5.5" fill="#ffffff" opacity=".92"/>
+  <circle cx="150" cy="91" r="5.5" fill="#ffffff" opacity=".52"/>
+  <circle cx="172" cy="91" r="5.5" fill="#ffffff" opacity=".32"/>
+
+  <rect x="132" y="148" width="176" height="11" rx="5.5" fill="#d9e2f4"/>
+  <rect x="132" y="172" width="256" height="9" rx="4.5" fill="#e8ecf4"/>
+  <rect x="132" y="190" width="212" height="9" rx="4.5" fill="#e8ecf4"/>
+
+  <g transform="translate(262 252)">
+    <path d="M0,-42 L38,-30 L38,4 Q38,32 0,48 Q-38,32 -38,4 L-38,-30 Z" fill="url(#shieldGrad)"/>
+    <path d="M-11,-10 L-3,8 L17,-20" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <g opacity=".05" stroke="#224abe">
+    <line x1="0" y1="150" x2="520" y2="150" stroke-width="1"/>
+    <line x1="0" y1="270" x2="520" y2="270" stroke-width="1"/>
+  </g>
+</svg>

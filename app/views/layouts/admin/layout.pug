@@ -2,6 +2,8 @@ doctype html
 html
   head
     title= title
+    link(rel="icon" href="/images/favicon.svg" type="image/svg+xml")
+    link(rel="icon" href="/images/favicon.ico" sizes="any")
     link(rel="stylesheet" href="/css/bootstrap.min.css")
     link(rel="stylesheet" href="/css/font-awesome/css/font-awesome.min.css")
     link(rel="stylesheet" href="/stylesheets/utilities.css")
@@ -27,7 +29,7 @@ html
     script(type="text/javascript" src="/js/jquery.min.js")
     script(type="text/javascript" src="/js/bootstrap.min.js")
     script(type="text/javascript").
-      window.__I18N__ = !{JSON.stringify({ locale: typeof locale !== 'undefined' ? locale : 'en', messages: typeof i18nMessages !== 'undefined' ? i18nMessages : {} })};
+      window.__I18N__ = !{JSON.stringify({ locale: typeof locale !== 'undefined' ? locale : 'vi', messages: typeof i18nMessages !== 'undefined' ? i18nMessages : {} })};
     script(type="text/javascript" src="/javascripts/main.js")
     script(type="text/javascript" src="/generated/bundle.js")
     script(type="text/javascript" src="/javascripts/adminLayout/main.js")

@@ -1,6 +1,9 @@
-import { Feature } from "@configs/enum";
+import { Feature as FeatEnum } from "@configs/enum";
 import { ApiV1AdminFeatureController } from "@controllers/api";
-import { RailsRoute, RestActions } from "ts-rails";
+import { Permission } from "@middlewares/enums/permissions";
+import { action, RailsRoute } from "ts-rails";
+
+const updatePerms = [`${FeatEnum.UserManagement}::${Permission.Update}`];
 
 export class ApiV1AdminFeatureRoute extends RailsRoute {
   public draw() {
@@ -8,11 +11,11 @@ export class ApiV1AdminFeatureRoute extends RailsRoute {
       document: {
         tags: ["Admin Feature"],
       },
-      setPermissionForAny: [
-        Feature.AdministrationManagement,
-        Feature.UserManagement,
-      ],
-      only: [RestActions.Index, RestActions.Show],
     });
+    this.post(
+      "/reorder",
+      action(ApiV1AdminFeatureController, "reorder"),
+      { setPermissionForAny: updatePerms },
+    );
   }
 }

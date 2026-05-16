@@ -1,0 +1,52 @@
+# ─── Netlify + Lambda env ~4KB (bắt buộc đọc) ─────────────────────────────────
+# File `netlify/.runtime-secrets.json` CHỈ giúp app đọc secret lúc chạy; NÓ KHÔNG xóa
+# biến khỏi Lambda. Netlify vẫn nối MỌI biến có scope "Functions" vào AWS → vượt 4KB.
+#
+# Cách sửa (UI): Site configuration → Environment variables → từng biến → Edit
+# → mục "Scopes" / "Limit to specific scopes":
+#   • Bật "Builds" (để `pnpm netlify-build` vẫn thấy giá trị và ghi JSON).
+#   • Tắt "Functions" (và Edge Functions nếu có) cho các biến đã có trong JSON.
+#
+# Tối thiểu tắt Functions cho chuỗi rất dài: FCM_PRIVATE_KEY, MQTT_CLOUD_KEY.
+# Nếu vẫn lỗi 4KB: tắt Functions cho TOÀN BỘ biến site (app nạp từ JSON qua loadDotenv).
+#
+# Docs: https://docs.netlify.com/build/environment-variables/overview/#scopes
+#
+# Hoặc deploy bằng GitHub Actions: `.github/workflows/deploy-netlify.yml` (secrets map vào env bước Build).
+# ─────────────────────────────────────────────────────────────────────────────
+[build]
+  command = "pnpm netlify-build"
+  publish = "dist"
+
+# File tĩnh trong `dist` được ưu tiên; còn lại chuyển sang Express (function `server`).
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200
+
+# `directory` phải là thư mục chứa file function, không phải một file `.ts`.
+# `external_node_modules` phải là mảng trong `[functions]`, không dùng bảng con `[functions.external_node_modules]`.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  # Native / huge deps stay external. `i18next-fs-backend` must be external: its ESM uses top-level await, incompatible with Netlify’s CJS function bundle.
+  external_node_modules = [
+    "i18next-fs-backend",
+    "@prisma/client",
+    # Do not list "prisma" (CLI): zip-it-and-ship-it then resolves @prisma/studio-core → ERR_PACKAGE_PATH_NOT_EXPORTED.
+    # Do not list "@prisma/adapter-libsql" / "@libsql/client": traversal hits @libsql/core → ERR_PACKAGE_PATH_NOT_EXPORTED (pnpm + zisi).
+    # Native addon loaded by `libsql` on Linux Lambda (not inlined by esbuild); omit → runtime "Cannot find module '@libsql/linux-x64-gnu'".
+    "@libsql/linux-x64-gnu",
+    "@prisma/adapter-better-sqlite3",
+    "better-sqlite3",
+    "bcrypt",
+    "firebase-admin",
+  ]
+  included_files = [
+    "netlify/.runtime-secrets.json",
+    "netlify/functions/.runtime-secrets.json",
+    "configs/locales/**",
+    "app/views/**",
+    "app/assets/**",
+    "public/**",
+  ]

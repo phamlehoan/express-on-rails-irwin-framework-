@@ -1,17 +1,28 @@
 node_modules
 dist
+debug
 
 database/*.db
 database/*.db-journal
-configs/db/dbml
-app/models/generated
+app/models/dbml/
+app/models/generated/
+configs/db/dbml/
+**/*.dbml
+
+app/assets/generated
+app/assets/javascripts/generated
 
 uploads
-app/assets/javascripts/generated
 .env
 .rails_console_history
 render.yaml
+netlify/.runtime-secrets.json
+netlify/functions/.runtime-secrets.json
 
 yarn-error.log
 
-/generated/prisma
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo

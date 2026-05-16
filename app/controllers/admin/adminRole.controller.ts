@@ -93,6 +93,7 @@ export class AdminRoleController extends AdminController {
       include: {
         permissions: { where: { deleted: false } },
       },
+      orderBy: [{ parentId: "asc" }, { sortOrder: "asc" }, { code: "asc" }],
     });
 
     const search = String(this.req.query.search || "").trim();

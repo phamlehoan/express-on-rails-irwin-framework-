@@ -1,0 +1,54 @@
+extends ../layouts/admin/layout
+
+block content
+  .container-fluid
+    h1.h3.mb-4.text-gray-800= t('home.welcome_title')
+    p.text-muted.mb-4= t('home.welcome_subtitle')
+
+    .row
+      - if (currentUser && ['USM::READ'].some((code) => currentUser.permissions?.includes(code)))
+        .col-md-6.col-lg-4.mb-4
+          .card.border-left-primary.shadow.h-100.py-2
+            .card-body
+              .row.no-gutters.align-items-center
+                .col.mr-2
+                  .text-xs.font-weight-bold.text-primary.text-uppercase.mb-1= t('sidebar.account_management')
+                  p.small.text-muted.mb-2= t('home.card_users_hint')
+                  a.btn.btn-sm.btn-primary(href=withLocale('/admin/users'))= t('view')
+                .col-auto
+                  i.fa.fa-users.fa-2x.text-gray-300
+
+      - if (currentUser && ['RAP::READ'].some((code) => currentUser.permissions?.includes(code)))
+        .col-md-6.col-lg-4.mb-4
+          .card.border-left-success.shadow.h-100.py-2
+            .card-body
+              .row.no-gutters.align-items-center
+                .col.mr-2
+                  .text-xs.font-weight-bold.text-success.text-uppercase.mb-1= t('sidebar.roles_permissions')
+                  p.small.text-muted.mb-2= t('home.card_roles_hint')
+                  a.btn.btn-sm.btn-success(href=withLocale('/admin/roles'))= t('view')
+                .col-auto
+                  i.fa.fa-shield.fa-2x.text-gray-300
+
+      - if (currentUser)
+        .col-md-6.col-lg-4.mb-4
+          .card.border-left-info.shadow.h-100.py-2
+            .card-body
+              .row.no-gutters.align-items-center
+                .col.mr-2
+                  .text-xs.font-weight-bold.text-info.text-uppercase.mb-1= t('sidebar.features')
+                  p.small.text-muted.mb-2= t('home.card_features_hint')
+                  a.btn.btn-sm.btn-info(href=withLocale('/admin/features'))= t('view')
+                .col-auto
+                  i.fa.fa-cog.fa-2x.text-gray-300
+
+        .col-md-6.col-lg-4.mb-4
+          .card.border-left-warning.shadow.h-100.py-2
+            .card-body
+              .row.no-gutters.align-items-center
+                .col.mr-2
+                  .text-xs.font-weight-bold.text-warning.text-uppercase.mb-1= t('profile.my_profile')
+                  p.small.text-muted.mb-2= t('home.card_profile_hint')
+                  a.btn.btn-sm.btn-warning(href=withLocale('/admin/me'))= t('view')
+                .col-auto
+                  i.fa.fa-user.fa-2x.text-gray-300

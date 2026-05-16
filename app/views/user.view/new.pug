@@ -1,49 +1,50 @@
-extends ../layouts/main/layout
+extends ../layouts/auth/layout
 
 block content
-  section.bg-light
-    .container
-      h1.text-center Create user
-      form(action="/users" method="POST")
-        .row
-          .col-12
-            .form-group
-              label(for='first-name') First name
-              input#first-name.form-control(type='text' name='firstName' placeholder='Input your first name' required)
-          .col-12
-            .form-group
-              label(for='middle-name') Middle name
-              input#middle-name.form-control(type='text' name='name' placeholder='Input your middle name')
-          .col-12
-            .form-group
-              label(for='last-name') Last name
-              input#last-name.form-control(type='text' name='name' placeholder='Input your last name' required)
-          .col-12.text-center
-            img#preview-avatar(src="" alt="Avatar Preview" style="width: 200px; height: 200px")
-          .col-12
-            .form-group
-              label(for='avatar-link') Avatar link
-              input#avatar-link.form-control(type='text' name='avatarUrl' placeholder='Input your avatar link')
-          .col-12
-            .form-group
-              label(for='email') Email
-              input#email.form-control(type='email' name='email' placeholder='Input your email')
-          .col-6
-            .form-group
-              label(for='password') Password
-              input#password.form-control(type='password' name='password' placeholder='Input your password')
-          .col-6
-            .form-group
-              label(for='confirm-password') Confirm Password
-              input#confirm-password.form-control(type='password' name='confirmPassword' placeholder='Input your confirm password')
-          .col-12
-            button.btn.btn-primary.w-100(type="submit") Submit
-
-  script.
-    const avatarLinkTag = document.getElementById('avatar-link');
-
-    avatarLinkTag.onchange = () => {
-      const avatarPreviewTag = document.getElementById('preview-avatar');
-
-      avatarPreviewTag.src = avatarLinkTag.value;
-    }
+  .row
+    .col-lg-6.d-none.d-lg-block
+      img.auth-hero-img.img-fluid(src='/images/img/auth-hero.svg' alt='')
+    .col-lg-6
+      .p-5
+        .text-center
+          h1.h4.text-gray-900.mb-2= t('users.register_title')
+          p.small.text-muted.mb-4= t('users.register_subtitle')
+        form.user(action=withLocale('/users') method='POST')
+          .form-group.row
+            .col-sm-6.mb-3.mb-sm-0
+              input.form-control.form-control-user(
+                type='text'
+                name='firstName'
+                required
+                autocomplete='given-name'
+                placeholder=t('admin.first_name')
+              )
+            .col-sm-6
+              input.form-control.form-control-user(
+                type='text'
+                name='lastName'
+                required
+                autocomplete='family-name'
+                placeholder=t('admin.last_name')
+              )
+          .form-group
+            input.form-control.form-control-user(
+              type='text'
+              name='middleName'
+              autocomplete='additional-name'
+              placeholder=t('users.middle_name_optional')
+            )
+          .form-group
+            input.form-control.form-control-user(
+              type='email'
+              name='email'
+              required
+              autocomplete='email'
+              placeholder=t('auth.enter_email')
+            )
+          .small.text-muted.mb-3= t('users.register_email_hint')
+          button.btn.btn-primary.btn-user.btn-block(type='submit')
+            = t('users.register_submit')
+          hr
+        .text-center
+          a.small(href=withLocale('/auth'))= t('users.already_have_account')

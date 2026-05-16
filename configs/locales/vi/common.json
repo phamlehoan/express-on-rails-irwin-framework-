@@ -22,21 +22,88 @@
   "loading": "Đang tải...",
 
   "sidebar": {
-    "web_app": "Ứng dụng Web",
-    "chat": "Trò chuyện",
+    "dashboard": "Bảng điều khiển",
+    "notifications": "Thông báo",
     "admin_management": "Quản trị hệ thống",
     "account_management": "Quản lý tài khoản",
     "roles_permissions": "Vai trò & Quyền",
     "features": "Tính năng",
-    "dev": "Phát triển",
-    "dev_tools": "Công cụ phát triển:",
-    "ui_utilities": "UI Utilities"
+    "dev": "Phát triển"
+  },
+
+  "notifications": {
+    "page_title": "Thông báo",
+    "center_title": "Thông báo",
+    "list_heading": "Tất cả thông báo",
+    "view_all": "Xem tất cả",
+    "mark_all_read": "Đánh dấu đã đọc",
+    "dropdown_empty": "Chưa có thông báo.",
+    "badge_new": "Mới",
+    "empty": "Không có thông báo",
+    "loading": "Đang tải…",
+    "unread": "Mới",
+    "col_time": "Thời gian",
+    "col_type": "Loại",
+    "col_title": "Tiêu đề",
+    "col_message": "Nội dung",
+    "col_read": "Đã đọc lúc"
+  },
+
+  "home": {
+    "page_title": "Bảng điều khiển",
+    "welcome_title": "Chào mừng",
+    "welcome_subtitle": "Chọn mục bên dưới để bắt đầu.",
+    "card_users_hint": "Quản lý tài khoản và quyền truy cập.",
+    "card_roles_hint": "Cấu hình vai trò và phân quyền.",
+    "card_features_hint": "Xem cấu trúc tính năng và menu.",
+    "card_profile_hint": "Xem và cập nhật hồ sơ của bạn."
+  },
+
+  "landing": {
+    "page_title": "Irwin Framework",
+    "masthead_subheading": "Chào mừng đến với Irwin Framework",
+    "masthead_heading": "Nền tảng hiện đại cho ứng dụng web Node.js",
+    "masthead_cta": "Tìm hiểu thêm",
+    "services_heading": "Bạn nhận được gì",
+    "services_intro": "Các khối xây dựng theo hướng ý kiến, lấy cảm hứng từ Rails—vẫn chạy trên hệ sinh thái Express.",
+    "service_dev_title": "Ra mắt nhanh hơn",
+    "service_dev_body": "TypeScript, routing có cấu trúc, validator, mailer và Prisma đã nối sẵn để anh tập trung vào nghiệp vụ thay vì lặp boilerplate.",
+    "service_admin_title": "Admin & RBAC có sẵn",
+    "service_admin_body": "Quản lý người dùng, vai trò, tính năng và quyền kèm seed—mở rộng sidebar và route khi sản phẩm lớn dần.",
+    "service_secure_title": "Mặc định an toàn",
+    "service_secure_body": "Session, hash mật khẩu, kích hoạt qua email và pattern API rõ ràng giúp triển khai và kiểm tra đơn giản hơn.",
+    "highlights_heading": "Trong bộ công cụ",
+    "highlights_intro": "Những phần cụ thể có thể mở rộng—giao diện quản trị, API và quy ước quen thuộc nếu anh đã dùng Rails.",
+    "highlight1_title": "Bố cục kiểu Rails",
+    "highlight1_body": "Controller, view, mailer, job và cấu trúc thư mục bám sát Ruby on Rails 6 để team đọc code bằng “cơ bắp thuộc” sẵn có.",
+    "highlight2_title": "Tích hợp mở rộng",
+    "highlight2_body": "Prisma, adapter mail, Turso tuỳ chọn, thông báo (SSE + hook FCM) và Vue trên màn admin—thêm đúng thứ từng dự án cần mà không phải fork lung tung.",
+    "highlight3_title": "Core thời AI",
+    "highlight3_body": "Core được tách, kiến trúc làm lại cho rõ ràng; module AI assistant phía server là phần chính thức, anh có thể cắt gọn hoặc mở rộng.",
+    "about_heading": "Câu chuyện",
+    "about_intro": "Ba giai đoạn từ thử nghiệm “giống Rails” trên Node đến framework hướng tới trải nghiệm dev tương tự—giờ có chỗ cho AI và stack đặc thù.",
+    "about_milestone1_date": "2023",
+    "about_milestone1_title": "Khởi động dự án",
+    "about_milestone1_body": "Khởi động dự án, dựng các thành phần cơ bản với cấu trúc file và thư mục tương đồng Ruby on Rails (phiên bản 6).",
+    "about_milestone2_date": "2024",
+    "about_milestone2_title": "Thư viện mới & dự án đặc thù",
+    "about_milestone2_body": "Tích hợp thêm thư viện hiện đại và nhiều tính năng phục vụ các dự án có yêu cầu riêng.",
+    "about_milestone3_date": "2025 — nay",
+    "about_milestone3_title": "Tách core & làm lại kiến trúc",
+    "about_milestone3_body": "Nhờ làn sóng AI, framework được tách phần core, kiến trúc xây dựng lại; cú pháp và cảm giác làm việc gần với Ruby on Rails khoảng 95%.",
+    "about_cta_line1": "Cùng nhau",
+    "about_cta_line2": "đóng góp",
+    "about_cta_line3": "để framework",
+    "about_cta_line4": "ngày một tốt hơn!",
+    "team_heading": "Đội lõi",
+    "team_intro": "Người duy trì ưu tiên backend ổn định, có cấu trúc hơn là prototype nhất thời.",
+    "team_close": "Mọi đóng góp đều được chào đón—tài liệu, typing hoặc module tuỳ chọn (queue, SSO, CMS). Xem README khi khởi tạo build tiếp theo."
   },
 
   "header": {
+    "notifications_center": "Thông báo",
+    "show_all_notifications": "Xem tất cả",
     "search_placeholder": "Tìm kiếm...",
-    "alerts_center": "Trung tâm thông báo",
-    "show_all_alerts": "Xem tất cả",
     "profile": "Hồ sơ",
     "change_password": "Đổi mật khẩu",
     "logout": "Đăng xuất",
@@ -45,6 +112,7 @@
     "login": "Đăng nhập",
     "services": "Dịch vụ",
     "products": "Sản phẩm",
+    "highlights": "Điểm nổi bật",
     "about": "Giới thiệu",
     "team": "Đội ngũ"
   },
@@ -123,6 +191,15 @@
     "description_placeholder": "Mô tả (tùy chọn)"
   },
 
+  "users": {
+    "register_title": "Tạo tài khoản",
+    "register_subtitle": "Chúng tôi sẽ gửi email có link để bạn đặt mật khẩu và kích hoạt tài khoản.",
+    "register_submit": "Đăng ký",
+    "register_email_hint": "Sau khi gửi, hãy kiểm tra hộp thư. Link có thời hạn vài ngày.",
+    "middle_name_optional": "Tên đệm (tùy chọn)",
+    "already_have_account": "Đã có tài khoản? Đăng nhập"
+  },
+
   "auth": {
     "welcome_back": "Chào mừng trở lại!",
     "enter_email": "Nhập địa chỉ Email",
@@ -162,6 +239,11 @@
     "password_changed": "Đổi mật khẩu thành công.",
     "logged_out": "Bạn đã đăng xuất!",
     "user_created": "Đã tạo người dùng {{email}}",
+    "user_created_invite_sent": "Đã tạo {{email}} và gửi email kích hoạt.",
+    "user_created_invite_failed": "Đã tạo {{email}} nhưng không gửi được email kích hoạt. Kiểm tra cấu hình mail.",
+    "registration_invite_sent": "Đã tạo tài khoản {{email}}. Kiểm tra email để đặt mật khẩu.",
+    "registration_invite_failed": "Đã tạo tài khoản {{email}} nhưng không gửi được email kích hoạt. Liên hệ quản trị.",
+    "registration_email_exists": "Email này đã được đăng ký.",
     "user_updated": "Đã cập nhật người dùng",
     "user_deleted_success": "Đã xóa người dùng",
     "select_one_user": "Chọn ít nhất một người dùng",
@@ -195,7 +277,15 @@
   "mailer": {
     "subjects": {
       "welcome": "Chào mừng {{name}} đến với {{appName}}",
-      "password_reset": "Yêu cầu khôi phục mật khẩu"
+      "password_reset": "Yêu cầu khôi phục mật khẩu",
+      "account_invite": "[{{appName}}] Kích hoạt tài khoản — đặt mật khẩu"
+    },
+    "account_invite": {
+      "greeting": "Xin chào {{name}},",
+      "body": "Quản trị viên đã tạo tài khoản cho bạn trên hệ thống. Tài khoản đang ở trạng thái chờ kích hoạt.",
+      "instruction": "Vui lòng nhấn nút bên dưới để đặt mật khẩu và kích hoạt tài khoản:",
+      "button": "Kích hoạt & đặt mật khẩu",
+      "link_hint": "Liên kết có hiệu lực trong một thời gian giới hạn. Nếu nút không hoạt động, hãy sao chép URL và dán vào trình duyệt."
     },
     "created_user": {
       "greeting": "Chào mừng, {{name}}!",
@@ -210,7 +300,7 @@
       "request_msg": "Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản liên kết với email",
       "instruction": "Vui lòng nhấn vào nút bên dưới để tiến hành thay đổi mật khẩu:",
       "button": "Đặt lại mật khẩu",
-      "warning": "Link này sẽ hết hạn sau 15 phút. Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng bỏ qua email này. Tài khoản của bạn vẫn sẽ an toàn."
+      "warning": "Liên kết có hiệu lực trong 7 ngày. Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này."
     },
     "common": {
       "regards": "Trân trọng,",

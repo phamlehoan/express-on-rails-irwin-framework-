@@ -14,7 +14,12 @@ export { PaginationValidator } from "./common.validator";
 
 /** Schema cho Swagger - @ApiDoc({ body: CreateUserValidator }) */
 export class CreateUserValidator {
-  static schema = { firstName: "string", lastName: "string", email: "string", roleIds: "string[]" } as const;
+  static schema = {
+    firstName: "string",
+    lastName: "string",
+    email: "string",
+    roleIds: "string[]",
+  } as const;
   static required = ["firstName", "lastName", "email"] as const;
 
   @IsString()
@@ -92,7 +97,12 @@ export class RoleCreateValidator {
 }
 
 export class RoleUpdateValidator {
-  static schema = { permissionIds: "string[]", code: "string", name: "string", description: "string" } as const;
+  static schema = {
+    permissionIds: "string[]",
+    code: "string",
+    name: "string",
+    description: "string",
+  } as const;
 
   @IsOptional()
   @IsString()

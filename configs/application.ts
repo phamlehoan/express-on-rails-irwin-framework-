@@ -1,15 +1,17 @@
 import * as channels from "@channels";
 import { ApplicationController } from "@controllers/application.controller";
-import { setupBullMQWorker } from "@lib/jobs/worker";
-import { appPath, vendorPath } from "@lib/utils/path";
+import { appCodePath, appPath, vendorPath } from "@lib/utils/path";
+import fs from "node:fs";
+import path from "node:path";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import flash from "express-flash";
-import { MiddlewareFactory, RailsApplication } from "ts-rails";
+import methodOverride from "method-override";
+import { MiddlewareFactory, RailsApplication, viewHelpers } from "ts-rails";
 import env from "./env";
 import {
   initializeCache,
-  initializeJobs,
   initializeLogger,
   initializeMailer,
   initializeSession,
@@ -43,6 +45,48 @@ export class Application extends RailsApplication {
     this.setupConfig();
   }
 
+  /** Thay `ts-rails` `loadConcerns`: bỏ `*.d.ts` và barrel `index.*`. */
+  protected async loadConcerns(
+    targetPrototype: object,
+    directory: string,
+  ): Promise<void> {
+    const fullPath = path.resolve(process.cwd(), directory);
+    if (!fs.existsSync(fullPath)) return;
+    for (const file of fs.readdirSync(fullPath)) {
+      if (file.endsWith(".d.ts")) continue;
+      if (!file.endsWith(".ts") && !file.endsWith(".js")) continue;
+      if (file === "index.ts" || file === "index.js") continue;
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const mod = require(path.join(fullPath, file)) as {
+        default?: object;
+        [k: string]: unknown;
+      };
+      const methods =
+        mod.default ?? (Object.values(mod)[0] as object | undefined);
+      if (methods && typeof methods === "object") {
+        Object.assign(targetPrototype, methods);
+      }
+    }
+  }
+
+  /** JSON mặc định 100kb — tăng để chat AI gửi ảnh base64. */
+  protected setupStandardMiddlewares(): void {
+    if (!RailsApplication.middlewareFactory) {
+      throw new Error("RailsApplication.middlewareFactory has not been configured.");
+    }
+    this.app.use(RailsApplication.middlewareFactory.requestId());
+    this.app.use(RailsApplication.middlewareFactory.requestLogging());
+    this.app.use(express.json({ limit: "12mb" }));
+    this.app.use(express.urlencoded({ extended: true, limit: "12mb" }));
+    this.app.use(methodOverride("_method"));
+    this.app.use(cookieParser());
+    this.app.use(RailsApplication.middlewareFactory.rateLimit());
+    this.app.use((req, res, next) => {
+      (res.locals as { h?: typeof viewHelpers }).h = viewHelpers;
+      next();
+    });
+  }
+
   protected setupConfig() {
     this.port = env.port || "8000";
   }
@@ -51,8 +95,11 @@ export class Application extends RailsApplication {
   protected runInitializers() {
     initializeLogger();
     initializeHash();
+
     initializeMailer();
-    initializeJobs();
+    // NOTE: BullMQ worker — bật khi cần job nền.
+    // initializeJobs();
+
     initializeCache();
     // Thêm các initializer khác vào đây
   }
@@ -61,7 +108,8 @@ export class Application extends RailsApplication {
    * Hiện thực hóa logic Worker cho BullMQ tại đây
    */
   protected startBackgroundProcessor() {
-    setupBullMQWorker();
+    // NOTE: Commented temporarily due to not being needed at this system level.
+    // setupBullMQWorker();
   }
 
   protected setupViewEngine() {
@@ -128,7 +176,7 @@ export class Application extends RailsApplication {
   }
 
   protected setupSwagger() {
-    if (env.nodeEnv === "development") {
+    if (env.appEnv === "development") {
       setupSwagger(this.app);
       this.getRoutes();
     }
@@ -140,9 +188,9 @@ export class Application extends RailsApplication {
     this.setupAppMiddlewares();
 
     // Tự động load tất cả Controller Concerns
-    this.loadConcerns(
+    await this.loadConcerns(
       ApplicationController.prototype,
-      appPath("controllers", "concerns"),
+      appCodePath("controllers", "concerns"),
     );
 
     this.setupStaticFiles();
@@ -152,7 +200,7 @@ export class Application extends RailsApplication {
 
   public async run() {
     await this.initialize();
-    super.run();
+    await super.run();
   }
 }
 

@@ -42,23 +42,34 @@ export class AdminFeatureController extends AdminController {
         orderBy: [{ parentId: "asc" }, { code: "asc" }],
       }),
     ]);
-    const featuresTree = buildFeatureTree(flat);
+    const featuresTreeFull = buildFeatureTree(flat);
+    const total = featuresTreeFull.length;
+    const totalPages = total === 0 ? 1 : Math.max(1, Math.ceil(total / perPage));
+    const safePage = Math.min(Math.max(1, page), totalPages);
+    const featuresTree = featuresTreeFull.slice(
+      (safePage - 1) * perPage,
+      safePage * perPage,
+    );
 
     const q: Record<string, string> = {};
     if (search) q.search = search;
     if (sortBy !== "code") q.sortBy = sortBy;
     if (filterType) q.filterType = filterType;
+    if (perPage !== 10) q.perPage = String(perPage);
     const buildQueryString = () =>
       Object.keys(q).length ? "&" + new URLSearchParams(q).toString() : "";
     const buildSortUrl = (col: string) => {
       const order = sortBy === col ? "desc" : "asc";
-      return `/admin/features?${new URLSearchParams({ ...q, sortBy: col, sortOrder: order }).toString()}`;
+      return `/admin/features?${new URLSearchParams({ ...q, sortBy: col, sortOrder: order, page: "1" }).toString()}`;
     };
 
     this.render("admin/feature.view/index", {
       user: this.req.user,
       features: allFeatures,
       featuresTree,
+      total,
+      page: safePage,
+      perPage,
       search,
       sortBy,
       filterType,

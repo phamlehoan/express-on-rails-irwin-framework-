@@ -1,6 +1,6 @@
 import env from "@configs/env";
 import { generateToken } from "@lib";
-import models from "@models";
+import models, { UserStatus } from "@models";
 import { OAuth2Client } from "google-auth-library";
 import { UnauthorizedError } from "ts-rails";
 import { ApplicationService } from "../application.service";
@@ -39,6 +39,12 @@ export class AuthGoogleVerifyService extends ApplicationService {
       where: { email: email! },
       include: { roles: { include: { role: true } } }, // Include roles để trả về thông tin đầy đủ
     });
+
+    if (user && user.status !== UserStatus.ACTIVE) {
+      throw new UnauthorizedError(
+        "This account is not active yet. Please complete activation from your invitation email.",
+      );
+    }
 
     if (!user) {
       user = await this.models.user.create({

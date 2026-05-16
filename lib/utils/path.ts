@@ -1,21 +1,34 @@
-import { join, resolve } from "path";
+import { join } from "path";
+import { getPackageRootSync, resolveBundledScriptDir } from "@configs/loadDotenv";
+
+const moduleDir = resolveBundledScriptDir("lib/utils");
+const moduleFile =
+  typeof __filename !== "undefined"
+    ? __filename
+    : join(moduleDir, "path.js");
 
 /**
- * Resolve path from the project root
- * Tự động nhận diện nếu đang chạy trong 'dist' thì gốc sẽ là 'dist'
+ * Thư mục gốc package (có `package.json`), kể cả khi chạy `node dist/index.js`
+ * (`__dirname` nằm dưới `dist/lib/...`).
  */
-export const rootPath = (...paths: string[]) => {
-  const isDist = __dirname.includes("dist");
-  const base = isDist ? resolve(__dirname, "..") : resolve(".");
+const packageRoot = getPackageRootSync(moduleDir);
 
-  return join(base, ...paths);
-};
+/** Stack đang chạy từ bản build `dist/` (vd. `node dist/index.js`). */
+const stackIsFromDist = moduleFile.replace(/\\/g, "/").includes("/dist/");
 
-export const appPath = (...paths: string[]) => join(rootPath("app"), ...paths);
+export const rootPath = (...paths: string[]) => join(packageRoot, ...paths);
 
-export const vendorPath = (packageName: string, ...subPaths: string[]) => {
-  const actualRoot = __dirname.includes("dist")
-    ? resolve(__dirname, "../../..")
-    : resolve(".");
-  return join(actualRoot, "node_modules", packageName, ...subPaths);
-};
+/** Nguồn `app/`: views (pug), assets tĩnh — luôn thư mục gốc dự án. */
+export const appPath = (...paths: string[]) =>
+  join(packageRoot, "app", ...paths);
+
+/** `dist/app/…` sau `tsc` — dùng cho `require()` động (concerns). */
+export const appCompiledPath = (...paths: string[]) =>
+  join(packageRoot, "dist", "app", ...paths);
+
+/** Concerns / code nạp động: `dist/app` khi chạy build; `app` khi tsx/nodemon. */
+export const appCodePath = (...paths: string[]) =>
+  stackIsFromDist ? appCompiledPath(...paths) : appPath(...paths);
+
+export const vendorPath = (packageName: string, ...subPaths: string[]) =>
+  join(packageRoot, "node_modules", packageName, ...subPaths);
