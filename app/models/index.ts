@@ -4,6 +4,7 @@ import { getPackageRootSync, resolveBundledScriptDir } from "@configs/loadDotenv
 import { PrismaClient } from "@db";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaPg } from "@prisma/adapter-pg";
 import fs from "node:fs";
 import path from "path";
 import { fileURLToPath } from "node:url";
@@ -96,6 +97,13 @@ function prismaClientSingleton() {
   }
 
   const fileUrl = env.databaseUrl.trim();
+  if (/^postgres(?:ql)?:/i.test(fileUrl)) {
+    const adapter = new PrismaPg({ connectionString: fileUrl });
+    return new PrismaClient({
+      adapter,
+      log: [...logLevels],
+    });
+  }
   if (!fileUrl) {
     throw new Error(
       "[prisma] SQLite: set DATABASE_URL=file:./database/app.db for a full server, or use Turso with TURSO_*.",

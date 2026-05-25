@@ -35,6 +35,7 @@
     "@popperjs/core": "^2.11.8",
     "@prisma/adapter-better-sqlite3": "^7.7.0",
     "@prisma/adapter-libsql": "7.7.0",
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.7.0",
     "@supabase/supabase-js": "^2.103.0",
     "axios": "^1.15.0",
@@ -79,7 +80,7 @@
     "socket.io": "^4.8.3",
     "sqlite3": "^5.1.7",
     "swagger-ui-express": "^5.0.1",
-    "ts-rails": "^1.1.0",
+    "ts-rails": "^1.1.1",
     "vue": "^3.5.32"
   },
   "optionalDependencies": {
