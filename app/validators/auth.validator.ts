@@ -27,6 +27,29 @@ export class RegisterUserValidator {
   @IsNotEmpty({ message: "Email is required" })
   @IsEmail({}, { message: "Invalid email" })
   email!: string;
+
+  /** Bắt buộc khi không có mail — validate thêm trong AuthRegisterService. */
+  @IsOptional()
+  @IsString()
+  @MinLength(6, { message: "Password must be at least 6 characters" })
+  password?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  passwordConfirmation?: string;
+}
+
+export class RegisterApiValidator extends RegisterUserValidator {
+  @IsNotEmpty({ message: "Password is required" })
+  @IsString()
+  @MinLength(6, { message: "Password must be at least 6 characters" })
+  override password!: string;
+
+  @IsNotEmpty({ message: "Password confirmation is required" })
+  @IsString()
+  @MinLength(6)
+  override passwordConfirmation!: string;
 }
 
 export class LoginValidator {

@@ -5,6 +5,7 @@ import {
   AuthGoogleVerifyService,
   AuthInviteService,
   AuthLoginService,
+  AuthRegisterService,
   AuthPasswordResetService,
   AuthRefreshTokenService,
   AuthUpdateProfileService,
@@ -14,6 +15,7 @@ import {
   GoogleVerifyValidator,
   InviteAcceptValidator,
   LoginValidator,
+  RegisterApiValidator,
   RefreshTokenValidator,
   UpdateMyProfileValidator,
 } from "@validators/auth.validator";
@@ -39,6 +41,64 @@ export class AuthController extends ApiV1Controller {
           success: false,
           error: e.message || "Unauthorized",
         });
+      }
+      throw e;
+    }
+  }
+
+  async register() {
+    const data = await this.params(RegisterApiValidator).permit(
+      "firstName",
+      "lastName",
+      "middleName",
+      "email",
+      "password",
+      "passwordConfirmation",
+    );
+    try {
+      const result = await new AuthRegisterService().execute(data);
+      if (result.activationRequired) {
+        return this.renderJson(
+          {
+            status: result.status,
+            activationRequired: true,
+            emailSent: result.emailSent,
+            user: result.user,
+            message: result.emailSent
+              ? "Check your email to activate your account."
+              : "Account created but activation email could not be sent.",
+          },
+          201,
+        );
+      }
+
+      const login = await new AuthLoginService().execute(
+        data.email,
+        data.password,
+      );
+      return this.renderJson(
+        {
+          status: result.status,
+          activationRequired: false,
+          ...login,
+        },
+        201,
+      );
+    } catch (e) {
+      if (e instanceof UnprocessableEntityError) {
+        const code = e.message;
+        if (code === "REGISTRATION_EMAIL_EXISTS") {
+          return this.res.status(422).json({
+            success: false,
+            error: "An account with this email already exists.",
+          });
+        }
+        if (code === "PASSWORD_MISMATCH") {
+          return this.res.status(422).json({
+            success: false,
+            error: "Passwords do not match.",
+          });
+        }
       }
       throw e;
     }

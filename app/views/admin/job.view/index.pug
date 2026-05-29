@@ -1,0 +1,200 @@
+extends ../../layouts/admin/layout
+include ../../layouts/admin/partials/tablePagination.mixin.pug
+include ../../layouts/admin/partials/adminActionGroup.mixin.pug
+
+mixin jobsPageStateHidden()
+  if search
+    input(type="hidden" name="search" value=search)
+  if status
+    input(type="hidden" name="status" value=status)
+  if queue
+    input(type="hidden" name="queue" value=queue)
+  input(type="hidden" name="schedulePage" value=schedulePage)
+  input(type="hidden" name="schedulePerPage" value=schedulePerPage)
+  input(type="hidden" name="registeredPage" value=registeredPage)
+  input(type="hidden" name="registeredPerPage" value=registeredPerPage)
+  input(type="hidden" name="page" value=page)
+  input(type="hidden" name="perPage" value=perPage)
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item.active(aria-current="page")= t('admin.job_management')
+
+    p.text-muted.small.mb-3= t('admin.jobs_operational_hint')
+
+    //- 1. Scheduled jobs (cron)
+    .card.mb-4.content-card
+      .card-header.d-flex.flex-wrap.justify-content-between.align-items-center.gap-2
+        h6.mb-0.text-uppercase.text-primary.fw-bold= t('admin.scheduled_jobs')
+        a.btn.btn-sm.btn-primary(href="/admin/jobs/schedules/new")
+          i.fa.fa-plus.me-1
+          = t('admin.add_schedule')
+      .card-body.p-0
+        .px-3.pt-3.pb-2
+          if jobsUseRedis
+            .alert.alert-info.py-2.mb-2= t('admin.jobs_mode_redis')
+          else
+            .alert.alert-secondary.py-2.mb-2= t('admin.jobs_mode_database')
+          p.text-muted.small.mb-0= t('admin.schedule_db_hint')
+        .px-3.pt-2
+          .table-responsive.rounded
+            table.table.table-hover.mb-0
+              thead
+                tr
+                  th= t('admin.job_class')
+                  th= t('admin.cron')
+                  th= t('admin.status')
+                  th.text-center.table-actions= t('actions')
+              tbody
+                if schedules.length
+                  each s in schedules
+                    tr
+                      td= s.jobClass
+                      td
+                        code.small= s.cron
+                      td
+                        if s.paused
+                          span.badge.bg-secondary= t('admin.schedule_paused_label')
+                        else if isCronRunning(s.jobClass)
+                          span.badge.bg-success= t('admin.schedule_running')
+                        else
+                          span.badge.bg-warning.text-dark= t('admin.schedule_stopped')
+                      td.text-center.table-actions
+                        +adminActionGroup
+                          if s.paused
+                            form.admin-action-form(method="post" action=`/admin/jobs/schedules/${encodeURIComponent(s.jobClass)}/resume`)
+                              button.btn.btn-sm.btn-outline-success(type="submit" title=t('admin.resume_schedule'))
+                                i.fa.fa-play
+                          else
+                            form.admin-action-form(method="post" action=`/admin/jobs/schedules/${encodeURIComponent(s.jobClass)}/pause`)
+                              button.btn.btn-sm.btn-outline-secondary(type="submit" title=t('admin.pause_schedule'))
+                                i.fa.fa-pause
+                          form.admin-action-form(method="post" action=`/admin/jobs/schedules/${encodeURIComponent(s.jobClass)}/run`)
+                            button.btn.btn-sm.btn-outline-primary(type="submit" title=t('admin.run_schedule_now'))
+                              i.fa.fa-bolt
+                          a.btn.btn-sm.btn-outline-secondary(href=`/admin/jobs/schedules/${encodeURIComponent(s.jobClass)}/edit` title=t('admin.edit_schedule'))
+                            i.fa.fa-pencil
+                          form.admin-action-form(method="post" action=`/admin/jobs/schedules/${encodeURIComponent(s.jobClass)}?_method=DELETE` onsubmit=`return confirm("${t('admin.delete_schedule_confirm')}")`)
+                            button.btn.btn-sm.btn-outline-danger(type="submit" title=t('admin.delete_schedule'))
+                              i.fa.fa-trash
+                else
+                  tr
+                    td.text-center.text-muted.py-4(colspan="4")= t('admin.no_schedules')
+        +tablePagination("/admin/jobs", schedulePage, schedulePerPage, scheduleTotal, buildQueryString, "schedulePage", "schedulePerPage")
+          +jobsPageStateHidden()
+
+    //- 2. Registered job classes (code)
+    .card.mb-4.content-card
+      .card-header
+        h6.mb-0.text-uppercase.text-primary.fw-bold= t('admin.registered_job_classes')
+      .card-body.p-0
+        .px-3.pt-3.pb-2
+          p.text-muted.small.mb-0= t('admin.registered_jobs_hint')
+        .px-3.pt-2
+          .table-responsive.rounded
+            table.table.table-sm.table-hover.mb-0
+              thead
+                tr
+                  th= t('admin.job_class')
+                  th= t('admin.cron_in_code')
+                  th= t('admin.has_schedule')
+              tbody
+                each r in registeredJobs
+                  tr
+                    td= r.name
+                    td
+                      if r.codeCron
+                        code.small= r.codeCron
+                      else
+                        span.text-muted —
+                    td
+                      if r.hasSchedule
+                        span.badge.bg-success= t('admin.schedule_configured')
+                      else
+                        span.badge.bg-light.text-dark= t('admin.schedule_not_configured')
+                if !registeredJobs.length
+                  tr
+                    td.text-center.text-muted.py-4(colspan="3")= t('admin.no_registered_jobs')
+        +tablePagination("/admin/jobs", registeredPage, registeredPerPage, registeredTotal, buildQueryString, "registeredPage", "registeredPerPage")
+          +jobsPageStateHidden()
+
+    //- 3. Active queue (performLater)
+    .card.mb-4.content-card
+      .card-header
+        h6.mb-0.text-uppercase.text-primary.fw-bold= t('admin.active_queue')
+      .table-toolbar.d-flex.align-items-center.flex-wrap.gap-2.p-3.bg-light.border-bottom
+        form.d-flex.align-items-center.flex-grow-1(method="get" action="/admin/jobs" style="min-width: 0")
+          input(type="hidden" name="page" value="1")
+          input(type="hidden" name="schedulePage" value=schedulePage)
+          input(type="hidden" name="schedulePerPage" value=schedulePerPage)
+          input(type="hidden" name="registeredPage" value=registeredPage)
+          input(type="hidden" name="registeredPerPage" value=registeredPerPage)
+          input(type="hidden" name="perPage" value=perPage)
+          .input-group.input-group-sm.me-auto(style="max-width: 420px")
+            input.form-control.form-control-sm(type="search" name="search" placeholder=t('admin.job_search_placeholder') value=search)
+            button.btn.btn-sm.btn-primary(type="submit" title=t('search'))
+              i.fa.fa-search
+          .d-flex.align-items-center.gap-2.ms-auto
+            select.form-select.form-select-sm(name="status" style="min-width: 130px" onchange="this.form.submit()")
+              option(value="")= t('admin.all_active_status')
+              option(value="pending" selected=status==='pending')= t('admin.job_status_pending')
+              option(value="processing" selected=status==='processing')= t('admin.job_status_processing')
+              option(value="paused" selected=status==='paused')= t('admin.job_status_paused')
+              option(value="failed" selected=status==='failed')= t('admin.job_status_failed')
+            select.form-select.form-select-sm(name="queue" style="min-width: 120px" onchange="this.form.submit()")
+              option(value="")= t('admin.all_queues')
+              option(value="database" selected=queue==='database')= t('admin.queue_database')
+              option(value="bullmq" selected=queue==='bullmq')= t('admin.queue_bullmq')
+            button.btn.btn-sm.btn-outline-secondary(type="button" onclick="location.reload()" title=t('refresh'))
+              i.fa.fa-refresh
+      .card-body.p-0
+        .px-3.pt-2
+          .table-responsive.rounded
+            table.table.table-hover.mb-0
+              thead
+                tr
+                  th= t('admin.job_class')
+                  th= t('admin.status')
+                  th= t('admin.queue')
+                  th= t('admin.attempts')
+                  th= t('admin.run_at')
+                  th.text-center.table-actions= t('actions')
+              tbody
+                if jobs.length
+                  each j in jobs
+                    tr.table-row-clickable(role="button" tabindex="0" data-href=`/admin/jobs/${j.id}`)
+                      td= j.jobClass
+                      td
+                        span.badge(class=j.status === 'failed' ? 'bg-danger' : j.status === 'processing' ? 'bg-warning text-dark' : j.status === 'paused' ? 'bg-secondary' : 'bg-primary')= t('admin.job_status_' + j.status)
+                      td= t('admin.queue_' + j.queue)
+                      td= `${j.attempts}/${j.maxAttempts}`
+                      td= h.timeAgo(j.runAt)
+                      td.text-center.table-actions(onclick="event.stopPropagation()")
+                        +adminActionGroup
+                          if j.status === 'pending' || j.status === 'failed' || j.status === 'paused'
+                            form.admin-action-form(method="post" action=`/admin/jobs/${j.id}/run`)
+                              button.btn.btn-sm.btn-outline-primary(type="submit" title=t('admin.run_job_now'))
+                                i.fa.fa-bolt
+                          if j.status === 'pending' || j.status === 'failed'
+                            form.admin-action-form(method="post" action=`/admin/jobs/${j.id}/pause`)
+                              button.btn.btn-sm.btn-outline-secondary(type="submit" title=t('admin.pause_job'))
+                                i.fa.fa-pause
+                          if j.status === 'paused'
+                            form.admin-action-form(method="post" action=`/admin/jobs/${j.id}/resume`)
+                              button.btn.btn-sm.btn-outline-success(type="submit" title=t('admin.resume_job'))
+                                i.fa.fa-play
+                          if j.status === 'failed'
+                            form.admin-action-form(method="post" action=`/admin/jobs/${j.id}/retry`)
+                              button.btn.btn-sm.btn-outline-primary(type="submit" title=t('admin.retry_job'))
+                                i.fa.fa-repeat
+                          if j.status !== 'processing'
+                            form.admin-action-form(method="post" action=`/admin/jobs/${j.id}?_method=DELETE` onsubmit=`return confirm("${t('admin.delete_job_confirm')}")`)
+                              button.btn.btn-sm.btn-outline-danger(type="submit" title=t('admin.cancel_job'))
+                                i.fa.fa-trash
+                else
+                  tr
+                    td.text-center.text-muted.py-4(colspan="6")= t('admin.no_active_jobs')
+        +tablePagination("/admin/jobs", page, perPage, total, buildQueryString)
+          +jobsPageStateHidden()

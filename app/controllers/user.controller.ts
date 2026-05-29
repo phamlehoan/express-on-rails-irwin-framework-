@@ -1,12 +1,8 @@
 import { FlashType } from "@configs/enum";
-import { UserMailer } from "@mailers/user.mailer";
-import models from "@models";
-import {
-  buildActivateAccountUrl,
-  generateInviteToken,
-} from "@services";
+import { isMailDeliveryConfigured } from "@lib/utils/mailConfig";
+import { AuthRegisterService } from "@services";
 import { RegisterUserValidator } from "@validators/auth.validator";
-import { logger, UnprocessableEntityError } from "ts-rails";
+import { UnprocessableEntityError } from "ts-rails";
 import { ApplicationController } from ".";
 
 export class UserController extends ApplicationController {
@@ -17,63 +13,72 @@ export class UserController extends ApplicationController {
   async new() {
     this.render("user.view/new", {
       title: this.t("users.register_title"),
+      mailActivationRequired: isMailDeliveryConfigured(),
     });
   }
 
   async create() {
-    const data = await this.params(RegisterUserValidator).permit(
-      "firstName",
-      "lastName",
-      "middleName",
-      "email",
-    );
+    const mailActivationRequired = isMailDeliveryConfigured();
+    const fields = mailActivationRequired
+      ? (["firstName", "lastName", "middleName", "email"] as const)
+      : ([
+          "firstName",
+          "lastName",
+          "middleName",
+          "email",
+          "password",
+          "passwordConfirmation",
+        ] as const);
 
-    const email = data.email.trim().toLowerCase();
-    const existing = await models.user.findFirst({
-      where: { email, deleted: false },
-    });
-    if (existing) {
-      throw new UnprocessableEntityError(
-        this.t("flash.registration_email_exists"),
-      );
-    }
+    const data = await this.params(RegisterUserValidator).permit(...fields);
 
-    const user = await models.user.create({
-      data: {
-        firstName: data.firstName.trim(),
-        lastName: data.lastName.trim(),
-        middleName: data.middleName?.trim() || null,
-        email,
-        status: "PENDING",
-      },
-    });
-
-    let inviteSent = false;
     try {
-      const inviteToken = generateInviteToken(user.id);
-      const activateLink = buildActivateAccountUrl(inviteToken);
-      await UserMailer.accountInvite(
-        user.email,
-        user.firstName,
-        user.lastName,
-        activateLink,
-      );
-      inviteSent = true;
-    } catch (err) {
-      logger.error(
-        { err: String(err), userId: user.id, email: user.email },
-        "[UserController.create] Failed to send invite email",
-      );
+      const result = await new AuthRegisterService().execute({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        middleName: data.middleName,
+        email: data.email,
+        password: (data as { password?: string }).password,
+        passwordConfirmation: (data as { passwordConfirmation?: string })
+          .passwordConfirmation,
+      });
+
+      if (result.activationRequired) {
+        this.flash(
+          result.emailSent ? FlashType.Success : FlashType.Errors,
+          {
+            msg: result.emailSent
+              ? this.t("flash.registration_invite_sent", {
+                  email: result.user.email,
+                })
+              : this.t("flash.registration_invite_failed", {
+                  email: result.user.email,
+                }),
+          },
+        );
+      } else {
+        this.flash(FlashType.Success, {
+          msg: this.t("flash.registration_success", {
+            email: result.user.email,
+          }),
+        });
+      }
+    } catch (e) {
+      if (e instanceof UnprocessableEntityError) {
+        const code = e.message;
+        if (code === "REGISTRATION_EMAIL_EXISTS") {
+          throw new UnprocessableEntityError(
+            this.t("flash.registration_email_exists"),
+          );
+        }
+        if (code === "PASSWORD_MISMATCH") {
+          this.flash(FlashType.Errors, { msg: this.t("flash.password_mismatch") });
+          return this.redirect("/users/new");
+        }
+      }
+      throw e;
     }
 
-    this.flash(
-      inviteSent ? FlashType.Success : FlashType.Errors,
-      {
-        msg: inviteSent
-          ? this.t("flash.registration_invite_sent", { email: user.email })
-          : this.t("flash.registration_invite_failed", { email: user.email }),
-      },
-    );
     this.redirect("/auth");
   }
 }

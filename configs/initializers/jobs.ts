@@ -1,65 +1,46 @@
-import env from "@configs/env";
 import * as jobs from "@jobs";
+import {
+  startAllCronJobsFromDatabase,
+  type CronJobClass,
+} from "@lib/jobs/cronRunner";
+import {
+  listJobSchedules,
+  syncJobSchedulesFromRegistry,
+} from "@lib/jobs/jobSchedule";
+import { purgeCompletedBackgroundJobs } from "@lib/jobs/jobStore";
 import { getJobAdapter } from "@lib";
-import cron from "node-cron";
 import { RailsApplication } from "ts-rails";
 
 let isCronStarted = false;
 
-/**
- * Khởi chạy các tác vụ định kỳ (Cron Jobs)
- */
+export function getJobClasses(): CronJobClass[] {
+  return Object.values(jobs) as CronJobClass[];
+}
+
 async function startCronJobs() {
   if (isCronStarted) return;
-  if (env.appEnv !== "development" && env.appEnv !== "production") return;
 
-  // 1. Quét các Job định nghĩa cứng trong Code (Convention)
-  RailsApplication.jobClasses.forEach((Klass: any) => {
-    if (Klass.cron) {
-      cron.schedule(Klass.cron, () => new Klass().perform());
-    }
-  });
-
-  // // 2. Quét các Job cấu hình trong Database (Dynamic)
-  // try {
-  //   // Giả sử anh có table CronJob: { id, jobClassName, schedule, active }
-  //   const dynamicJobs = await (models as any).cronJob.findMany({
-  //     where: { active: true },
-  //   });
-
-  //   dynamicJobs.forEach((config: any) => {
-  //     const Klass = (jobs as any)[config.jobClassName];
-  //     if (Klass) {
-  //       cron.schedule(config.schedule, () => {
-  //         RailsApplication.loggerAdapter?.info(
-  //           `[Dynamic Cron] Running ${config.jobClassName}`,
-  //         );
-  //         new Klass().perform();
-  //       });
-  //     }
-  //   });
-  // } catch (e) {
-  //   // Bỏ qua nếu chưa chạy migration hoặc không dùng DB cron
-  // }
+  await syncJobSchedulesFromRegistry();
+  const rows = await listJobSchedules();
+  await startAllCronJobsFromDatabase(rows);
 
   isCronStarted = true;
-  RailsApplication.loggerAdapter?.info("Cron jobs started via auto-discovery");
+  RailsApplication.loggerAdapter?.info("[Jobs] Cron schedules started (from database)");
 }
 
 export function initializeJobs() {
-  // Register all job classes for BullMQ
-  RailsApplication.jobClasses = Object.values(jobs) as any;
+  RailsApplication.jobClasses = getJobClasses() as never[];
+  RailsApplication.jobAdapter = getJobAdapter();
 
-  // Triển khai Adapter
-  (RailsApplication as any).jobAdapter = getJobAdapter();
-
-  // Tự động chạy Cron Jobs nếu không phải môi trường serverless hoặc console
   if (
     !process.env.LAMBDA_TASK_ROOT &&
     !process.env.VERCEL &&
     !process.env.IS_OFFLINE &&
     !process.env.IRWIN_CONSOLE
   ) {
-    startCronJobs().catch(console.error);
+    void (async () => {
+      await purgeCompletedBackgroundJobs();
+      await startCronJobs();
+    })();
   }
 }

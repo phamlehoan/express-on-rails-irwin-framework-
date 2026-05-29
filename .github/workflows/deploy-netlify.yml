@@ -63,20 +63,31 @@ jobs:
         run: node scripts/runWithDotenv.mjs -- pnpm netlify-build
 
       - name: Verify TURSO_* in runtime JSON (fail deploy sớm nếu build thiếu env)
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
         run: |
           node <<'VERIFY'
           const fs = require("fs");
+          if (!process.env.TURSO_DATABASE_URL?.trim() || !process.env.TURSO_AUTH_TOKEN?.trim()) {
+            console.error("::error::Missing GitHub Actions secrets TURSO_DATABASE_URL and/or TURSO_AUTH_TOKEN.");
+            console.error("Netlify/serverless runtime requires Turso (libsql), not PostgreSQL DATABASE_URL.");
+            console.error("Add both secrets under Settings → Secrets and variables → Actions, then re-run the workflow.");
+            console.error("Deploy Postgres on a VPS/Render with `pnpm build` + DATABASE_URL=postgresql://... — skip this workflow.");
+            process.exit(1);
+          }
           for (const p of [
             "netlify/functions/.runtime-secrets.json",
             "netlify/.runtime-secrets.json",
           ]) {
             if (!fs.existsSync(p)) {
-              console.error("Missing file:", p);
+              console.error("::error::Missing file:", p);
               process.exit(1);
             }
             const j = JSON.parse(fs.readFileSync(p, "utf8"));
             if (!j.TURSO_DATABASE_URL || !j.TURSO_AUTH_TOKEN) {
-              console.error("Missing TURSO_* in", p, "key count:", Object.keys(j).length);
+              console.error("::error::Build did not write TURSO_* into", p, "(keys:", Object.keys(j).length + ")");
+              console.error("Ensure TURSO_* are available in the Build step env (see workflow env: block).");
               process.exit(1);
             }
           }

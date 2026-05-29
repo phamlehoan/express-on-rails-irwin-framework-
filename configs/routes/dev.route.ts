@@ -8,5 +8,9 @@ export class DevRoute extends RailsRoute {
       only: [RestActions.Index],
     });
     this.post([fileUploader.single("image"), action(DevController, "create")]);
+    this.post(
+      "/jobs/example/perform-later",
+      action(DevController, "enqueueExampleJobPerformLater"),
+    );
   }
 }

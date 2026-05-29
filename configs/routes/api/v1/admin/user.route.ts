@@ -1,7 +1,12 @@
 import { Feature } from "@configs/enum";
 import { ApiV1AdminUserController } from "@controllers/api";
 import { Permission } from "@middlewares";
-import { action, RailsRoute } from "ts-rails";
+import {
+  CreateUserValidator,
+  PaginationValidator,
+  UpdateUserValidator,
+} from "@validators/admin.validator";
+import { action, RailsRoute, RestActions } from "ts-rails";
 
 export class ApiV1AdminUserRoute extends RailsRoute {
   public draw() {
@@ -12,12 +17,18 @@ export class ApiV1AdminUserRoute extends RailsRoute {
         document: {
           summary: "Send password reset email (admin)",
           tags: ["Admin User"],
+          auth: true,
         },
         setPermissionForAny: [`${Feature.UserManagement}::${Permission.Update}`],
       },
     );
     this.resource(ApiV1AdminUserController, {
-      document: { tags: ["Admin User"] },
+      document: { tags: ["Admin User"], auth: true },
+      documentByAction: {
+        [RestActions.Index]: { params: PaginationValidator },
+        [RestActions.Create]: { body: CreateUserValidator },
+        [RestActions.Update]: { body: UpdateUserValidator },
+      },
       setPermissionForAny: [Feature.UserManagement],
     });
   }

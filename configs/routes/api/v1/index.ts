@@ -1,6 +1,10 @@
 import env from "@configs/env";
 import { AuthController, MyPermissionController } from "@controllers/api";
 import { ValidateUserLoginMiddleware } from "@middlewares";
+import {
+  ChangeMyPasswordValidator,
+  UpdateMyProfileValidator,
+} from "@validators/auth.validator";
 import { action, RailsRoute } from "ts-rails";
 import { ApiV1AdminRoute } from "./admin";
 import { AuthRoute } from "./auth";
@@ -18,11 +22,32 @@ export class ApiV1Route extends RailsRoute {
 
     this.path(action(ValidateUserLoginMiddleware));
 
-    this.get("/auth/me", action(AuthController, "me"));
+    this.get("/auth/me", action(AuthController, "me"), {
+      document: {
+        summary: "Current user profile + permissions",
+        tags: ["Auth"],
+        auth: true,
+        responses: { 200: "OK", 401: "Unauthorized" },
+      },
+    });
 
-    this.patch("/auth/me/profile", action(AuthController, "updateProfile"));
+    this.patch("/auth/me/profile", action(AuthController, "updateProfile"), {
+      document: {
+        summary: "Update my profile",
+        tags: ["Auth"],
+        auth: true,
+        body: UpdateMyProfileValidator,
+      },
+    });
 
-    this.post("/auth/me/password", action(AuthController, "changePassword"));
+    this.post("/auth/me/password", action(AuthController, "changePassword"), {
+      document: {
+        summary: "Change my password",
+        tags: ["Auth"],
+        auth: true,
+        body: ChangeMyPasswordValidator,
+      },
+    });
 
     // Permission routes - action(Controller, "index") tạo instance mới mỗi request
     this.get("/permissions/me", action(MyPermissionController, "index"));

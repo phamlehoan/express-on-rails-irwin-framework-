@@ -72,6 +72,11 @@ export default {
   mailPort: parseInt(process.env.MAIL_PORT || "587"),
   mailUser: process.env.MAIL_USER || "",
   mailPass: process.env.MAIL_PASS || "",
+  /**
+   * `true` → BullMQ + Redis worker. `false` (default) → database queue in-process worker.
+   * Set `JOBS_USE_REDIS=true` when Redis is available and you want Sidekiq-style scaling.
+   */
+  jobsUseRedis: process.env.JOBS_USE_REDIS === "true",
   redisHost: process.env.REDIS_HOST || "127.0.0.1",
   redisPort: parseInt(process.env.REDIS_PORT || "6379"),
   storageService: process.env.STORAGE_SERVICE || "local",

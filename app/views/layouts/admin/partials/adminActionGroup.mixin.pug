@@ -1,0 +1,18 @@
+//- Nhóm nút thao tác trong bảng admin — có khung, khoảng cách rõ.
+mixin adminActionGroup
+  .admin-action-group(role="group")
+    block
+
+mixin adminActionBtn(href, icon, title, variant)
+  - const v = variant || 'outline-secondary'
+  if href
+    a.btn.btn-sm(class=`btn-${v}` href=href title=title)
+      i.fa(class=icon)
+  else
+    block
+
+mixin adminActionSubmit(action, icon, title, variant, confirmMsg)
+  - const v = variant || 'outline-secondary'
+  form.admin-action-form(method="post" action=action onsubmit=confirmMsg ? `return confirm("${confirmMsg}")` : undefined)
+    button.btn.btn-sm(class=`btn-${v}` type="submit" title=title)
+      i.fa(class=icon)

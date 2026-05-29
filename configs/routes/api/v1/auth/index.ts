@@ -5,6 +5,8 @@ import { AuthController } from "@controllers/api";
 import {
   GoogleVerifyValidator,
   InviteAcceptValidator,
+  LoginValidator,
+  RegisterApiValidator,
   RefreshTokenValidator,
 } from "@validators/auth.validator";
 import { action, RailsRoute } from "ts-rails";
@@ -15,6 +17,8 @@ export class AuthRoute extends RailsRoute {
       document: {
         summary: "Verify account invitation token",
         tags: ["Auth"],
+        public: true,
+        params: { token: "string" },
       },
     });
 
@@ -22,6 +26,7 @@ export class AuthRoute extends RailsRoute {
       document: {
         summary: "Activate pending account with new password",
         tags: ["Auth"],
+        public: true,
         body: InviteAcceptValidator,
       },
     });
@@ -33,6 +38,8 @@ export class AuthRoute extends RailsRoute {
         document: {
           summary: "Verify admin-initiated password reset token",
           tags: ["Auth"],
+          public: true,
+          params: { token: "string" },
         },
       },
     );
@@ -44,15 +51,36 @@ export class AuthRoute extends RailsRoute {
         document: {
           summary: "Complete password reset with new password",
           tags: ["Auth"],
+          public: true,
           body: InviteAcceptValidator,
         },
       },
     );
 
+    this.post("/register", action(AuthController, "register"), {
+      document: {
+        summary: "Register new account",
+        tags: ["Auth"],
+        public: true,
+        body: RegisterApiValidator,
+        responses: {
+          201: "Created",
+          422: "Validation failed",
+        },
+      },
+    });
+
     this.post("/login", action(AuthController, "login"), {
       document: {
         summary: "Login email/password",
         tags: ["Auth"],
+        public: true,
+        body: LoginValidator,
+        responses: {
+          200: "OK",
+          401: "Unauthorized",
+          422: "Validation failed",
+        },
       },
     });
 
@@ -60,6 +88,7 @@ export class AuthRoute extends RailsRoute {
       document: {
         summary: "Refresh token",
         tags: ["Auth"],
+        public: true,
         body: RefreshTokenValidator,
         responses: {
           200: "Success",
@@ -73,6 +102,7 @@ export class AuthRoute extends RailsRoute {
       document: {
         summary: "Verify Google ID token",
         tags: ["Auth"],
+        public: true,
         body: GoogleVerifyValidator,
         responses: {
           200: "Success",

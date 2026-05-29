@@ -1,7 +1,10 @@
 //- Footer đồng nhất: trái = trang hiện tại / tổng trang; giữa = nút phân trang; phải = chọn số dòng/trang (một hàng, không wrap).
-//- Gọi: +tablePagination(basePath, page, perPage, total, buildQueryString) … block: input hidden (search, sort, …) gửi kèm form đổi perPage.
-mixin tablePagination(basePath, page, perPage, total, buildQueryString)
+//- Gọi: +tablePagination(basePath, page, perPage, total, buildQueryString [, pageParam, perPageParam])
+//- pageParam / perPageParam mặc định: page, perPage (dùng schedulePage / schedulePerPage cho nhiều bảng trên một trang).
+mixin tablePagination(basePath, page, perPage, total, buildQueryString, pageParam, perPageParam)
   -
+    var tpPageParam = pageParam || 'page'
+    var tpPerPageParam = perPageParam || 'perPage'
     var tpTotalPages = total === 0 ? 1 : Math.max(1, Math.ceil(total / perPage))
     var tpSafePage = Math.min(Math.max(1, page), tpTotalPages)
     var qs = typeof buildQueryString === 'function' ? buildQueryString() : ''
@@ -17,20 +20,20 @@ mixin tablePagination(basePath, page, perPage, total, buildQueryString)
             - var startPg = Math.max(1, endPg - maxBtns + 1)
             - endPg = Math.min(tpTotalPages, startPg + maxBtns - 1)
             li.page-item(class=tpSafePage<=1?'disabled':'')
-              a.page-link(href=tpSafePage<=1?'#':basePath+'?page='+(tpSafePage-1)+qs)
+              a.page-link(href=tpSafePage<=1?'#':basePath+'?'+tpPageParam+'='+(tpSafePage-1)+qs)
                 span(aria-hidden="true") &lsaquo;
             - for (var pi = startPg; pi <= endPg; pi++)
               li.page-item(class=pi===tpSafePage?'active':'')
-                a.page-link(href=basePath+'?page='+pi+qs)= pi
+                a.page-link(href=basePath+'?'+tpPageParam+'='+pi+qs)= pi
             li.page-item(class=tpSafePage>=tpTotalPages?'disabled':'')
-              a.page-link(href=tpSafePage>=tpTotalPages?'#':basePath+'?page='+(tpSafePage+1)+qs)
+              a.page-link(href=tpSafePage>=tpTotalPages?'#':basePath+'?'+tpPageParam+'='+(tpSafePage+1)+qs)
                 span(aria-hidden="true") &rsaquo;
     .table-pagination-footer__per.flex-shrink-0
       form.d-inline-flex.flex-nowrap.align-items-center.gap-2(method="get" action=basePath)
-        input(type="hidden" name="page" value="1")
+        input(type="hidden" name=tpPageParam value="1")
         block
         span.small.text-muted.text-nowrap= t('paging_rows_label')
-        select.form-select.form-select-sm(name="perPage" style="width: 4.25rem; min-width: 4.25rem; flex-shrink: 0" onchange="this.form.submit()")
+        select.form-select.form-select-sm(name=tpPerPageParam style="width: 4.25rem; min-width: 4.25rem; flex-shrink: 0" onchange="this.form.submit()")
           option(value="10" selected=perPage===10) 10
           option(value="25" selected=perPage===25) 25
           option(value="50" selected=perPage===50) 50

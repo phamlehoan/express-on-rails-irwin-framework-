@@ -4,11 +4,12 @@ import { loadDotenv } from "./configs/loadDotenv";
 
 loadDotenv();
 import { defineConfig } from "prisma/config";
+import { MIGRATIONS_DIR } from "./configs/db/databaseProvider";
 
 /**
  * URL cho `prisma migrate deploy` (Vercel/Render build).
  * Thứ tự: PRISMA_DATABASE_URL → TURSO_DATABASE_URL (+ TURSO_AUTH_TOKEN) → DATABASE_URL.
- * Runtime app dùng `app/models/index.ts` + Turso/file theo `APP_ENV` / `NODE_ENV`.
+ * Runtime app dùng `app/models/index.ts` + adapter theo URL (SQLite file / Turso / PostgreSQL).
  */
 function datasourceUrlForPrismaMigrate(): string | undefined {
   const explicit = process.env["PRISMA_DATABASE_URL"]?.trim();
@@ -35,7 +36,7 @@ function datasourceUrlForPrismaMigrate(): string | undefined {
 export default defineConfig({
   schema: "app/models/schema.prisma",
   migrations: {
-    path: "configs/db/migrations",
+    path: MIGRATIONS_DIR,
   },
   datasource: {
     url: datasourceUrlForPrismaMigrate(),

@@ -43,6 +43,25 @@ block content
               placeholder=t('auth.enter_email')
             )
           .small.text-muted.mb-3= t('users.register_email_hint')
+          if !mailActivationRequired
+            .form-group
+              input.form-control.form-control-user(
+                type='password'
+                name='password'
+                required
+                minlength='6'
+                autocomplete='new-password'
+                placeholder=t('auth.password')
+              )
+            .form-group
+              input.form-control.form-control-user(
+                type='password'
+                name='passwordConfirmation'
+                required
+                minlength='6'
+                autocomplete='new-password'
+                placeholder=t('auth.confirm_password')
+              )
           button.btn.btn-primary.btn-user.btn-block(type='submit')
             = t('users.register_submit')
           hr

@@ -12,17 +12,20 @@ import { MiddlewareFactory, RailsApplication, viewHelpers } from "ts-rails";
 import env from "./env";
 import {
   initializeCache,
+  initializeJobs,
   initializeLogger,
   initializeMailer,
   initializeSession,
 } from "./initializers";
 import { initializeHash } from "./initializers/hash";
+import { setupJobWorkers } from "@lib/jobs/setupWorkers";
 import {
   i18nMiddleware,
   initI18n,
   rateLimitMiddleware,
   requestIdMiddleware,
   requestLoggingMiddleware,
+  initSwaggerDocument,
   setupSwagger,
 } from "./plugins";
 import { Route } from "./routes";
@@ -93,12 +96,12 @@ export class Application extends RailsApplication {
 
   // Phương thức mới để chạy tất cả các Initializer
   protected runInitializers() {
+    initSwaggerDocument();
     initializeLogger();
     initializeHash();
 
     initializeMailer();
-    // NOTE: BullMQ worker — bật khi cần job nền.
-    // initializeJobs();
+    initializeJobs();
 
     initializeCache();
     // Thêm các initializer khác vào đây
@@ -108,8 +111,7 @@ export class Application extends RailsApplication {
    * Hiện thực hóa logic Worker cho BullMQ tại đây
    */
   protected startBackgroundProcessor() {
-    // NOTE: Commented temporarily due to not being needed at this system level.
-    // setupBullMQWorker();
+    setupJobWorkers();
   }
 
   protected setupViewEngine() {

@@ -101,6 +101,9 @@ export function i18nMiddleware(
       path === "/admin/features"
         ? t("admin.feature_management")
         : t("sidebar.features");
+  } else if (path.startsWith("/admin/jobs")) {
+    res.locals.activeMenu = "jobs";
+    res.locals.pageTitle = t("admin.job_management");
   } else if (path.startsWith("/admin/me")) {
     res.locals.activeMenu = "profile";
     res.locals.pageTitle = t("profile.my_profile");

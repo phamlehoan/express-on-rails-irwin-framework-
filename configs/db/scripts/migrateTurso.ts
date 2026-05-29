@@ -1,4 +1,6 @@
 import { loadDotenv } from "../../loadDotenv";
+import { assertMigrationsConfig, migrationsDirectoryResolved } from "../databaseProvider";
+import { resolveAndValidateMigrationConfig } from "./resolveDatabaseUrl";
 
 loadDotenv();
 import { createClient, type Client } from "@libsql/client";
@@ -14,7 +16,7 @@ type MigrationFile = {
 };
 
 const MIGRATION_TABLE = "_turso_schema_migrations";
-const MIGRATIONS_DIR = path.resolve(process.cwd(), "configs/db/migrations");
+const MIGRATIONS_DIR = migrationsDirectoryResolved();
 
 function sha256(input: string): string {
   return createHash("sha256").update(input).digest("hex");
@@ -42,13 +44,18 @@ function getMigrations(): MigrationFile[] {
 }
 
 function resolveTursoUrl(): string {
-  const explicit = process.env.PRISMA_DATABASE_URL?.trim();
-  if (explicit) return explicit;
-  const turso = process.env.TURSO_DATABASE_URL?.trim();
-  if (turso) return turso;
-  throw new Error(
-    "Missing DB URL. Set TURSO_DATABASE_URL (recommended) or PRISMA_DATABASE_URL.",
-  );
+  const { provider, url, backend } = resolveAndValidateMigrationConfig();
+  if (provider !== "sqlite") {
+    throw new Error(
+      "migrate:turso requires datasource provider = \"sqlite\" in schema.prisma. For Supabase use postgresql + `pnpm db:deploy:auto`.",
+    );
+  }
+  if (backend !== "turso") {
+    throw new Error(
+      "migrate:turso requires libsql:// (TURSO_DATABASE_URL). For local file SQLite use `pnpm db:deploy`.",
+    );
+  }
+  return url;
 }
 
 function resolveAuthToken(url: string): string | undefined {
@@ -143,6 +150,7 @@ function parseArgs(): { dryRun: boolean; baseline: boolean } {
 }
 
 async function run(): Promise<void> {
+  assertMigrationsConfig();
   const { dryRun, baseline } = parseArgs();
   if (dryRun && baseline) {
     throw new Error("Choose one mode only: --dry-run OR --baseline.");

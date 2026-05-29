@@ -12,7 +12,7 @@ export class ApiRoute extends RailsRoute {
         res.status(code).json(ApiResponse.ok(status));
       },
       {
-        document: { tags: ["System"] },
+        document: { tags: ["System"], public: true },
       },
     );
 

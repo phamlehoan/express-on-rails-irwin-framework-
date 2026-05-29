@@ -41,7 +41,7 @@ function asImages(raw: unknown): ChatImage[] | undefined {
 }
 
 export class ApiV1AiAssistantController extends ApiV1Controller {
-  /** POST /ai/assistant/chat */
+  /** POST /ai/chat */
   async chat() {
     if (!env.googleAiApiKey?.trim()) {
       return this.res

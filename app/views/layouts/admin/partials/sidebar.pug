@@ -35,6 +35,11 @@ ul#accordion-sidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordi
       a.nav-link(href=withLocale('/admin/features'))
         i.fa.fa-fw.fa-cog
         span= t('sidebar.features')
+    - if (['JM::READ'].some((code) => currentUser.permissions?.includes(code)))
+      li.nav-item(class=activeMenu === 'jobs' ? 'active' : '')
+        a.nav-link(href=withLocale('/admin/jobs'))
+          i.fa.fa-fw.fa-tasks
+          span= t('sidebar.jobs')
 
   - if (process.env.NODE_ENV === 'development')
     hr.sidebar-divider.my-0

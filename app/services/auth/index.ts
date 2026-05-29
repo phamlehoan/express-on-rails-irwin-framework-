@@ -1,3 +1,4 @@
+export * from "./authRegister.service";
 export * from "./authLogin.service";
 export * from "./authRefreshToken.service";
 export * from "./authInvite.service";

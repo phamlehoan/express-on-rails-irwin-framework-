@@ -1,3 +1,4 @@
+export * from "./mailConfig";
 export * from "./userPermissions";
 export * from "./jobs";
 export * from "./jwt";

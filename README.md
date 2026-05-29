@@ -157,11 +157,31 @@ export class UsersController extends RailsController {
 
 ## 📮 Background Jobs
 
-Unified interface for **BullMQ** (Classic Server) and **AWS Lambda** (Serverless):
+Two queue modes (switch via `JOBS_USE_REDIS`):
+
+| Mode | Env | Stack |
+|------|-----|--------|
+| **Default** | `JOBS_USE_REDIS=false` | Database queue + in-process worker |
+| **Redis** | `JOBS_USE_REDIS=true` | BullMQ + Redis worker |
 
 ```typescript
-// Push to queue for later processing
-await WelcomeEmailJob.performLater(user.id);
+// Enqueue for later processing
+await new WelcomeEmailJob().performLater(user.id);
+
+// Scheduled job (node-cron)
+export class HeartbeatJob extends ApplicationJob {
+  static cron = "*/5 * * * *";
+  async perform() { /* ... */ }
+}
+```
+
+Admin UI: `/admin/jobs` (list, detail, retry, delete).
+
+```bash
+# Optional Redis mode
+JOBS_USE_REDIS=true
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
 ```
 
 ---

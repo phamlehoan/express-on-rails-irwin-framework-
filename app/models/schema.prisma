@@ -13,7 +13,7 @@ generator dbml {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 model User {
@@ -218,4 +218,44 @@ model RoleToPermission {
 
   @@id([roleId, permissionId])
   @@map("role_to_permissions")
+}
+
+/// Cron job class registry — pause/resume schedules (no per-run history).
+model JobSchedule {
+  id        String   @id @default(uuid()) @map("id")
+  jobClass  String   @unique @map("job_class")
+  cron      String   @map("cron")
+  paused    Boolean  @default(false) @map("paused")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("job_schedules")
+}
+
+/// Active queue only (`performLater`) — rows removed when completed; not a history log.
+model BackgroundJob {
+  id          String    @id @default(uuid()) @map("id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  jobClass    String    @map("job_class")
+  /// JSON-encoded job arguments.
+  args        String?   @map("args")
+  /// pending | processing | failed | paused
+  status      String    @default("pending") @map("status")
+  /// database | bullmq
+  queue       String    @default("database") @map("queue")
+  /// manual (performLater)
+  source      String    @default("manual") @map("source")
+  externalId  String?   @map("external_id")
+  attempts    Int       @default(0) @map("attempts")
+  maxAttempts Int       @default(3) @map("max_attempts")
+  runAt       DateTime  @default(now()) @map("run_at")
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  failedAt    DateTime? @map("failed_at")
+  lastError   String?   @map("last_error")
+
+  @@index([status, runAt])
+  @@index([jobClass, createdAt])
+  @@map("background_jobs")
 }

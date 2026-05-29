@@ -1,7 +1,11 @@
 import { Feature as FeatEnum } from "@configs/enum";
 import { ApiV1AdminFeatureController } from "@controllers/api";
 import { Permission } from "@middlewares/enums/permissions";
-import { action, RailsRoute } from "ts-rails";
+import {
+  FeatureCreateValidator,
+  FeatureUpdateValidator,
+} from "@validators/admin.validator";
+import { action, RailsRoute, RestActions } from "ts-rails";
 
 const updatePerms = [`${FeatEnum.UserManagement}::${Permission.Update}`];
 
@@ -10,12 +14,47 @@ export class ApiV1AdminFeatureRoute extends RailsRoute {
     this.resource(ApiV1AdminFeatureController, {
       document: {
         tags: ["Admin Feature"],
+        auth: true,
+      },
+      documentByAction: {
+        [RestActions.Create]: { body: FeatureCreateValidator },
+        [RestActions.Update]: { body: FeatureUpdateValidator },
       },
     });
     this.post(
       "/reorder",
       action(ApiV1AdminFeatureController, "reorder"),
-      { setPermissionForAny: updatePerms },
+      {
+        document: {
+          summary: "Reorder features tree",
+          tags: ["Admin Feature"],
+          auth: true,
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["items"],
+                  properties: {
+                    items: {
+                      type: "object",
+                      additionalProperties: {
+                        type: "object",
+                        properties: {
+                          parentId: { type: "string", nullable: true },
+                          sortOrder: { type: "number" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        setPermissionForAny: updatePerms,
+      },
     );
   }
 }

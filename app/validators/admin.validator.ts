@@ -123,6 +123,11 @@ export class RoleUpdateValidator {
   permissionIds?: string[];
 }
 
+export class AssignUsersValidator {
+  @Transform(({ value }) => toArray(value))
+  userIds!: string[];
+}
+
 export class FeatureCreateValidator {
   @IsString()
   @MinLength(1, { message: "Code is required" })

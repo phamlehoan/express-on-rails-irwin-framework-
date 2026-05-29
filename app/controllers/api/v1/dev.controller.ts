@@ -10,6 +10,7 @@ import {
   NotFoundError,
   parsePagination,
 } from "ts-rails";
+import { ExampleJob1 } from "../../../jobs/example1.job";
 import { ApiV1Controller } from "./apiV1.controller";
 
 /**
@@ -90,6 +91,7 @@ export class ApiV1DevController extends ApiV1Controller {
   }
 
   async me() {
+    await new ExampleJob1().perform(false);
     this.renderJson({
       user: this.req.user,
       requestId: this.req.requestId,

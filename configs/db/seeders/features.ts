@@ -10,12 +10,13 @@ import {
 } from "./registerFeature";
 
 /** Feature codes dùng trong routes + enum. */
-const ROUTE_FEATURE_CODES = ["AM", "USM", "RAP"] as const;
+const ROUTE_FEATURE_CODES = ["AM", "USM", "RAP", "JM"] as const;
 
 /** Permission codes theo từng feature (khớp ts-rails resource + route tùy chỉnh). */
 const ROUTE_PERMISSIONS_BY_FEATURE: Record<string, readonly string[]> = {
   USM: ["READ", "CREATE", "UPDATE", "DELETE"],
   RAP: ["READ", "CREATE", "UPDATE", "DELETE"],
+  JM: ["READ", "CREATE", "UPDATE", "DELETE"],
 };
 
 export const FEATURES = [
@@ -45,6 +46,15 @@ export const FEATURES = [
     parentCode: "AM",
     sortOrder: 2,
     permissionCodes: ROUTE_PERMISSIONS_BY_FEATURE.RAP,
+  },
+  {
+    code: "JM",
+    name: "Background jobs",
+    description: "View and manage background job queue",
+    type: "FEATURE",
+    parentCode: "AM",
+    sortOrder: 3,
+    permissionCodes: ROUTE_PERMISSIONS_BY_FEATURE.JM,
   },
 ];
 

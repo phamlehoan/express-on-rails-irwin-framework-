@@ -6,6 +6,28 @@ block content
       // Page Heading
       .d-sm-flex.align-items-center.justify-content-between.mb-4
         h1.h3.mb-0.text-light Dashboard
+
+      .card.shadow.mb-4.border-left-primary
+        .card-header.py-3
+          h6.m-0.font-weight-bold.text-primary Background Jobs (dev)
+        .card-body
+          p.small.text-muted.mb-3
+            | Gọi
+            code  ExampleJob.performLater()
+            |  — ghi
+            strong  pending
+            |  vào DB, chạy sau ~1 phút (để kịp xem Active queue). Khi
+            code perform()
+            |  xong, bản ghi tự xóa khỏi Active queue.
+          p.small.text-muted.mb-3
+            | Sau khi bấm sẽ chuyển tới
+            a(href="/admin/jobs") Admin → Background Jobs
+            | .
+          form(method="post" action="/dev/jobs/example/perform-later")
+            button.btn.btn-primary(type="submit")
+              i.fa.fa-clock.me-1
+              | Enqueue ExampleJob (performLater)
+
       // Content Row
       .row
         // Earnings (Monthly) Card Example

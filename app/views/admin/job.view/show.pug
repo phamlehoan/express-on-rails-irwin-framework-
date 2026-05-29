@@ -1,0 +1,79 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item
+          a(href="/admin/jobs")= t('admin.job_management')
+        li.breadcrumb-item.active(aria-current="page")= job.jobClass
+
+    .d-flex.flex-wrap.gap-2.mb-3
+      a.btn.btn-sm.btn-outline-secondary(href="/admin/jobs")
+        i.fa.fa-arrow-left.me-1
+        = t('admin.back_to_jobs')
+      if job.status === 'pending' || job.status === 'failed' || job.status === 'paused'
+        form(method="post" action=`/admin/jobs/${job.id}/run`)
+          button.btn.btn-sm.btn-primary(type="submit")
+            i.fa.fa-bolt.me-1
+            = t('admin.run_job_now')
+      if job.status === 'pending' || job.status === 'failed'
+        form(method="post" action=`/admin/jobs/${job.id}/pause`)
+          button.btn.btn-sm.btn-outline-secondary(type="submit")
+            i.fa.fa-pause.me-1
+            = t('admin.pause_job')
+      if job.status === 'paused'
+        form(method="post" action=`/admin/jobs/${job.id}/resume`)
+          button.btn.btn-sm.btn-success(type="submit")
+            i.fa.fa-play.me-1
+            = t('admin.resume_job')
+      if job.status === 'failed'
+        form(method="post" action=`/admin/jobs/${job.id}/retry`)
+          button.btn.btn-sm.btn-primary(type="submit")
+            i.fa.fa-repeat.me-1
+            = t('admin.retry_job')
+      if job.status !== 'processing'
+        form(method="post" action=`/admin/jobs/${job.id}?_method=DELETE` onsubmit=`return confirm("${t('admin.delete_job_confirm')}")`)
+          button.btn.btn-sm.btn-outline-danger(type="submit")
+            i.fa.fa-trash.me-1
+            = t('admin.cancel_job')
+      if job.status === 'processing'
+        p.small.text-muted.mb-0.align-self-center= t('admin.job_processing_hint')
+
+    .card.shadow-sm.mb-3
+      .card-header= t('admin.job_details')
+      .card-body
+        dl.row.mb-0
+          dt.col-sm-3= t('admin.job_class')
+          dd.col-sm-9= job.jobClass
+          dt.col-sm-3 ID
+          dd.col-sm-9
+            code= job.id
+          dt.col-sm-3= t('admin.status')
+          dd.col-sm-9
+            span.badge(class=job.status === 'failed' ? 'bg-danger' : job.status === 'processing' ? 'bg-warning text-dark' : job.status === 'paused' ? 'bg-secondary' : 'bg-primary')= t('admin.job_status_' + job.status)
+          dt.col-sm-3= t('admin.queue')
+          dd.col-sm-9= job.queue
+          dt.col-sm-3= t('admin.attempts')
+          dd.col-sm-9= `${job.attempts}/${job.maxAttempts}`
+          if job.externalId
+            dt.col-sm-3= t('admin.external_id')
+            dd.col-sm-9
+              code= job.externalId
+          dt.col-sm-3= t('admin.run_at')
+          dd.col-sm-9= new Date(job.runAt).toLocaleString()
+          if job.startedAt
+            dt.col-sm-3= t('admin.started_at')
+            dd.col-sm-9= new Date(job.startedAt).toLocaleString()
+          if job.failedAt
+            dt.col-sm-3= t('admin.failed_at')
+            dd.col-sm-9= new Date(job.failedAt).toLocaleString()
+          if job.lastError
+            dt.col-sm-3= t('admin.last_error')
+            dd.col-sm-9
+              pre.mb-0.text-danger= job.lastError
+
+    .card.shadow-sm
+      .card-header= t('admin.job_arguments')
+      .card-body
+        pre.mb-0= JSON.stringify(parsedArgs, null, 2)

@@ -1,0 +1,47 @@
+extends ../../layouts/admin/layout
+
+block content
+  .container-fluid
+    nav(aria-label="breadcrumb").breadcrumb-sticky
+      ol.breadcrumb.mb-0
+        li.breadcrumb-item
+          a(href="/admin/jobs")= t('admin.job_management')
+        li.breadcrumb-item.active(aria-current="page")= formTitle
+
+    .card.shadow-sm(style="max-width: 36rem")
+      .card-header= formTitle
+      .card-body
+        if formHint
+          p.text-muted.small= formHint
+
+        form(method="post" action=formAction)
+          .mb-3
+            label.form-label(for="jobClass")= t('admin.job_class')
+            if isEdit
+              input#jobClass.form-control(type="text" value=schedule.jobClass readonly)
+            else
+              select#jobClass.form-control(name="jobClass" required)
+                option(value="" disabled selected=!selectedJobClass)= t('admin.schedule_select_job_class')
+                each name in availableJobClasses
+                  option(value=name selected=selectedJobClass===name)= name
+              if availableJobClasses.length === 0
+                p.text-warning.small.mt-1= t('admin.schedule_all_have_cron')
+
+          .mb-3
+            label.form-label(for="cron")= t('admin.cron')
+            input#cron.form-control(
+              type="text"
+              name="cron"
+              required
+              placeholder="*/5 * * * *"
+              value=cronValue
+            )
+            .form-text= t('admin.cron_expression_hint')
+
+          .mb-3.form-check
+            input#paused.form-check-input(type="checkbox" name="paused" value="1" checked=pausedChecked)
+            label.form-check-label(for="paused")= t('admin.schedule_start_paused')
+
+          .d-flex.gap-2
+            button.btn.btn-primary(type="submit")= submitLabel
+            a.btn.btn-outline-secondary(href="/admin/jobs")= t('cancel')

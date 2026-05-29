@@ -1,30 +1,31 @@
 import env from "@configs/env";
 import { Worker } from "bullmq";
 import { RailsApplication } from "ts-rails";
+import { runJobByClass } from "./jobRunner";
+import { markJobProcessing } from "./jobStore";
 
 /**
- * Logic thực thi Worker cho BullMQ
+ * BullMQ worker — only started when `JOBS_USE_REDIS=true`.
  */
 export function setupBullMQWorker() {
   const connection = { host: env.redisHost, port: env.redisPort };
 
-  const registry = RailsApplication.jobClasses.reduce((acc, Klass) => {
-    acc[Klass.name] = Klass;
-    return acc;
-  }, {} as any);
-
   const worker = new Worker(
     "rails-jobs",
-    async (job: any) => {
-      const JobClass = registry[job.name];
-      if (JobClass) await new JobClass().perform(...job.data);
+    async (job) => {
+      const payload = job.data as { recordId?: string; args?: unknown[] };
+      const args = Array.isArray(payload?.args) ? payload.args : [];
+      const recordId = payload?.recordId;
+
+      if (recordId) await markJobProcessing(recordId);
+      await runJobByClass(job.name, args, recordId);
     },
     { connection },
   );
 
   let isRedisDown = false;
 
-  worker.on("error", (err: any) => {
+  worker.on("error", (err: NodeJS.ErrnoException) => {
     if (err.code === "ECONNREFUSED" && !isRedisDown) {
       RailsApplication.loggerAdapter?.error(
         "[BullMQ] Redis connection failed.",
@@ -42,10 +43,14 @@ export function setupBullMQWorker() {
     }
   });
 
-  worker.on("failed", (job: any, err: Error) =>
+  worker.on("failed", (job, err) =>
     RailsApplication.loggerAdapter?.error(
       `[Job Failed] ${job?.id}: ${err.message}`,
     ),
+  );
+
+  RailsApplication.loggerAdapter?.info(
+    "[Jobs] BullMQ worker started (JOBS_USE_REDIS=true)",
   );
 
   return worker;
